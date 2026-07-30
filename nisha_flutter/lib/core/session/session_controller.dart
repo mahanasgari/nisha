@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/auth/data/auth_repository.dart';
 import '../../features/auth/models/auth_models.dart';
+import '../api/api_client.dart';
 import '../api/api_exception.dart';
 import 'app_session.dart';
 import 'session_storage.dart';
@@ -14,6 +15,9 @@ final sessionControllerProvider =
 class SessionController extends Notifier<AppSession> {
   @override
   AppSession build() {
+    ref.read(apiClientProvider).bindSessionInvalidHandler(() {
+      unawaited(signOut());
+    });
     unawaited(_restore());
     return const SessionLoading();
   }

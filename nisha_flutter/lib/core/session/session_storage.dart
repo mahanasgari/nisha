@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../features/auth/models/auth_models.dart';
 import 'app_session.dart';
+import 'token_store.dart';
 
 final sessionStorageProvider = Provider<SessionStorage>((ref) {
   return SessionStorage(const FlutterSecureStorage());
@@ -13,16 +14,11 @@ final sessionStorageProvider = Provider<SessionStorage>((ref) {
 class SessionStorage {
   const SessionStorage(this._storage);
 
-  static const String sellerTokenKey = 'nisha_access_token';
-  static const String sellerUserKey = 'nisha_user';
-  static const String customerTokenKey = 'nisha_customer_token';
-  static const String customerUserKey = 'nisha_customer';
-
   final FlutterSecureStorage _storage;
 
   Future<SellerSession?> readSellerSession() async {
-    final token = await _storage.read(key: sellerTokenKey);
-    final rawUser = await _storage.read(key: sellerUserKey);
+    final token = await _storage.read(key: TokenStore.sellerTokenKey);
+    final rawUser = await _storage.read(key: TokenStore.sellerUserKey);
     if (token == null || rawUser == null) {
       return null;
     }
@@ -35,8 +31,8 @@ class SessionStorage {
   }
 
   Future<CustomerSession?> readCustomerSession() async {
-    final token = await _storage.read(key: customerTokenKey);
-    final rawUser = await _storage.read(key: customerUserKey);
+    final token = await _storage.read(key: TokenStore.customerTokenKey);
+    final rawUser = await _storage.read(key: TokenStore.customerUserKey);
     if (token == null || rawUser == null) {
       return null;
     }
@@ -49,25 +45,44 @@ class SessionStorage {
   }
 
   Future<void> saveSellerSession(SellerTokenResponse response) async {
-    await _storage.write(key: sellerTokenKey, value: response.accessToken);
     await _storage.write(
-      key: sellerUserKey,
+      key: TokenStore.sellerTokenKey,
+      value: response.accessToken,
+    );
+    if (response.refreshToken != null && response.refreshToken!.isNotEmpty) {
+      await _storage.write(
+        key: TokenStore.sellerRefreshKey,
+        value: response.refreshToken,
+      );
+    }
+    await _storage.write(
+      key: TokenStore.sellerUserKey,
       value: jsonEncode(response.user.toJson()),
     );
+    // Dual-session policy: clear opposite realm on seller login.
+    await _storage.delete(key: TokenStore.customerTokenKey);
+    await _storage.delete(key: TokenStore.customerUserKey);
   }
 
   Future<void> saveCustomerSession(CustomerTokenResponse response) async {
-    await _storage.write(key: customerTokenKey, value: response.accessToken);
     await _storage.write(
-      key: customerUserKey,
+      key: TokenStore.customerTokenKey,
+      value: response.accessToken,
+    );
+    await _storage.write(
+      key: TokenStore.customerUserKey,
       value: jsonEncode(response.customer.toJson()),
     );
+    await _storage.delete(key: TokenStore.sellerTokenKey);
+    await _storage.delete(key: TokenStore.sellerRefreshKey);
+    await _storage.delete(key: TokenStore.sellerUserKey);
   }
 
   Future<void> clearAll() async {
-    await _storage.delete(key: sellerTokenKey);
-    await _storage.delete(key: sellerUserKey);
-    await _storage.delete(key: customerTokenKey);
-    await _storage.delete(key: customerUserKey);
+    await _storage.delete(key: TokenStore.sellerTokenKey);
+    await _storage.delete(key: TokenStore.sellerRefreshKey);
+    await _storage.delete(key: TokenStore.sellerUserKey);
+    await _storage.delete(key: TokenStore.customerTokenKey);
+    await _storage.delete(key: TokenStore.customerUserKey);
   }
 }

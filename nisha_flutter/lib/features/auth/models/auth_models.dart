@@ -92,11 +92,13 @@ class SellerTokenResponse {
     required this.accessToken,
     required this.tokenType,
     required this.user,
+    this.refreshToken,
     this.needsEmailVerification = false,
     this.email,
   });
 
   final String accessToken;
+  final String? refreshToken;
   final String tokenType;
   final SellerUser user;
   final bool needsEmailVerification;
@@ -105,6 +107,7 @@ class SellerTokenResponse {
   factory SellerTokenResponse.fromJson(Map<String, dynamic> json) {
     return SellerTokenResponse(
       accessToken: (json['access_token'] ?? '') as String,
+      refreshToken: json['refresh_token'] as String?,
       tokenType: (json['token_type'] ?? 'bearer') as String,
       user: SellerUser.fromJson(
         (json['user'] as Map<String, dynamic>? ?? const <String, dynamic>{}),

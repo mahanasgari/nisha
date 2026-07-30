@@ -35,6 +35,12 @@ CI must fail if generated Riverpod/serialization outputs drift.
 
 | Package | Why | Phase |
 |---------|-----|-------|
-| *(none yet beyond baseline)* | — | Phase 1 |
+| `dio` | Authenticated HTTP, interceptors, refresh, multipart | Phase 2 |
+| `cached_network_image` | Cached/resized remote images | Phase 2 |
+| `connectivity_plus` | Offline state detection | Phase 2 |
+| `web_socket_channel` | Realtime chat channels | Phase 5 |
+| `image_picker` | Payment proof / product image pick | Phase 3–4 |
+| `golden_toolkit` | Stable component goldens (dev) | Phase 2.5 |
+| `path`, `collection` | Upload paths / list helpers | Phase 2 |
 
-Baseline already includes: `flutter_riverpod`, `go_router`, `http`, `flutter_secure_storage`, `shared_preferences`, `intl`.
+Baseline already includes: `flutter_riverpod`, `go_router`, `flutter_secure_storage`, `shared_preferences`, `intl`.

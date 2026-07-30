@@ -1,0 +1,3 @@
+# FVM configuration
+# See docs/flutter-toolchain.md
+flutter: 3.44.2

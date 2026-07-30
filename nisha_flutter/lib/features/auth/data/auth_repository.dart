@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/api_client.dart';
+import '../../../core/api/auth_scope.dart';
 import '../models/auth_models.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
@@ -151,6 +152,15 @@ class AuthRepository {
         'code': code,
         'new_password': newPassword,
       },
+    );
+  }
+
+  Future<SellerTokenResponse> refreshSeller(String refreshToken) {
+    return _apiClient.post(
+      '/auth/refresh',
+      (data) => SellerTokenResponse.fromJson(_asJsonMap(data)),
+      data: <String, dynamic>{'refresh_token': refreshToken},
+      scope: AuthScope.none,
     );
   }
 
