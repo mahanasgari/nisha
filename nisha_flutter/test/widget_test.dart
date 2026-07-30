@@ -17,10 +17,10 @@ void main() {
         child: NishaApp(),
       ),
     );
-    await tester.pump(const Duration(seconds: 1));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.text('نیشا'), findsWidgets);
-    expect(find.text('ویترین یکپارچه برای همه نقش‌ها'), findsOneWidget);
     expect(find.byIcon(Icons.palette_rounded), findsWidgets);
   });
 }

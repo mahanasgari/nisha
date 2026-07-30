@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/api/api_exception.dart';
-import '../../../core/router/route_paths.dart';
 import '../../../core/session/session_controller.dart';
 import '../../../shared/extensions/build_context_x.dart';
 import '../../../shared/widgets/auth_shell.dart';

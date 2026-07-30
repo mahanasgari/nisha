@@ -18,14 +18,19 @@ class RoutePaths {
 
   static const String sellerDashboard = '/seller/dashboard';
   static const String sellerProducts = '/seller/products';
+  static const String sellerProductNew = '/seller/products/new';
   static const String sellerOrders = '/seller/orders';
   static const String sellerStore = '/seller/store';
   static const String sellerConversations = '/seller/conversations';
+  static const String sellerMore = '/seller/more';
+  static const String sellerOnboarding = '/seller/onboarding';
+  static const String sellerSubscription = '/seller/subscription';
   static const String sellerAppearance = '/seller/appearance';
 
   static const String customerDashboard = '/customer/dashboard';
   static const String customerOrders = '/customer/orders';
   static const String customerProfile = '/customer/profile';
+  static const String customerAccount = '/customer/account';
   static const String customerReviews = '/customer/reviews';
   static const String customerComplaints = '/customer/complaints';
   static const String customerConversations = '/customer/conversations';
