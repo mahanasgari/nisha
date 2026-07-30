@@ -1,0 +1,57 @@
+name: Flutter
+
+on:
+  push:
+    branches: [main, feat/flutter-production-modernization]
+    paths:
+      - "nisha_flutter/**"
+      - ".github/workflows/flutter.yml"
+      - "docs/flutter-*.md"
+  pull_request:
+    branches: [main]
+    paths:
+      - "nisha_flutter/**"
+      - ".github/workflows/flutter.yml"
+
+defaults:
+  run:
+    working-directory: nisha_flutter
+
+jobs:
+  flutter-quality:
+    name: Flutter — format, analyze, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.44.2"
+          channel: stable
+          cache: true
+
+      - name: Resolve dependencies
+        run: flutter pub get
+
+      - name: Format check
+        run: dart format --set-exit-if-changed .
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Unit and widget tests
+        run: flutter test
+
+      - name: Generated-code consistency
+        run: |
+          if grep -R --include='*.dart' -l '@riverpod\|JsonSerializable\|@JsonSerializable' lib >/dev/null 2>&1; then
+            dart run build_runner build --delete-conflicting-outputs
+            git diff --exit-code
+          else
+            echo "No codegen annotations detected; skipping build_runner."
+          fi
+
+      - name: Android debug APK build validation
+        run: flutter build apk --debug

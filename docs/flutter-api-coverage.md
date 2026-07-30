@@ -6,99 +6,82 @@ Status legend:
 |--------|---------|
 | `missing` | Not implemented in Flutter |
 | `partial` | UI or client stub only |
-| `auth-only` | Works for login/register paths without Bearer attachment |
+| `auth-only` | Works for login/register paths without full product UI |
 | `implemented` | End-to-end client + screen |
 | `implemented, staging verification pending` | Code complete; staging not exercised |
 | `out-of-scope` | Mobile deliberately skips (admin high-risk / web-only) |
 
-Last updated: 2026-07-31 (Phase 1 baseline). Update continuously each slice.
+Last updated: 2026-07-31 (Phases 2–6 slices).
 
 ## Auth
 
 | Capability | Endpoint | Flutter service | Screen | Status | Tests | Limits |
 |------------|----------|-----------------|--------|--------|-------|--------|
-| Seller register | `POST /auth/register` | `AuthRepository` | Seller register | auth-only | none | Email verification gate |
-| Seller login | `POST /auth/login` | `AuthRepository` | Seller login | auth-only | none | Tokens not attached later |
-| Seller refresh | `POST /auth/refresh` | — | — | missing | — | Must single-flight |
+| Seller register | `POST /auth/register` | `AuthRepository` | Seller register | implemented, staging verification pending | widget | Email verification gate |
+| Seller login | `POST /auth/login` | `AuthRepository` | Seller login | implemented, staging verification pending | — | Bearer + refresh stored |
+| Seller refresh | `POST /auth/refresh` | `ApiClient` interceptor | — | implemented, staging verification pending | — | Single-flight |
 | Seller me | `GET /auth/me` | — | — | missing | — | |
-| Seller recovery request | `POST /auth/password-recovery/request` | `AuthRepository` | Seller recovery | auth-only | none | |
-| Seller recovery verify | `POST /auth/password-recovery/verify` | `AuthRepository` | Seller recovery | auth-only | none | |
-| Customer register | `POST /customer/register` | `AuthRepository` | Customer register | auth-only | none | |
-| Customer login | `POST /customer/login` | `AuthRepository` | Customer login | auth-only | none | No refresh |
-| Customer me | `GET /customer/me` | — | — | missing | — | |
-| Customer recovery | `POST /customer/password-recovery/*` | `AuthRepository` | Customer recovery | auth-only | none | Access-only token |
-| Verify email | `POST /public/verify-email` | `AuthRepository` | Verify email | auth-only | none | |
-| Resend verification | `POST /public/verify-email/resend` | `AuthRepository` | Pending page | auth-only | none | |
+| Seller recovery | `POST /auth/password-recovery/*` | `AuthRepository` | Seller recovery | implemented, staging verification pending | — | |
+| Customer auth | `/customer/login|register|recovery` | `AuthRepository` | Customer auth pages | implemented, staging verification pending | — | No refresh |
+| Verify email | `/public/verify-email*` | `AuthRepository` | Verify / pending | implemented, staging verification pending | — | |
 
 ## Public commerce
 
 | Capability | Endpoint | Flutter service | Screen | Status | Tests | Limits |
 |------------|----------|-----------------|--------|--------|-------|--------|
-| Home discovery | `GET /public/home` | — | Public home (static) | missing | widget home | Wire search |
-| Store page | `GET /public/stores/{slug}` | — | Placeholder | missing | — | |
-| Product list | `GET /public/stores/{slug}/products` | — | Placeholder | missing | — | Filter/sort/page |
-| Product detail | `GET /public/stores/{slug}/products/{id}` | — | Placeholder | missing | — | Variants/fields |
-| Discount preview | `POST /public/stores/{slug}/discount-preview` | — | — | missing | — | |
-| Guest checkout | `POST /public/stores/{slug}/orders` | — | Placeholder | missing | — | Entitlement gated |
-| Visit | `POST /public/stores/{slug}/visit` | — | — | missing | — | |
-| Track order | `POST /public/orders/track` | — | Placeholder | missing | — | Invoice pwd |
-| Upload payment proof | `POST /public/orders/{code}/upload-payment-proof` | — | — | missing | — | Multipart |
-| Edit guest order | `PATCH /public/orders/{code}/edit` | — | — | missing | — | |
-| Guest chat | `POST /public/orders/{code}/chat*` | — | — | missing | — | |
-| Guest review | `POST /public/orders/{code}/reviews` | — | — | missing | — | |
-| Guest uploads | `POST /public/uploads/guest/*` | — | — | missing | — | Rate limited |
-| Auth uploads | `POST /public/uploads/{files,images,videos}` | — | — | missing | — | any-user |
-| Sitemap | `GET /public/sitemap` | — | — | out-of-scope | — | Web SEO |
+| Home discovery | `GET /public/home` | `PublicRepository` | Public home | implemented, staging verification pending | widget | |
+| Store page | `GET /public/stores/{slug}` | `PublicRepository` | Store page | implemented, staging verification pending | — | |
+| Product list | nested on store + list endpoint | `PublicRepository` | Store page | implemented, staging verification pending | — | Client filter + API list |
+| Product detail | `GET …/products/{id}` | `PublicRepository` | Product detail | implemented, staging verification pending | — | |
+| Guest checkout | `POST …/orders` | `PublicRepository` | Checkout | implemented, staging verification pending | — | Entitlement gated |
+| Track order | `POST /public/orders/track` | `PublicRepository` | Track page | implemented, staging verification pending | — | |
+| Upload payment proof | `POST …/upload-payment-proof` | `PublicRepository` | Track page | implemented, staging verification pending | — | Multipart |
+| Discount preview | `POST …/discount-preview` | — | — | missing | — | |
+| Guest chat / reviews | public order chat/review | — | — | missing | — | |
+| Guest/auth uploads helpers | `/public/uploads*` | partial via proof | — | partial | — | |
 
 ## Seller
 
 | Capability | Endpoint | Flutter service | Screen | Status | Tests | Limits |
 |------------|----------|-----------------|--------|--------|-------|--------|
-| Store get/update | `GET/PUT /seller/store` | — | Placeholder | missing | — | Entitlements |
-| Social links | `/seller/store/social-links*` | — | — | missing | — | |
-| Categories CRUD | `/seller/categories*` | — | — | missing | — | On Products |
-| Products CRUD + images + fields | `/seller/products*` | — | Placeholder | missing | — | |
+| Dashboard | `GET /seller/dashboard` | `SellerRepository` | Dashboard | implemented, staging verification pending | — | |
+| Orders list/detail | `/seller/orders*` | `SellerRepository` | Orders | implemented, staging verification pending | — | |
+| Confirm/reject payment | confirm/reject | `SellerRepository` | Order detail | implemented, staging verification pending | — | |
+| Order status patch | `PATCH …/status` | `SellerRepository` | — | implemented, staging verification pending | — | Wired in repo |
+| Products CRUD | `/seller/products*` | `SellerRepository` | List + form | implemented, staging verification pending | — | Images/variants next |
+| Onboarding | `GET/PATCH /seller/onboarding` | `SellerRepository` | Onboarding | implemented, staging verification pending | — | payment_details aware |
+| Plans / subscription | `/seller/plans`, `/seller/subscription` | `SellerRepository` | Subscription | implemented, staging verification pending | — | Checkout proof next |
+| Conversations list | `GET /seller/conversations` | `MessagingRepository` | Conversations | implemented, staging verification pending | — | Live WS next |
+| Store settings / categories / discounts / analytics / exports | various | — | More hub partial | partial | — | |
 | Payment methods | `/seller/payment-methods*` | — | — | missing | — | |
-| Orders list/detail | `/seller/orders*` | — | Placeholder | missing | — | |
-| Confirm/reject payment | `POST …/confirm-payment|reject-payment` | — | — | missing | — | |
-| Order status | `PATCH …/status` | — | — | missing | — | |
-| Invoice file | `GET …/invoice` | — | — | missing | — | |
-| Dashboard | `GET /seller/dashboard` | — | Placeholder | missing | — | |
-| Onboarding (+ payment_details) | `GET/PATCH /seller/onboarding` | — | — | missing | — | |
-| Conversations | `/seller/conversations*` | — | Placeholder | missing | — | + WS |
-| Discounts | `/seller/discounts*` | — | — | missing | — | |
-| Analytics | `GET /seller/analytics` | — | — | missing | — | Plan days |
-| Plans / subscription | `/seller/plans`, `/seller/subscription*` | — | — | missing | — | |
-| CSV exports | `/seller/exports/*.csv` | — | — | missing | — | Entitled |
 
 ## Customer
 
 | Capability | Endpoint | Flutter service | Screen | Status | Tests | Limits |
 |------------|----------|-----------------|--------|--------|-------|--------|
+| Dashboard | `GET /customer/dashboard` | `CustomerRepository` | Dashboard | implemented, staging verification pending | — | |
+| Orders list/detail | `/customer/orders*` | `CustomerRepository` | Orders | implemented, staging verification pending | — | |
+| Profile | `/customer/profile` | `CustomerRepository` | Profile | implemented, staging verification pending | — | |
+| Conversations | `/customer/conversations` | `MessagingRepository` | Conversations | implemented, staging verification pending | — | |
+| Addresses / reviews / complaints / claim | various | — | — | missing | — | |
 | Auth checkout | `POST /customer/stores/{slug}/orders` | — | — | missing | — | |
-| Profile / addresses | `/customer/profile`, `/customer/addresses*` | — | Placeholder | missing | — | |
-| Orders | `/customer/orders*` | — | Placeholder | missing | — | |
-| Claim / receipt / complaints | order sub-routes | — | Placeholder | missing | — | |
-| Reviews | `/customer/reviews*` | — | Placeholder | missing | — | |
-| Conversations | `/customer/conversations*` | — | Placeholder | missing | — | + WS |
-| Dashboard | `GET /customer/dashboard` | — | Placeholder | missing | — | |
 
 ## Media / WebSocket
 
 | Capability | Endpoint | Flutter service | Screen | Status | Tests | Limits |
 |------------|----------|-----------------|--------|--------|-------|--------|
+| WS tickets | `POST /ws/tickets/*` | `MessagingRepository` / `WsTicketClient` | — | implemented, staging verification pending | — | Client ready |
+| WS channels | `WS /ws/*` | `WsTicketClient` | — | partial | — | Reconnect backoff; chat UI TODO |
 | Private media | `GET /media/private/{key}` | — | — | missing | — | Never log URL |
-| WS tickets | `POST /ws/tickets/{seller,customer,order}` | — | — | missing | — | 60s ticket |
-| WS channels | `WS /ws/seller|customer|orders/{code}` | — | — | missing | — | Reconnect + new ticket |
 
 ## Admin (mobile)
 
 | Capability | Endpoint | Flutter service | Screen | Status | Tests | Limits |
 |------------|----------|-----------------|--------|--------|-------|--------|
-| High-risk admin | `/admin/*` | — | Placeholders | out-of-scope | — | Use web; no impersonation / plan edit / password reset |
+| High-risk admin | `/admin/*` | — | Use-web empty state | out-of-scope | — | |
 
 ## Health
 
 | Capability | Endpoint | Flutter service | Screen | Status | Tests | Limits |
 |------------|----------|-----------------|--------|--------|-------|--------|
-| Health | `GET /health` | — | — | missing | — | Optional startup probe |
+| Health | `GET /health` | — | — | missing | — | Optional |
