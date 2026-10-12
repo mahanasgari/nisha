@@ -138,7 +138,8 @@ export default function SellerDashboardPage() {
         <StatCard label="پرداخت بارگذاری‌شده" value={data.payment_uploaded_orders} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      {/* Recent orders has four columns; give it the wider track so totals are not clipped. */}
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         <Card>
           <CardHeader>
             <CardTitle>محصولات کم‌موجودی</CardTitle>
@@ -194,7 +195,11 @@ export default function SellerDashboardPage() {
                           {order.invoice_code}
                         </Link>
                       </TableCell>
-                      <TableCell>{order.buyer_name}</TableCell>
+                      <TableCell>
+                        <span className="block max-w-[9rem] truncate" title={order.buyer_name}>
+                          {order.buyer_name}
+                        </span>
+                      </TableCell>
                       <TableCell>
                         <StatusBadge status={order.status} />
                       </TableCell>

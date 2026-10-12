@@ -15,6 +15,8 @@ type OrderItemsPanelProps = {
   items: OrderLineItem[];
   subtotalAmount?: string;
   shippingAmount?: string | number;
+  discountAmount?: string | number;
+  discountCode?: string | null;
   totalAmount?: string;
   embedded?: boolean;
   showUnitPrice?: boolean;
@@ -74,6 +76,8 @@ export function OrderItemsPanel({
   items,
   subtotalAmount,
   shippingAmount,
+  discountAmount,
+  discountCode,
   totalAmount,
   embedded = true,
   showUnitPrice = true,
@@ -126,10 +130,15 @@ export function OrderItemsPanel({
           })}
         </TableBody>
       </Table>
-      {(subtotalAmount || shippingAmount || totalAmount) && (
+      {(subtotalAmount || shippingAmount || discountAmount || totalAmount) && (
         <div className="mt-4 flex flex-col items-end gap-1 text-sm">
           {subtotalAmount && (
             <span className="text-foreground-muted">جمع جزء: {formatMoney(subtotalAmount)}</span>
+          )}
+          {discountAmount !== undefined && Number(discountAmount) > 0 && (
+            <span className="text-emerald-600">
+              تخفیف{discountCode ? ` (${discountCode})` : ""}: −{formatMoney(discountAmount)}
+            </span>
           )}
           {shippingAmount !== undefined && Number(shippingAmount) > 0 && (
             <span className="text-foreground-muted">هزینه ارسال: {formatMoney(shippingAmount)}</span>

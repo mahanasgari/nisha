@@ -4,7 +4,7 @@ import { use, useState } from "react";
 import Link from "next/link";
 import * as ordersApi from "@/lib/api/seller/orders";
 import { paths } from "@/lib/auth/paths";
-import { formatDateTime } from "@/lib/format";
+import { deliveryReceiptLabel, formatDateTime, paymentMethodTypeLabel } from "@/lib/format";
 import { resolveMediaUrl } from "@/lib/media";
 import {
   actionToPatchStatus,
@@ -170,8 +170,8 @@ export default function SellerOrderDetailPage({ params }: PageProps) {
               {data.customer_id ?? "سفارش مهمان"}
             </p>
             <p>
-              <span className="text-neutral-500">رسید:</span>{" "}
-              {data.receipt_status ?? "ثبت نشده"}
+              <span className="text-neutral-500">تحویل به مشتری:</span>{" "}
+              {deliveryReceiptLabel(data.receipt_status)}
             </p>
             <p>
               <span className="text-neutral-500">اعتراض‌ها:</span> {data.complaint_count}
@@ -186,7 +186,7 @@ export default function SellerOrderDetailPage({ params }: PageProps) {
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <p className="font-medium">{data.payment_method.display_name}</p>
-          <Badge variant="info">{data.payment_method.type}</Badge>
+          <Badge variant="info">{paymentMethodTypeLabel(data.payment_method.type)}</Badge>
           {data.payment_method.instructions && (
             <p className="text-neutral-600">{data.payment_method.instructions}</p>
           )}
@@ -200,9 +200,11 @@ export default function SellerOrderDetailPage({ params }: PageProps) {
         <CardContent>
           <OrderItemsPanel
             items={data.items}
-            subtotalAmount={data.subtotal_amount}
-            shippingAmount={data.shipping_amount}
-            totalAmount={data.total_amount}
+                subtotalAmount={data.subtotal_amount}
+                discountAmount={data.discount_amount}
+                discountCode={data.discount_code}
+                shippingAmount={data.shipping_amount}
+                totalAmount={data.total_amount}
             productEditHref={(productId) => paths.seller.productEdit(productId)}
           />
         </CardContent>

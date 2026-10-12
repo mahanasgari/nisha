@@ -108,7 +108,11 @@ export function OrderTrackDetails({ order, password, onUpdated }: OrderTrackDeta
         <CardContent>
           <OrderItemsPanel
             items={order.items}
-            totalAmount={order.total_amount}
+                subtotalAmount={order.subtotal_amount}
+                discountAmount={order.discount_amount}
+                discountCode={order.discount_code}
+                shippingAmount={order.shipping_amount}
+                totalAmount={order.total_amount}
             showUnitPrice={false}
           />
         </CardContent>

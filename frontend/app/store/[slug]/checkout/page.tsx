@@ -809,7 +809,11 @@ export default function CheckoutPage({ params }: PageProps) {
           <CardContent className="space-y-4">
             <Input label="نام کامل" value={buyerName} onChange={(e) => setBuyerName(e.target.value)} required />
             {/* Bot honeypot — leave empty; visually hidden from users */}
-            <div aria-hidden="true" style={{ position: "absolute", left: "-10000px", top: "auto", width: 1, height: 1, overflow: "hidden" }}>
+            {/* Clip in place rather than offsetting left: in RTL a large negative offset widens the page. */}
+            <div
+              aria-hidden="true"
+              style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clipPath: "inset(50%)", whiteSpace: "nowrap" }}
+            >
               <label htmlFor="company_website">Company website</label>
               <input
                 ref={honeypotRef}

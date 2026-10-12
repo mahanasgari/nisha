@@ -4,7 +4,7 @@ import Link from "next/link";
 import { use, useEffect, useMemo, useState } from "react";
 import * as ordersApi from "@/lib/api/admin/orders";
 import { paths } from "@/lib/auth/paths";
-import { formatDateTime, formatMoney } from "@/lib/format";
+import { complaintReasonLabel, formatDateTime, formatMoney, paymentMethodTypeLabel } from "@/lib/format";
 import { resolveMediaUrl } from "@/lib/media";
 import { useToast } from "@/contexts/ToastContext";
 import { useSellerFetch } from "@/hooks/useSellerFetch";
@@ -292,7 +292,7 @@ export default function AdminOrderDetailPage({ params }: PageProps) {
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <p className="font-medium text-foreground">{data.payment_method.display_name}</p>
-              <Badge variant="info">{data.payment_method.type}</Badge>
+              <Badge variant="info">{paymentMethodTypeLabel(data.payment_method.type)}</Badge>
               {data.payment_method.instructions && (
                 <p className="text-foreground-muted">{data.payment_method.instructions}</p>
               )}
@@ -328,6 +328,10 @@ export default function AdminOrderDetailPage({ params }: PageProps) {
               <OrderItemsPanel
                 items={data.items}
                 subtotalAmount={data.subtotal_amount}
+                discountAmount={data.discount_amount}
+                discountCode={data.discount_code}
+                shippingAmount={data.shipping_amount}
+                totalAmount={data.total_amount}
               />
             </CardContent>
           </Card>
@@ -482,7 +486,7 @@ export default function AdminOrderDetailPage({ params }: PageProps) {
                 <div key={complaint.id} className="rounded-2xl border border-border p-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div>
-                      <p className="font-semibold text-foreground">{complaint.reason}</p>
+                      <p className="font-semibold text-foreground">{complaintReasonLabel(complaint.reason)}</p>
                       <p className="text-xs text-foreground-muted">{formatDateTime(complaint.created_at)}</p>
                     </div>
                     <Badge>{COMPLAINT_STATUS_LABELS[complaint.status] ?? complaint.status}</Badge>

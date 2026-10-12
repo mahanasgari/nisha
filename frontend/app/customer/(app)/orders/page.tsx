@@ -11,7 +11,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Input";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { formatDateTime, formatMoney } from "@/lib/format";
+import { deliveryReceiptLabel, formatDateTime, formatMoney } from "@/lib/format";
 import { paths } from "@/lib/auth/paths";
 import { claimOrder, downloadInvoice, listActiveOrders, listOrders } from "@/lib/api/customer/orders";
 import { downloadOrderInvoice } from "@/lib/orders/downloadInvoice";
@@ -48,7 +48,7 @@ function OrderRow({ order }: { order: CustomerOrderListItem }) {
       <div className="flex flex-col items-start gap-2 text-sm text-foreground sm:items-end">
         <p>{formatMoney(order.total_amount)}</p>
         <p className="text-xs text-foreground-muted">
-          رسید: {order.receipt_status ?? "ثبت‌نشده"} | اعتراض‌ها: {order.complaint_count}
+          تحویل: {deliveryReceiptLabel(order.receipt_status)} | اعتراض‌ها: {order.complaint_count}
         </p>
         <Button variant="ghost" size="sm" loading={downloading} onClick={() => void handleDownload()}>
           دانلود فاکتور

@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { ListRow } from "@/components/ui/ListRow";
 import { StatTile } from "@/components/ui/StatTile";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { formatDateTime, formatMoney } from "@/lib/format";
+import { deliveryReceiptLabel, formatDateTime, formatMoney } from "@/lib/format";
 import { paths } from "@/lib/auth/paths";
 import { getDashboard } from "@/lib/api/customer/orders";
 import type { CustomerDashboardSummary } from "@/types/customer/order";
@@ -84,7 +84,7 @@ export default function CustomerDashboardPage() {
                   <div className="text-sm text-foreground">
                     <p>{formatMoney(order.total_amount)}</p>
                     <p className="text-xs text-foreground-muted">
-                      رسید: {order.receipt_status ?? "ثبت‌نشده"} | اعتراض‌ها: {order.complaint_count}
+                      تحویل: {deliveryReceiptLabel(order.receipt_status)} | اعتراض‌ها: {order.complaint_count}
                     </p>
                   </div>
                 </ListRow>

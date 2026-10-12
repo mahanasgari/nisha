@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn";
-import { forwardRef, type TextareaHTMLAttributes } from "react";
+import { forwardRef, useId, type TextareaHTMLAttributes } from "react";
 
 type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
   label?: string;
@@ -9,7 +9,8 @@ type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   function Textarea({ className, label, error, hint, id, ...props }, ref) {
-    const inputId = id ?? props.name;
+    const generatedId = useId();
+    const inputId = id ?? props.name ?? generatedId;
     const errorId = inputId ? `${inputId}-error` : undefined;
 
     return (

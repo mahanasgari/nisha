@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { ProductPageClient } from "./ProductPageClient";
 import { sanitizeScriptContent } from "@/lib/sanitize";
 import { getApiUrl, getSiteUrl } from "@/lib/env";
@@ -24,12 +25,19 @@ type ProductSeoData = ProductSeo & {
   product?: ProductSeo | null;
 };
 
-async function fetchProductSeo(slug: string, productId: string): Promise<ProductSeo | null> {
+const PRODUCT_MISSING = "missing" as const;
+
+async function fetchProductSeo(
+  slug: string,
+  productId: string,
+): Promise<ProductSeo | typeof PRODUCT_MISSING | null> {
   try {
     const res = await fetch(
-      API_BASE + "/api/v1/public/stores/" + slug + "/products/" + productId,
+      API_BASE + "/api/v1/public/stores/" + encodeURIComponent(slug) + "/products/" + encodeURIComponent(productId),
       { next: { revalidate: 300 } },
     );
+    // Only a definite 404 means the product is gone; other failures fall back to client rendering.
+    if (res.status === 404) return PRODUCT_MISSING;
     if (!res.ok) return null;
     const data = (await res.json()) as ProductSeoData;
     return data.product ?? data;
@@ -40,7 +48,8 @@ async function fetchProductSeo(slug: string, productId: string): Promise<Product
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug, productId } = await params;
-  const product = await fetchProductSeo(slug, productId);
+  const result = await fetchProductSeo(slug, productId);
+  const product = result === PRODUCT_MISSING ? null : result;
   const title = product?.title ?? "محصول";
   const description = product?.description ?? "خرید آنلاین " + title + " در نیشا";
   const canonical = SITE_URL + "/store/" + slug + "/products/" + productId;
@@ -66,6 +75,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function ProductPage({ params }: PageProps) {
   const { slug, productId } = await params;
   const product = await fetchProductSeo(slug, productId);
+  if (product === PRODUCT_MISSING) notFound();
   let jsonLdProps: { __html: string } | null = null;
   if (product?.title) {
     const reviewCount = Number(product.review_count ?? 0);
@@ -80,7 +90,8 @@ export default async function ProductPage({ params }: PageProps) {
         ? {
             offers: {
               "@type": "Offer",
-              price: String(product.price),
+              // Prices are stored in toman; schema.org needs ISO 4217, and 1 toman = 10 IRR.
+              price: String(Number(product.price) * 10),
               priceCurrency: "IRR",
               availability:
                 Number(product.stock_quantity ?? 1) > 0

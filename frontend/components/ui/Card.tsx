@@ -5,7 +5,8 @@ export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={cn(
-        "glass-panel rounded-lg border border-border bg-surface/90 shadow-sm backdrop-blur-sm",
+        // min-w-0: as a grid/flex item, let wide content (tables) scroll inside instead of widening the page.
+        "glass-panel min-w-0 rounded-lg border border-border bg-surface/90 shadow-sm backdrop-blur-sm",
         className,
       )}
       {...props}

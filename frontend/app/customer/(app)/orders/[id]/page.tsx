@@ -199,6 +199,10 @@ export default function CustomerOrderDetailPage({ params }: PageProps) {
             <CardContent>
               <OrderItemsPanel
                 items={order.items}
+                subtotalAmount={order.subtotal_amount}
+                discountAmount={order.discount_amount}
+                discountCode={order.discount_code}
+                shippingAmount={order.shipping_amount}
                 totalAmount={order.total_amount}
                 showUnitPrice={false}
               />

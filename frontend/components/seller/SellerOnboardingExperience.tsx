@@ -148,12 +148,6 @@ function toEditableContact(link: SellerOnboardingResponse["store"]["social_links
   };
 }
 
-function paymentTypeLabel(type: PaymentMethodType): string {
-  if (type === "CARD_TO_CARD") return "کارت‌به‌کارت";
-  if (type === "CRYPTO") return "رمزارز";
-  return "درگاه خارجی";
-}
-
 function buildDrafts(data: SellerOnboardingResponse): DraftState {
   const { store, state } = data;
   const payment = state.drafts.payment_details;

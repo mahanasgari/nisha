@@ -5,7 +5,7 @@ import { useCallback, useState } from "react";
 import * as complaintsApi from "@/lib/api/admin/complaints";
 import type { AdminComplaint, ComplaintStatus } from "@/types/admin/complaint";
 import { paths } from "@/lib/auth/paths";
-import { formatDateTime } from "@/lib/format";
+import { complaintReasonLabel, formatDateTime } from "@/lib/format";
 import { useToast } from "@/contexts/ToastContext";
 import { useSellerFetch } from "@/hooks/useSellerFetch";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -154,7 +154,7 @@ export default function AdminComplaintsPage() {
                   <TableCell className="text-sm">{complaint.buyer_name}</TableCell>
                   <TableCell>
                     <div className="space-y-1">
-                      <div className="text-sm font-medium">{complaint.reason}</div>
+                      <div className="text-sm font-medium">{complaintReasonLabel(complaint.reason)}</div>
                       <div className="max-w-xs truncate text-xs text-foreground-muted">
                         {complaint.message}
                       </div>

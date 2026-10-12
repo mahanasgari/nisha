@@ -27,3 +27,28 @@ export function formatDate(iso: string): string {
   if (Number.isNaN(d.getTime())) return iso;
   return d.toLocaleDateString(getLocale(), { dateStyle: "medium" });
 }
+
+export function paymentMethodTypeLabel(type: string): string {
+  if (type === "CARD_TO_CARD") return "کارت‌به‌کارت";
+  if (type === "CRYPTO") return "رمزارز";
+  if (type === "EXTERNAL_GATEWAY") return "درگاه خارجی";
+  return type;
+}
+
+const COMPLAINT_REASON_LABELS: Record<string, string> = {
+  NON_DELIVERY: "عدم تحویل",
+  DAMAGED: "آسیب‌دیده",
+  WRONG_ITEM: "کالای اشتباه",
+  OTHER: "سایر",
+};
+
+export function complaintReasonLabel(reason: string): string {
+  return COMPLAINT_REASON_LABELS[reason] ?? reason;
+}
+
+/** Customer's delivery confirmation on an order (not the payment receipt). */
+export function deliveryReceiptLabel(status: string | null | undefined): string {
+  if (status === "RECEIVED") return "تحویل گرفته";
+  if (status === "NOT_RECEIVED") return "تحویل نگرفته";
+  return "ثبت نشده";
+}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { StorePageClient } from "./StorePageClient";
 import { VisitPing } from "./VisitPing";
 import { sanitizeScriptContent } from "@/lib/sanitize";
@@ -21,11 +22,15 @@ type StoreSeoData = {
   store?: StoreSeoProfile | null;
 };
 
-async function fetchStoreSeo(slug: string): Promise<StoreSeoProfile | null> {
+const STORE_MISSING = "missing" as const;
+
+async function fetchStoreSeo(slug: string): Promise<StoreSeoProfile | typeof STORE_MISSING | null> {
   try {
-    const res = await fetch(API_BASE + "/api/v1/public/stores/" + slug, {
+    const res = await fetch(API_BASE + "/api/v1/public/stores/" + encodeURIComponent(slug), {
       next: { revalidate: 300 },
     });
+    // Only a definite 404 means the store is gone; other failures fall back to client rendering.
+    if (res.status === 404) return STORE_MISSING;
     if (!res.ok) return null;
     const data = (await res.json()) as StoreSeoData;
     return data.store ?? null;
@@ -36,7 +41,8 @@ async function fetchStoreSeo(slug: string): Promise<StoreSeoProfile | null> {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const store = await fetchStoreSeo(slug);
+  const result = await fetchStoreSeo(slug);
+  const store = result === STORE_MISSING ? null : result;
   const name = store?.name ?? slug;
   const description =
     store?.description ?? "خرید آنلاین از فروشگاه " + name + " در نیشا";
@@ -63,6 +69,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function StorePage({ params }: PageProps) {
   const { slug } = await params;
   const store = await fetchStoreSeo(slug);
+  if (store === STORE_MISSING) notFound();
   let jsonLdProps: { __html: string } | null = null;
   if (store?.name) {
     const jsonLd = JSON.stringify({

@@ -6,16 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { ListRow } from "@/components/ui/ListRow";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingState } from "@/components/ui/LoadingState";
-import { formatDateTime } from "@/lib/format";
+import { complaintReasonLabel, formatDateTime } from "@/lib/format";
 import { listComplaints } from "@/lib/api/customer/orders";
 import type { CustomerComplaint } from "@/types/customer/order";
-
-const COMPLAINT_REASON_LABELS: Record<string, string> = {
-  NON_DELIVERY: "عدم تحویل",
-  DAMAGED: "آسیب‌دیده",
-  WRONG_ITEM: "کالای اشتباه",
-  OTHER: "سایر",
-};
 
 const COMPLAINT_STATUS_LABELS: Record<CustomerComplaint["status"], string> = {
   OPEN: "باز",
@@ -63,7 +56,7 @@ export default function CustomerComplaintsPage() {
         ) : (
           complaints.map((complaint) => (
             <ListRow key={complaint.id}>
-              <p className="font-medium text-foreground">{COMPLAINT_REASON_LABELS[complaint.reason] ?? complaint.reason}</p>
+              <p className="font-medium text-foreground">{complaintReasonLabel(complaint.reason)}</p>
               <p className="mt-1 text-sm text-foreground-muted">{complaint.message}</p>
               <p className="mt-2 text-xs text-foreground-muted">
                 {COMPLAINT_STATUS_LABELS[complaint.status]} | {formatDateTime(complaint.created_at)}

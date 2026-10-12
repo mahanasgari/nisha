@@ -29,6 +29,9 @@ export type CustomerOrderDetail = {
   buyer_address: string;
   buyer_note: string | null;
   subtotal_amount: string;
+  discount_code?: string | null;
+  discount_amount?: string;
+  shipping_amount?: string;
   total_amount: string;
   customer_id: number | null;
   receipt_status: CustomerReceiptStatus;

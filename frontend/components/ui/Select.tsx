@@ -1,4 +1,4 @@
-import { forwardRef, type SelectHTMLAttributes } from "react";
+import { forwardRef, useId, type SelectHTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 
 type SelectProps = SelectHTMLAttributes<HTMLSelectElement> & {
@@ -11,7 +11,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
   { className, label, error, hint, id, children, ...props },
   ref,
 ) {
-  const inputId = id ?? props.name;
+  const generatedId = useId();
+  const inputId = id ?? props.name ?? generatedId;
   const errorId = inputId ? `${inputId}-error` : undefined;
 
   return (

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useState, type FormEvent } from "react";
 import * as ordersApi from "@/lib/api/admin/orders";
 import { paths } from "@/lib/auth/paths";
-import { formatDateTime, formatMoney } from "@/lib/format";
+import { deliveryReceiptLabel, formatDateTime, formatMoney } from "@/lib/format";
 import { useSellerFetch } from "@/hooks/useSellerFetch";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Badge } from "@/components/ui/Badge";
@@ -214,7 +214,7 @@ export default function AdminOrdersPage() {
                   <TableCell>
                     <div className="flex flex-wrap gap-2">
                       <Badge variant={order.receipt_status === "RECEIVED" ? "success" : "neutral"}>
-                        {order.receipt_status ?? "بدون رسید"}
+                        {deliveryReceiptLabel(order.receipt_status)}
                       </Badge>
                       {order.complaint_count > 0 && <Badge variant="warning">{order.complaint_count} اعتراض</Badge>}
                     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, type InputHTMLAttributes } from "react";
+import { forwardRef, useId, type InputHTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 import { formatMoneyInput } from "@/lib/moneyInput";
 
@@ -17,7 +17,8 @@ export const MoneyInput = forwardRef<HTMLInputElement, MoneyInputProps>(function
   { label, error, hint, id, name, className, value, onValueChange, suffix = "تومان", ...props },
   ref,
 ) {
-  const inputId = id ?? name;
+  const generatedId = useId();
+  const inputId = id ?? name ?? generatedId;
   const errorId = inputId ? `${inputId}-error` : undefined;
 
   return (
