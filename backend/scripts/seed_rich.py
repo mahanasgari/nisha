@@ -240,6 +240,11 @@ def seed_seller(db, spec: dict):
         db.add(StoreTrustBadge(store_id=store.id, badge_type=StoreBadgeType.VERIFIED, is_active=True, assigned_at=NOW))
 
     seed_payment_methods(db, store)
+    db.flush()
+    # The shared helper uses the showcase store's holder name; show this seller's instead.
+    for pm in db.scalars(select(PaymentMethod).where(PaymentMethod.store_id == store.id)):
+        if pm.owner_name:
+            pm.owner_name = spec["full_name"]
 
     categories = {
         slug: _get_or_create_category(db, store, name, slug, i)

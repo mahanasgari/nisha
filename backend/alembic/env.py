@@ -22,7 +22,9 @@ import app.models.ws_ticket  # noqa: F401
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
-if config.config_file_name is not None:
+# The app runs migrations on startup after configuring its own logging; reloading
+# alembic.ini there would disable every existing logger (request + error logs).
+if config.config_file_name is not None and config.attributes.get("configure_logger", True):
     fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata

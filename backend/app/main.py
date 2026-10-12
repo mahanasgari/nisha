@@ -56,6 +56,7 @@ async def lifespan(app: FastAPI):
         from alembic.command import upgrade as alembic_upgrade
         alembic_cfg = AlembicConfig("alembic.ini")
         alembic_cfg.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+        alembic_cfg.attributes["configure_logger"] = False
         alembic_upgrade(alembic_cfg, "head")
 
     notification_stop = asyncio.Event()

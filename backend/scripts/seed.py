@@ -113,17 +113,32 @@ def ensure_seed_image(key: str, source_url: str) -> str:
     media_dir = _seed_media_dir()
     target = media_dir / f"{key}.jpg"
     if not target.exists() or target.stat().st_size < 1024:
-        request = Request(
-            source_url,
-            headers={"User-Agent": "NishaSeed/1.0"},
-        )
-        with urlopen(request, timeout=30) as response:  # noqa: S310 - trusted seed URLs
-            data = response.read()
-        if len(data) < 1024:
-            raise RuntimeError(f"Seed image too small for key={key}")
-        target.write_bytes(data)
-        print(f"Downloaded seed image: {key}")
+        try:
+            request = Request(
+                source_url,
+                headers={"User-Agent": "NishaSeed/1.0"},
+            )
+            with urlopen(request, timeout=30) as response:  # noqa: S310 - trusted seed URLs
+                data = response.read()
+            if len(data) < 1024:
+                raise RuntimeError(f"Seed image too small for key={key}")
+            target.write_bytes(data)
+            print(f"Downloaded seed image: {key}")
+        except Exception as exc:  # noqa: BLE001 - offline or blocked image host
+            _write_placeholder_image(target, key)
+            print(f"Seed image download failed ({exc}); wrote placeholder: {key}")
     return f"/uploads/media/seed/{key}.jpg"
+
+
+def _write_placeholder_image(target: Path, key: str) -> None:
+    """Solid brand-tinted JPEG so seeding works without internet access."""
+    from hashlib import sha256
+
+    from PIL import Image
+
+    digest = sha256(key.encode()).digest()
+    color = (80 + digest[0] % 120, 50 + digest[1] % 100, 120 + digest[2] % 120)
+    Image.new("RGB", (900, 900), color).save(target, "JPEG", quality=85)
 
 
 def get_or_create_admin(db) -> User:

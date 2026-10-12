@@ -17,6 +17,7 @@ from app.schemas.public import (
     PublicProductVariant,
     PublicStorePageResponse,
     PublicStoreProfile,
+    PublicProductReview,
     PublicStoreReview,
     PublicStoreReviewSummary,
     PublicStoreSocialLink,
@@ -113,7 +114,7 @@ def get_public_product(slug: str, product_id: int, db: Session = Depends(get_db)
 
     product_payload = _public_product(product)
     review_payloads = [
-        PublicStoreReview(
+        PublicProductReview(
             id=review.id,
             order_id=review.order_id,
             customer_name=review.customer.full_name if review.customer else review.order.buyer_name if review.order else "Customer",

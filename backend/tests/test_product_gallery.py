@@ -56,7 +56,35 @@ def test_add_ninth_image_rejected(client, public_store):
     assert response.status_code == 422
 
 
-def test_product_video_fields_roundtrip(client, public_store):
+def _assign_plan(db, email: str, plan_code: str) -> None:
+    from sqlalchemy import select
+
+    from app.models.enums import BillingPeriod
+    from app.models.user import User
+    from app.services import subscription_billing_service
+
+    seller = db.scalar(select(User).where(User.email == email))
+    subscription_billing_service.admin_assign_plan(
+        db, seller.id, plan_code=plan_code, period=BillingPeriod.MONTHLY, months=1
+    )
+
+
+def test_product_video_requires_entitled_plan(client, public_store):
+    blocked = client.post(
+        "/api/v1/seller/products",
+        headers=public_store["seller_headers"],
+        json=_product_body(
+            title="Video Product",
+            images=_image_payload(1),
+            video_url="/uploads/media/demo.mp4",
+            video_mime_type="video/mp4",
+        ),
+    )
+    assert blocked.status_code == 403
+
+
+def test_product_video_fields_roundtrip(client, public_store, db):
+    _assign_plan(db, "seller-a@example.com", "pro")
     created = client.post(
         "/api/v1/seller/products",
         headers=public_store["seller_headers"],
@@ -80,10 +108,20 @@ def test_product_video_fields_roundtrip(client, public_store):
     assert product["video_mime_type"] == "video/mp4"
 
 
-def test_video_upload_endpoint_accepts_mp4(client):
+def test_video_upload_endpoint_requires_auth(client):
     fake_mp4 = b"\x00\x00\x00\x18ftypmp42" + b"\x00" * 64
     response = client.post(
         "/api/v1/public/uploads/videos",
+        files={"file": ("clip.mp4", io.BytesIO(fake_mp4), "video/mp4")},
+    )
+    assert response.status_code == 401
+
+
+def test_video_upload_endpoint_accepts_mp4(client, seller_headers):
+    fake_mp4 = b"\x00\x00\x00\x18ftypmp42" + b"\x00" * 64
+    response = client.post(
+        "/api/v1/public/uploads/videos",
+        headers=seller_headers,
         files={"file": ("clip.mp4", io.BytesIO(fake_mp4), "video/mp4")},
     )
     assert response.status_code == 200
@@ -93,9 +131,10 @@ def test_video_upload_endpoint_accepts_mp4(client):
     assert data["thumbnail_url"] is None
 
 
-def test_video_upload_endpoint_rejects_non_video(client):
+def test_video_upload_endpoint_rejects_non_video(client, seller_headers):
     response = client.post(
         "/api/v1/public/uploads/videos",
+        headers=seller_headers,
         files={"file": ("notes.txt", io.BytesIO(b"hello world"), "text/plain")},
     )
     assert response.status_code == 422

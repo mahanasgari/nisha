@@ -47,11 +47,22 @@ def test_store_social_links_public_filtering_and_order(client, seller_headers):
     assert [link["label"] for link in links] == ["Telegram"]
 
 
-def test_public_image_upload_generates_thumbnail(client):
+def test_public_image_upload_requires_auth(client):
     from tests.conftest import PNG_BYTES
 
     response = client.post(
         "/api/v1/public/uploads/images",
+        files={"file": ("logo.png", PNG_BYTES, "image/png")},
+    )
+    assert response.status_code == 401
+
+
+def test_public_image_upload_generates_thumbnail(client, seller_headers):
+    from tests.conftest import PNG_BYTES
+
+    response = client.post(
+        "/api/v1/public/uploads/images",
+        headers=seller_headers,
         files={"file": ("logo.png", PNG_BYTES, "image/png")},
     )
 
