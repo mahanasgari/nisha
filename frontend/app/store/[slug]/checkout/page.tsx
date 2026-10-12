@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { use, useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
+import { use, useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import * as storesApi from "@/lib/api/public/stores";
 import * as customerOrdersApi from "@/lib/api/customer/orders";
@@ -11,6 +11,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useCustomerAuth } from "@/contexts/CustomerAuthContext";
 import { ApiError } from "@/lib/api/errors";
 import { formatMoney } from "@/lib/format";
+import { normalizeDigits } from "@/lib/moneyInput";
 import { computeShippingAmount } from "@/lib/shipping";
 import { publicPaths } from "@/lib/paths/public";
 import { useToast } from "@/contexts/ToastContext";
@@ -64,7 +65,9 @@ function createFieldState(): CheckoutFieldState {
 
 function isFieldComplete(field: PublicProductFormField, draft: CheckoutFieldState | undefined): boolean {
   if (!draft) return false;
-  if (field.field_type === "CHECKBOX") return true;
+  if (field.field_type === "CHECKBOX") {
+    return field.is_required ? draft.checked === true : true;
+  }
   if (field.field_type === "FILE_UPLOAD") return Boolean(draft.fileUrl);
   return Boolean(draft.value.trim());
 }
@@ -102,7 +105,7 @@ export default function CheckoutPage({ params }: PageProps) {
   const { slug } = use(params);
   const router = useRouter();
   const toast = useToast();
-  const { items, subtotal, clearCart, reconcileWithProducts } = useCart();
+  const { items, subtotal, clearCart, reconcileWithProducts, hydrated: cartHydrated } = useCart();
   const { customer, isLoading: customerLoading } = useCustomerAuth();
 
   const [loading, setLoading] = useState(true);
@@ -136,6 +139,7 @@ export default function CheckoutPage({ params }: PageProps) {
   const [appliedDiscount, setAppliedDiscount] = useState<DiscountPreviewResponse | null>(null);
   const [discountError, setDiscountError] = useState<string | null>(null);
   const [discountChecking, setDiscountChecking] = useState(false);
+  const honeypotRef = useRef<HTMLInputElement>(null);
 
   const selectedAddress = useMemo(
     () => customerAddresses.find((address) => String(address.id) === selectedAddressId) ?? null,
@@ -272,10 +276,13 @@ export default function CheckoutPage({ params }: PageProps) {
   }, [items, productsById, storeProducts]);
 
   useEffect(() => {
+    // Wait for cart localStorage hydration so a cold checkout open isn't
+    // treated as an empty cart and bounced back to the storefront.
+    if (!cartHydrated) return;
     if (!loading && !successOrder && items.length === 0) {
       router.replace(publicPaths.store(slug));
     }
-  }, [loading, items.length, router, slug, successOrder]);
+  }, [cartHydrated, loading, items.length, router, slug, successOrder]);
 
   useEffect(() => {
     if (successOrder) return;
@@ -404,12 +411,12 @@ export default function CheckoutPage({ params }: PageProps) {
     try {
       const payload = {
         buyer_name: buyerName.trim(),
-        buyer_phone: buyerPhone.trim(),
+        buyer_phone: normalizeDigits(buyerPhone.trim()),
         buyer_address: buyerAddress.trim(),
         buyer_note: buyerNote.trim() || null,
         payment_method_id: paymentMethodId,
         discount_code: appliedDiscount ? appliedDiscount.code : null,
-        company_website: "",
+        company_website: honeypotRef.current?.value ?? "",
         items: items.map((item) => ({
           product_id: item.productId,
           variant_id: item.variantId ?? null,
@@ -466,7 +473,9 @@ export default function CheckoutPage({ params }: PageProps) {
     }
   }
 
-  if ((loading || customerLoading) && !successOrder) return <LoadingState message="در حال بارگذاری پرداخت..." />;
+  if ((!cartHydrated || loading || customerLoading) && !successOrder) {
+    return <LoadingState message="در حال بارگذاری پرداخت..." />;
+  }
 
   if (successOrder) {
     return (
@@ -802,9 +811,25 @@ export default function CheckoutPage({ params }: PageProps) {
             {/* Bot honeypot — leave empty; visually hidden from users */}
             <div aria-hidden="true" style={{ position: "absolute", left: "-10000px", top: "auto", width: 1, height: 1, overflow: "hidden" }}>
               <label htmlFor="company_website">Company website</label>
-              <input id="company_website" name="company_website" type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
+              <input
+                ref={honeypotRef}
+                id="company_website"
+                name="company_website"
+                type="text"
+                tabIndex={-1}
+                autoComplete="off"
+                defaultValue=""
+              />
             </div>
-            <Input label="تلفن" value={buyerPhone} onChange={(e) => setBuyerPhone(e.target.value)} required pattern="09[0-9]{9}" placeholder="09123456789" title="شماره موبایل باید با 09 شروع شود و 11 رقم باشد" />
+            <Input
+              label="تلفن"
+              value={buyerPhone}
+              onChange={(e) => setBuyerPhone(normalizeDigits(e.target.value))}
+              required
+              pattern="09[0-9]{9}"
+              placeholder="09123456789"
+              title="شماره موبایل باید با 09 شروع شود و 11 رقم باشد"
+            />
             <Textarea
               label="آدرس تحویل"
               value={buyerAddress}

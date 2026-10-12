@@ -123,6 +123,7 @@ class Store(TimestampMixin, Base):
     guest_checkout_enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     theme_preset: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     primary_color: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    design_style: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     about_text: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     shipping_policy_text: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     default_shipping_cost: Mapped[Decimal] = mapped_column(

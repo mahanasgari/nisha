@@ -10,7 +10,7 @@ export function StatCardSkeleton({ count = 4 }: StatCardSkeletonProps) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="rounded-2xl border border-border bg-surface p-5 shadow-sm max-md:p-3"
+          className="rounded-lg border border-border bg-surface p-5 shadow-sm max-md:p-3"
         >
           <Skeleton className="mb-3 h-3 w-24 max-md:mb-1" />
           <Skeleton className="h-8 w-16 max-md:h-6" />

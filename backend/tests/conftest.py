@@ -37,6 +37,7 @@ import app.models.product_category  # noqa: F401
 import app.models.store  # noqa: F401
 import app.models.subscription  # noqa: F401
 import app.models.user  # noqa: F401
+import app.models.ws_ticket  # noqa: F401
 
 get_settings.cache_clear()
 

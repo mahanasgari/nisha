@@ -16,7 +16,7 @@ export function Table({ className, embedded, ...props }: TableProps) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-3xl border border-border bg-surface shadow-sm max-md:shadow-[inset_-8px_0_8px_-8px_rgba(0,0,0,0.08)]">
+    <div className="glass-panel overflow-x-auto rounded-lg border border-border bg-surface shadow-sm backdrop-blur-xl max-md:shadow-[inset_-8px_0_8px_-8px_rgba(0,0,0,0.08)]">
       <table className={cn("min-w-full divide-y divide-border", className)} {...props} />
     </div>
   );
@@ -27,7 +27,7 @@ export function TableHead(props: HTMLAttributes<HTMLTableSectionElement>) {
 }
 
 export function TableBody(props: HTMLAttributes<HTMLTableSectionElement>) {
-  return <tbody className="divide-y divide-border bg-surface" {...props} />;
+  return <tbody className="divide-y divide-border bg-transparent" {...props} />;
 }
 
 export function TableRow(props: HTMLAttributes<HTMLTableRowElement>) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useEffect, useState, type FormEvent } from "react";
+import { PaymentProofUpload } from "@/components/store/PaymentProofUpload";
 import { ChatThread } from "@/components/chat/ChatThread";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -33,7 +34,9 @@ type PageProps = {
 
 async function uploadSelectedImages(files: FileList | null): Promise<string[]> {
   if (!files || files.length === 0) return [];
-  const uploads = await Promise.all(Array.from(files).map((file) => uploadPublicImage(file)));
+  const uploads = await Promise.all(
+    Array.from(files).map((file) => uploadPublicImage(file, { preferCustomer: true })),
+  );
   return uploads.map((item) => item.url);
 }
 
@@ -159,8 +162,18 @@ export default function CustomerOrderDetailPage({ params }: PageProps) {
     }
   }
 
-  if (loading || !order) {
+  if (loading) {
     return <LoadingState message="در حال بارگذاری سفارش..." />;
+  }
+
+  if (!order) {
+    return (
+      <div className="page-stack">
+        <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+          {error ?? "سفارش پیدا نشد"}
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -222,6 +235,7 @@ export default function CustomerOrderDetailPage({ params }: PageProps) {
                     isLoading={false}
                     error={null}
                     ownSenderType="CUSTOMER"
+                    preferCustomerUpload
                     onSend={async (payload) => {
                       const sent = await conversationsApi.sendMessage(conversation.id, payload);
                       setConversation((prev) =>
@@ -379,6 +393,15 @@ export default function CustomerOrderDetailPage({ params }: PageProps) {
               )}
             </CardContent>
           </Card>
+
+          {(order.status === "PENDING_PAYMENT" || order.status === "PAYMENT_UPLOADED") && (
+            <PaymentProofUpload
+              invoiceCode={order.invoice_code}
+              onSuccess={() => {
+                void refresh().catch(() => undefined);
+              }}
+            />
+          )}
 
           {order.payment_proofs.length > 0 && (
             <Card>

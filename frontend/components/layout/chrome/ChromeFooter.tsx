@@ -27,7 +27,7 @@ export function ChromeFooter({ variant = "default", className }: ChromeFooterPro
       className={cn(
         "relative z-10 border-t",
         isLanding
-          ? "border-border/60 bg-background/75 backdrop-blur"
+          ? "border-white/10 bg-white/[0.04] backdrop-blur-2xl"
           : "border-border bg-surface",
         className,
       )}

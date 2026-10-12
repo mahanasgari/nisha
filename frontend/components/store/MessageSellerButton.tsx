@@ -7,12 +7,34 @@ import * as conversationsApi from "@/lib/api/customer/conversations";
 import { useCustomerAuth } from "@/contexts/CustomerAuthContext";
 import { paths } from "@/lib/auth/paths";
 import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 
 type MessageSellerButtonProps = {
   storeId: number;
+  /** Compact circular icon for store header; default is text button. */
+  variant?: "button" | "icon";
+  className?: string;
 };
 
-export function MessageSellerButton({ storeId }: MessageSellerButtonProps) {
+function ChatIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <path
+        d="M5.5 18.5 4 21l3.2-1.2A8.5 8.5 0 1 0 5.5 18.5Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <path d="M8.5 11h7M8.5 14h4.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function MessageSellerButton({
+  storeId,
+  variant = "button",
+  className,
+}: MessageSellerButtonProps) {
   const router = useRouter();
   const { customer } = useCustomerAuth();
   const [loading, setLoading] = useState(false);
@@ -34,10 +56,45 @@ export function MessageSellerButton({ storeId }: MessageSellerButtonProps) {
     }
   }
 
+  if (variant === "icon") {
+    const iconClass = cn(
+      "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border bg-surface text-foreground shadow-sm transition sm:h-10 sm:w-10",
+      "hover:border-brand/40 hover:bg-surface-muted hover:text-brand",
+      "disabled:cursor-not-allowed disabled:opacity-60",
+      className,
+    );
+
+    if (!customer) {
+      return (
+        <Link
+          href={loginHref}
+          className={iconClass}
+          aria-label="ورود برای گفتگو با فروشنده"
+          title="گفتگو"
+        >
+          <ChatIcon className="h-5 w-5" />
+        </Link>
+      );
+    }
+
+    return (
+      <button
+        type="button"
+        className={iconClass}
+        disabled={loading}
+        onClick={() => void handleClick()}
+        aria-label={loading ? "در حال باز کردن گفتگو…" : "گفتگو با فروشنده"}
+        title="گفتگو"
+      >
+        <ChatIcon className="h-5 w-5" />
+      </button>
+    );
+  }
+
   if (!customer) {
     return (
-      <Link href={loginHref}>
-        <Button variant="secondary" size="sm">
+      <Link href={loginHref} className={className}>
+        <Button variant="secondary" size="sm" className="rounded-xl">
           ورود برای چت
         </Button>
       </Link>
@@ -45,7 +102,13 @@ export function MessageSellerButton({ storeId }: MessageSellerButtonProps) {
   }
 
   return (
-    <Button variant="secondary" size="sm" disabled={loading} onClick={() => void handleClick()}>
+    <Button
+      variant="secondary"
+      size="sm"
+      className={cn("rounded-xl", className)}
+      disabled={loading}
+      onClick={() => void handleClick()}
+    >
       <span className="sm:hidden">پیام</span>
       <span className="hidden sm:inline">ارسال پیام به فروشنده</span>
     </Button>

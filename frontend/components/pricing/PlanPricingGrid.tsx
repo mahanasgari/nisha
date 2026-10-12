@@ -50,7 +50,7 @@ export function PlanPricingGrid({
           <article
             key={plan.code}
             className={cn(
-              "relative flex h-full flex-col rounded-3xl border p-6 shadow-sm transition-shadow",
+              "relative flex h-full flex-col rounded-lg border p-6 shadow-sm transition-shadow",
               plan.is_recommended
                 ? "border-brand/50 bg-brand/5 ring-1 ring-brand/20"
                 : "border-border/70 bg-surface/90",
@@ -62,7 +62,7 @@ export function PlanPricingGrid({
                 {blurb && <p className="mt-1 text-sm text-foreground-muted">{blurb}</p>}
               </div>
               {plan.is_recommended && (
-                <span className="shrink-0 rounded-full bg-brand px-2.5 py-1 text-xs font-medium text-white">
+                <span className="shrink-0 rounded-md bg-brand px-2.5 py-1 text-xs font-medium text-white">
                   پیشنهادی
                 </span>
               )}
@@ -102,7 +102,7 @@ export function PlanPricingGrid({
                     if (!isFree && !paidDisabled && onSelectPaid) onSelectPaid(plan.code);
                   }}
                   className={cn(
-                    "inline-flex w-full items-center justify-center rounded-full px-4 py-2.5 text-sm font-medium transition-colors",
+                    "inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
                     plan.is_recommended
                       ? "bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-60"
                       : "border border-border bg-surface text-foreground hover:bg-surface-muted disabled:opacity-60",

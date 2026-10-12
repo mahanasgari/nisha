@@ -172,7 +172,7 @@ def _decrement_stock(db: Session, line_items: Sequence[LineItem]) -> None:
                 )
             # Keep the parent product stock (sum of variant stocks) in sync
             # so storefront listing and in-stock filters stay correct.
-            db.execute(
+            parent_result = db.execute(
                 update(Product)
                 .where(
                     Product.id == line.product_id,
@@ -180,6 +180,11 @@ def _decrement_stock(db: Session, line_items: Sequence[LineItem]) -> None:
                 )
                 .values(stock_quantity=Product.stock_quantity - line.quantity)
             )
+            if parent_result.rowcount != 1:
+                raise ServiceError(
+                    f"Insufficient stock for {line.product.title}",
+                    status_code=422,
+                )
         else:
             result = db.execute(
                 update(Product)
@@ -229,7 +234,10 @@ def _validate_field_value(field: ProductFormField, payload: OrderItemFieldValueI
     if field.field_type == ProductFieldType.FILE_UPLOAD:
         if not payload.file_url:
             raise ServiceError(f"{field.label} file is required", status_code=422)
-        return {"value_text": None, "value_json": None, "file_url": payload.file_url}
+        from app.utils.upload import assert_platform_media_url
+
+        file_url = assert_platform_media_url(payload.file_url, field_label=field.label)
+        return {"value_text": None, "value_json": None, "file_url": file_url}
 
     raise ServiceError(f"Unsupported field type: {field.field_type}", status_code=422)
 

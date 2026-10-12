@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { AuthPageFrame } from "@/components/auth/AuthPageFrame";
 import { GuestOnly } from "@/components/auth/GuestOnly";
 import { RegisterForm } from "@/components/auth/RegisterForm";
 import { EmailVerificationPending } from "@/components/auth/EmailVerificationPending";
@@ -28,20 +29,20 @@ export default function SellerRegisterPage() {
   if (pendingEmail) {
     return (
       <GuestOnly role="SELLER">
-        <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
+        <AuthPageFrame>
           <EmailVerificationPending
             email={pendingEmail}
             kind="seller"
             loginHref={paths.seller.login}
           />
-        </div>
+        </AuthPageFrame>
       </GuestOnly>
     );
   }
 
   return (
     <GuestOnly role="SELLER">
-      <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
+      <AuthPageFrame>
         <RegisterForm
           onSubmit={handleRegister}
           loginHref={paths.seller.login}
@@ -54,7 +55,7 @@ export default function SellerRegisterPage() {
             </>
           }
         />
-      </div>
+      </AuthPageFrame>
     </GuestOnly>
   );
 }

@@ -247,7 +247,7 @@ def build_admin_order_detail_response(db: Session, order: Order, store: Store) -
         customer_id=order.customer_id,
         customer=CustomerProfileResponse.model_validate(order.customer) if order.customer else None,
         invoice_username=order.invoice_code,
-        invoice_password=order.invoice_code,
+        invoice_password=None,
         receipt_status=order.receipt.status if order.receipt else None,
         complaint_count=len(order.complaints),
         stock_restored=order.stock_restored,

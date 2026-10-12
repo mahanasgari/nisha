@@ -28,6 +28,7 @@ export default function CustomerAppLayout({ children }: { children: React.ReactN
         title="داشبورد مشتری"
         userName={customer?.full_name}
         userMeta={customer?.email ?? customer?.phone ?? undefined}
+        identityName={customer?.full_name ?? "حساب من"}
         navItems={navItems}
         onLogout={logout}
       >

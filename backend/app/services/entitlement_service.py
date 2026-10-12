@@ -204,7 +204,7 @@ def _is_period_valid(sub: SellerSubscription) -> bool:
     if sub.status != SellerSubscriptionStatus.ACTIVE:
         return False
     if sub.current_period_end is None:
-        return True
+        return False
     end = sub.current_period_end
     if end.tzinfo is None:
         end = end.replace(tzinfo=timezone.utc)

@@ -15,8 +15,8 @@ export function PageHeader({ title, description, action, size = "section" }: Pag
         {title && (
           <h1
             className={cn(
-              "font-bold text-foreground",
-              size === "page" ? "text-2xl max-md:text-lg" : "text-xl max-md:text-base",
+              "font-semibold tracking-tight text-foreground",
+              size === "page" ? "text-2xl max-md:text-xl" : "text-xl max-md:text-lg",
             )}
           >
             {title}
@@ -25,8 +25,8 @@ export function PageHeader({ title, description, action, size = "section" }: Pag
         {description && (
           <p
             className={cn(
-              "text-foreground-muted max-md:text-sm",
-              title ? "mt-1" : undefined,
+              "text-sm leading-6 text-foreground-muted max-md:text-sm",
+              title ? "mt-1.5" : undefined,
             )}
           >
             {description}

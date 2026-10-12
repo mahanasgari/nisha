@@ -1,9 +1,15 @@
-import { apiRequest } from "@/lib/api/client";
+import { apiRequest, type ApiRequestOptions } from "@/lib/api/client";
 
-export function apiPostForm<T>(path: string, formData: FormData, auth = false): Promise<T> {
+export function apiPostForm<T>(
+  path: string,
+  formData: FormData,
+  auth = false,
+  options?: Pick<ApiRequestOptions, "preferCustomerAuth">,
+): Promise<T> {
   return apiRequest<T>(path, {
     method: "POST",
     body: formData,
     auth,
+    preferCustomerAuth: options?.preferCustomerAuth,
   });
 }

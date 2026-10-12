@@ -36,10 +36,10 @@ function SellerLivePreview({
       ? "فعال"
       : "در حال راه‌اندازی";
   const statusClass = !store.is_active
-    ? "border-amber-500/30 bg-amber-500/10 text-amber-700"
+    ? "border-amber-400/30 bg-amber-400/10 text-amber-200"
     : onboardingComplete
-      ? "border-brand/20 bg-brand/10 text-brand"
-      : "border-sky-500/30 bg-sky-500/10 text-sky-700";
+      ? "border-violet-400/30 bg-violet-500/15 text-violet-200"
+      : "border-sky-400/30 bg-sky-400/10 text-sky-200";
 
   const checklist =
     dashboard.store_readiness_missing_tasks.length > 0
@@ -53,76 +53,87 @@ function SellerLivePreview({
   const initial = store.name.trim().charAt(0) || "ن";
 
   return (
-    <div className={cn("relative mx-auto w-full max-w-[34rem]", className)}>
-      <div className="relative overflow-hidden rounded-[2rem] border border-border/80 bg-surface/95 p-4 shadow-[0_24px_80px_rgba(31,41,55,0.12)]">
-        <div className="rounded-[1.6rem] border border-border/70 bg-background/80 p-4">
-          <div className="flex items-center justify-between gap-3 border-b border-border/60 pb-4">
-            <div className="flex min-w-0 items-center gap-3">
-              {logoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={logoUrl} alt="" className="h-10 w-10 rounded-2xl object-cover" />
-              ) : (
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand/10 text-sm font-bold text-brand">
-                  {initial}
-                </div>
-              )}
-              <div className="min-w-0">
-                <p className="text-xs text-foreground-muted">فروشگاه تو</p>
-                <p className="truncate text-sm font-semibold text-foreground">{store.name}</p>
+    <div className={cn("landing-glow-ring mx-auto w-full max-w-5xl overflow-hidden rounded-xl border border-white/10 bg-[#0c0c0f]", className)}>
+      <div className="flex items-center gap-2 border-b border-white/10 bg-white/[0.03] px-4 py-3">
+        <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
+        <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
+        <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
+        <div className="mx-auto flex h-7 max-w-xs flex-1 items-center justify-center rounded-md border border-white/10 bg-black/30 px-3">
+          <span className="truncate text-[11px] text-zinc-400">
+            {store.slug ? `${store.slug}.nishaapp.ir` : "store.nishaapp.ir"}
+          </span>
+        </div>
+      </div>
+
+      <div className="p-4 sm:p-5">
+        <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-4">
+          <div className="flex min-w-0 items-center gap-3">
+            {logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logoUrl} alt="" className="h-10 w-10 rounded-lg object-cover" />
+            ) : (
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-sm font-bold text-white">
+                {initial}
               </div>
+            )}
+            <div className="min-w-0">
+              <p className="text-xs text-zinc-500">فروشگاه تو</p>
+              <p className="truncate text-sm font-semibold text-white">{store.name}</p>
             </div>
-            <div className={cn("shrink-0 rounded-full border px-3 py-1 text-xs font-medium", statusClass)}>
-              {statusLabel}
+          </div>
+          <div className={cn("shrink-0 rounded-md border px-3 py-1 text-xs font-medium", statusClass)}>
+            {statusLabel}
+          </div>
+        </div>
+
+        <div className="mt-4 space-y-4">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            <div className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-3">
+              <p className="text-lg font-semibold text-white">{dashboard.total_orders}</p>
+              <p className="text-[11px] text-zinc-500">کل سفارش‌ها</p>
+            </div>
+            <div className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-3">
+              <p className="text-lg font-semibold text-white">{dashboard.pending_orders}</p>
+              <p className="text-[11px] text-zinc-500">در انتظار</p>
+            </div>
+            <div className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-3">
+              <p className="truncate text-lg font-semibold text-white">{dashboard.today_revenue}</p>
+              <p className="text-[11px] text-zinc-500">فروش امروز</p>
             </div>
           </div>
 
-          <div className="mt-4 space-y-4">
-            <div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-foreground-muted">آمادگی فروشگاه</span>
-                <span className="font-semibold text-foreground">{dashboard.store_readiness_score}٪</span>
+          <div className="space-y-2">
+            {checklist.slice(0, 4).map((item) => (
+              <div
+                key={item.label}
+                className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm"
+              >
+                <span className="text-zinc-300">{item.label}</span>
+                <span className={item.done ? "text-emerald-400" : "text-zinc-500"}>
+                  {item.done ? "انجام شد" : "باقی مانده"}
+                </span>
               </div>
-              <div className="mt-2 h-2 overflow-hidden rounded-full bg-surface-muted">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-brand to-fuchsia-500"
-                  style={{ width: `${Math.min(dashboard.store_readiness_score, 100)}%` }}
-                />
-              </div>
-            </div>
+            ))}
+          </div>
 
-            <div className="grid gap-2">
-              {checklist.map((item) => (
-                <div
-                  key={item.label}
-                  className="flex items-center justify-between rounded-2xl border border-border/60 px-3 py-2 text-sm"
-                >
-                  <span>{item.label}</span>
-                  <span className={item.done ? "text-emerald-600" : "text-foreground-muted"}>
-                    {item.done ? "انجام شد" : "باقی مانده"}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {!onboardingComplete && (
-                <Link href={paths.seller.onboarding}>
-                  <Button size="sm">ادامه راه‌اندازی</Button>
-                </Link>
-              )}
-              <Link href={paths.seller.dashboard}>
-                <Button variant="secondary" size="sm">
-                  داشبورد
+          <div className="flex flex-wrap gap-2">
+            {!onboardingComplete && (
+              <Link href={paths.seller.onboarding}>
+                <Button size="sm">ادامه راه‌اندازی</Button>
+              </Link>
+            )}
+            <Link href={paths.seller.dashboard}>
+              <Button variant="secondary" size="sm">
+                داشبورد
+              </Button>
+            </Link>
+            {store.slug && (
+              <Link href={paths.store(store.slug)} target="_blank" rel="noopener noreferrer">
+                <Button variant="ghost" size="sm">
+                  دیدن فروشگاه
                 </Button>
               </Link>
-              {store.slug && (
-                <Link href={paths.store(store.slug)} target="_blank" rel="noopener noreferrer">
-                  <Button variant="ghost" size="sm">
-                    دیدن فروشگاه
-                  </Button>
-                </Link>
-              )}
-            </div>
+            )}
           </div>
         </div>
       </div>
@@ -169,12 +180,7 @@ export function LandingStorePreview({ className }: LandingStorePreviewProps) {
     };
   }, [isSeller]);
 
-  // Guests (and auth still loading): show storefront mock immediately — no spinner flash.
-  if (isLoading || !isSeller) {
-    return <LandingMockup className={className} />;
-  }
-
-  if (loadingLive) {
+  if (isLoading || !isSeller || loadingLive) {
     return <LandingMockup className={className} />;
   }
 

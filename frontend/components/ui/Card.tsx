@@ -5,7 +5,7 @@ export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={cn(
-        "rounded-3xl border border-border bg-surface shadow-sm",
+        "glass-panel rounded-lg border border-border bg-surface/90 shadow-sm backdrop-blur-sm",
         className,
       )}
       {...props}
@@ -28,7 +28,10 @@ export function CardTitle({
   ...props
 }: HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h2 className={cn("text-lg font-semibold text-foreground", className)} {...props}>
+    <h2
+      className={cn("text-lg font-semibold tracking-tight text-foreground", className)}
+      {...props}
+    >
       {children}
     </h2>
   );

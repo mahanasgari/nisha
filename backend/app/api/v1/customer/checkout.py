@@ -54,5 +54,7 @@ def create_customer_order(
                 is_default=False,
             )
         except ServiceError:
-            pass
+            return order.model_copy(
+                update={"warning": "سفارش ثبت شد اما ذخیره آدرس ناموفق بود"},
+            )
     return order

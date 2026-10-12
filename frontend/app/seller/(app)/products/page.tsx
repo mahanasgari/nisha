@@ -14,6 +14,7 @@ import { ProductCategoryManager } from "@/components/seller/ProductCategoryManag
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Badge } from "@/components/ui/Badge";
 import { Button, buttonClassName } from "@/components/ui/Button";
+import { Card, CardContent, CardTitle } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorAlert } from "@/components/ui/ErrorAlert";
 import { PaginationControls } from "@/components/ui/PaginationControls";
@@ -72,19 +73,20 @@ export default function SellerProductsPage() {
   }
 
   const items = data?.items ?? [];
+  const isEmpty = !isLoading && !error && data && data.total === 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <PageHeader
-        description="کاتالوگ خود را مدیریت کنید"
+        description="کاتالوگ و دسته‌بندی‌های فروشگاه"
         action={
           <div className="flex flex-wrap gap-2">
             {canExport && (
-              <Button type="button" variant="secondary" loading={exporting} onClick={() => void handleExport()}>
+              <Button type="button" variant="secondary" size="sm" loading={exporting} onClick={() => void handleExport()}>
                 خروجی Excel
               </Button>
             )}
-            <Link href={paths.seller.productNew} className={buttonClassName()}>
+            <Link href={paths.seller.productNew} className={buttonClassName({ size: "sm" })}>
               افزودن محصول
             </Link>
           </div>
@@ -93,79 +95,91 @@ export default function SellerProductsPage() {
 
       <ErrorAlert message={error ?? ""} />
 
-      <ProductCategoryManager />
+      <Card>
+        <CardContent className="px-4 py-4 sm:px-5">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex min-w-0 flex-wrap items-center gap-3">
+              <CardTitle className="text-base">محصولات</CardTitle>
+              <ProductCategoryManager />
+            </div>
+            {data && data.total > 0 ? (
+              <p className="text-xs text-foreground-muted">{data.total} کالا</p>
+            ) : null}
+          </div>
 
-      {isLoading && <TableSkeleton rows={6} columns={6} />}
+          {isLoading && <TableSkeleton rows={5} columns={6} />}
 
-      {!isLoading && !error && data && data.total === 0 && (
-        <EmptyState
-          title="هنوز محصولی ندارید"
-          description="اولین محصول خود را اضافه کنید تا فروش را شروع کنید."
-          action={
-            <Link href={paths.seller.productNew} className={buttonClassName()}>
-              افزودن محصول
-            </Link>
-          }
-        />
-      )}
-
-      {!isLoading && items.length > 0 && (
-        <>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableHeaderCell>عنوان</TableHeaderCell>
-                <TableHeaderCell>دسته‌بندی</TableHeaderCell>
-                <TableHeaderCell>قیمت</TableHeaderCell>
-                <TableHeaderCell>موجودی</TableHeaderCell>
-                <TableHeaderCell>وضعیت</TableHeaderCell>
-                <TableHeaderCell>عملیات</TableHeaderCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {items.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell className="font-medium">{product.title}</TableCell>
-                  <TableCell>{product.category?.name ?? "—"}</TableCell>
-                  <TableCell>{formatMoney(product.price)}</TableCell>
-                  <TableCell>{product.stock_quantity}</TableCell>
-                  <TableCell>
-                    <Badge variant={product.is_active ? "success" : "neutral"}>
-                      {product.is_active ? "فعال" : "غیرفعال"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Link
-                        href={paths.seller.productEdit(product.id)}
-                        className={buttonClassName({ variant: "ghost", size: "sm" })}
-                      >
-                        ویرایش
-                      </Link>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-red-600 hover:text-red-700"
-                        onClick={() => setDeleteId(product.id)}
-                      >
-                        حذف
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          {data && (
-            <PaginationControls
-              page={data.page}
-              totalPages={data.total_pages}
-              total={data.total}
-              onPageChange={setPage}
+          {isEmpty && (
+            <EmptyState
+              title="هنوز محصولی ندارید"
+              description="اولین محصول را اضافه کنید؛ می‌توانید بعداً دسته‌بندی هم بدهید."
+              action={
+                <Link href={paths.seller.productNew} className={buttonClassName({ size: "sm" })}>
+                  افزودن محصول
+                </Link>
+              }
             />
           )}
-        </>
-      )}
+
+          {!isLoading && items.length > 0 && (
+            <div className="space-y-3">
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableHeaderCell>عنوان</TableHeaderCell>
+                    <TableHeaderCell>دسته‌بندی</TableHeaderCell>
+                    <TableHeaderCell>قیمت</TableHeaderCell>
+                    <TableHeaderCell>موجودی</TableHeaderCell>
+                    <TableHeaderCell>وضعیت</TableHeaderCell>
+                    <TableHeaderCell>عملیات</TableHeaderCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {items.map((product) => (
+                    <TableRow key={product.id}>
+                      <TableCell className="font-medium">{product.title}</TableCell>
+                      <TableCell>{product.category?.name ?? "—"}</TableCell>
+                      <TableCell>{formatMoney(product.price)}</TableCell>
+                      <TableCell>{product.stock_quantity}</TableCell>
+                      <TableCell>
+                        <Badge variant={product.is_active ? "success" : "neutral"}>
+                          {product.is_active ? "فعال" : "غیرفعال"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Link
+                            href={paths.seller.productEdit(product.id)}
+                            className={buttonClassName({ variant: "ghost", size: "sm" })}
+                          >
+                            ویرایش
+                          </Link>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-600 hover:text-red-700"
+                            onClick={() => setDeleteId(product.id)}
+                          >
+                            حذف
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {data && (
+                <PaginationControls
+                  page={data.page}
+                  totalPages={data.total_pages}
+                  total={data.total}
+                  onPageChange={setPage}
+                />
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <ConfirmModal
         open={deleteId !== null}

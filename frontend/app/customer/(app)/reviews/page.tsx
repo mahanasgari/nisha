@@ -28,7 +28,9 @@ const REVIEW_STATUS_LABELS: Record<CustomerReview["status"], string> = {
 
 async function uploadReviewImages(files: FileList | null): Promise<string[]> {
   if (!files || files.length === 0) return [];
-  const uploads = await Promise.all(Array.from(files).map((file) => uploadPublicImage(file)));
+  const uploads = await Promise.all(
+    Array.from(files).map((file) => uploadPublicImage(file, { preferCustomer: true })),
+  );
   return uploads.map((item) => item.url);
 }
 

@@ -1,24 +1,27 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import * as storesApi from "@/lib/api/public/stores";
 import { useCart } from "@/contexts/CartContext";
 import { resolveMediaUrl } from "@/lib/media";
 import { resolveContactHref } from "@/lib/seller/contactChannels";
-import { findSellerStoreCategory } from "@/lib/seller/storeCategories";
 import { MessageSellerButton } from "@/components/store/MessageSellerButton";
 import { ProductBrowser } from "@/components/store/ProductBrowser";
+import { StoreCollapsingCover } from "@/components/store/StoreCollapsingCover";
+import { useStoreChrome } from "@/components/store/StoreChromeContext";
 import { Badge } from "@/components/ui/Badge";
-import { Card, CardContent } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorAlert } from "@/components/ui/ErrorAlert";
+import { Modal } from "@/components/ui/Modal";
 import {
   SocialIcon,
   getSocialPlatformLabel,
   type SocialPlatformKey,
 } from "@/components/ui/SocialIcon";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { Tabs } from "@/components/ui/Tabs";
+import { OrbLoader } from "@/components/ui/OrbLoader";
+import { useSectionTravel } from "@/components/ui/SectionTravel";
 import type { PublicStorePageResponse } from "@/types/public/store";
 
 type StorePageClientProps = {
@@ -27,49 +30,67 @@ type StorePageClientProps = {
   initialError?: string | null;
 };
 
-type StoreSectionKey = "products" | "reviews" | "about";
+function StorePageChromeSync({
+  categories,
+  reviewCount,
+  onOpenAbout,
+  onOpenReviews,
+}: {
+  categories: PublicStorePageResponse["categories"];
+  reviewCount: number;
+  onOpenAbout: () => void;
+  onOpenReviews: () => void;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const {
+    setCategories,
+    setReviewCount,
+    setActiveCategorySlug,
+    registerActions,
+  } = useStoreChrome();
 
-const STORE_SECTION_ITEMS: { key: StoreSectionKey; label: string }[] = [
-  { key: "products", label: "محصولات" },
-  { key: "reviews", label: "نظرات" },
-  { key: "about", label: "درباره" },
-];
-
-function isVerifiedBadge(badge: string): boolean {
-  return badge.trim().toUpperCase() === "VERIFIED";
-}
-
-function formatTrustBadgeLabel(badge: string): string {
-  return badge
-    .trim()
-    .replace(/[_-]+/g, " ")
-    .toLowerCase()
-    .replace(/(^|\s)\S/g, (letter) => letter.toUpperCase());
-}
-
-function VerifiedTick() {
-  return (
-    <span
-      className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-sky-500 text-white shadow-sm ring-2 ring-white/15"
-      aria-label="فروشگاه تاییدشده"
-      title="فروشگاه تاییدشده"
-    >
-      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.4" className="h-3.5 w-3.5">
-        <path d="M4.5 10.5 8.1 14l7.4-8" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </span>
+  const selectCategory = useCallback(
+    (slug: string | null) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (slug) params.set("category", slug);
+      else params.delete("category");
+      params.delete("page");
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+      setActiveCategorySlug(slug);
+    },
+    [pathname, router, searchParams, setActiveCategorySlug],
   );
+
+  useEffect(() => {
+    setCategories(categories);
+    setReviewCount(reviewCount);
+  }, [categories, reviewCount, setCategories, setReviewCount]);
+
+  useEffect(() => {
+    setActiveCategorySlug(searchParams.get("category"));
+  }, [searchParams, setActiveCategorySlug]);
+
+  useEffect(() => {
+    registerActions({
+      openAbout: onOpenAbout,
+      openReviews: onOpenReviews,
+      selectCategory,
+    });
+  }, [onOpenAbout, onOpenReviews, registerActions, selectCategory]);
+
+  return null;
 }
 
 export function StorePageClient({ slug, initialData, initialError }: StorePageClientProps) {
   const { reconcileWithProducts } = useCart();
+  const { travelTo } = useSectionTravel();
   const [data, setData] = useState<PublicStorePageResponse | null>(initialData ?? null);
   const [error, setError] = useState<string | null>(initialError ?? null);
   const [loading, setLoading] = useState(!initialData && !initialError);
-  const [activeSection, setActiveSection] = useState<StoreSectionKey>("products");
-  const productsSectionRef = useRef<HTMLElement | null>(null);
-  const reviewsSectionRef = useRef<HTMLElement | null>(null);
-  const aboutSectionRef = useRef<HTMLElement | null>(null);
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   useEffect(() => {
     if (initialData) {
@@ -97,47 +118,38 @@ export function StorePageClient({ slug, initialData, initialError }: StorePageCl
     };
   }, [slug, initialData, reconcileWithProducts]);
 
+  function openReviews() {
+    travelTo(
+      () => {
+        document.getElementById("store-reviews")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      },
+      { state: "connecting", label: "رفتن به نظرات..." },
+    );
+  }
+
+  function openAbout() {
+    travelTo(() => setAboutOpen(true), {
+      state: "listening",
+      label: "باز کردن درباره فروشگاه...",
+    });
+  }
+
   const activeLinks = useMemo(
     () => (data?.social_links ?? []).filter((link) => link.is_active),
     [data?.social_links],
   );
 
-  const storeTrustBadges = useMemo(() => {
-    const badges = data?.store.trust_badges ?? [];
-    return badges.filter((badge) => !isVerifiedBadge(badge));
-  }, [data?.store.trust_badges]);
-
-  const verifiedStore = useMemo(
-    () => (data?.store.trust_badges ?? []).some(isVerifiedBadge),
-    [data?.store.trust_badges],
-  );
-
-  function scrollToSection(section: StoreSectionKey) {
-    setActiveSection(section);
-    const target =
-      section === "products"
-        ? productsSectionRef.current
-        : section === "reviews"
-          ? reviewsSectionRef.current
-          : aboutSectionRef.current;
-    target?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
   if (loading) {
     return (
-      <div className="space-y-8">
-        <Skeleton className="h-56 w-full rounded-3xl" />
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-          <div className="space-y-4">
-            <Skeleton className="h-10 w-48" />
-            <Skeleton className="h-6 w-full max-w-2xl" />
-            <div className="grid grid-cols-2 gap-2 sm:gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton key={i} className="h-72 w-full rounded-2xl" />
-              ))}
-            </div>
-          </div>
-          <Skeleton className="min-h-[520px] w-full rounded-3xl" />
+      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-6 py-16">
+        <OrbLoader state="weaving" size={64} label="در حال بارگذاری فروشگاه..." />
+        <div className="grid w-full max-w-3xl grid-cols-2 gap-2 opacity-40 sm:grid-cols-3 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="aspect-square w-full rounded-lg" />
+          ))}
         </div>
       </div>
     );
@@ -155,11 +167,10 @@ export function StorePageClient({ slug, initialData, initialError }: StorePageCl
   const coverUrl = store.cover_image_url ? resolveMediaUrl(store.cover_image_url) : null;
   const logoUrl = store.logo_url ? resolveMediaUrl(store.logo_url) : null;
   const ratingText = review_summary.average_rating.toFixed(1);
-  const categoryLabel = store.category_name ?? findSellerStoreCategory(store.category_slug)?.label ?? null;
 
   return (
     <div
-      className="space-y-6"
+      className="space-y-3 sm:space-y-5"
       style={
         store.primary_color
           ? ({ ["--store-primary" as string]: store.primary_color } as React.CSSProperties)
@@ -167,296 +178,170 @@ export function StorePageClient({ slug, initialData, initialError }: StorePageCl
       }
       data-theme={store.theme_preset || "default"}
     >
-      <section className="overflow-hidden rounded-[2rem] border border-border bg-surface shadow-sm">
-        <div className="relative overflow-hidden bg-neutral-950 text-white">
-          {coverUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={coverUrl} alt={`کاور ${store.name}`} className="absolute inset-0 h-full w-full object-cover opacity-30" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-b from-neutral-950/95 via-neutral-950/78 to-neutral-950/70" />
-          <div className="relative px-5 py-5 md:px-8 md:py-6">
-            <div className="max-w-4xl">
-              <div className="flex flex-wrap items-center gap-4">
-                {logoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={logoUrl}
-                    alt={store.name}
-                    className="h-12 w-12 rounded-xl border border-white/20 bg-white object-cover shadow-lg md:h-14 md:w-14"
-                  />
-                ) : (
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-base font-semibold md:h-14 md:w-14">
-                    {store.name.charAt(0).toUpperCase()}
-                  </div>
-                )}
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="text-2xl font-bold tracking-tight max-md:text-xl md:text-3xl">{store.name}</h1>
-                    {verifiedStore && <VerifiedTick />}
-                    {categoryLabel && <Badge className="bg-white/10 text-white">{categoryLabel}</Badge>}
-                    <Badge className="bg-white/10 text-white">میانگین {ratingText}</Badge>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-                  <MessageSellerButton storeId={store.id} />
-                  {store.website && (
-                    <a
-                      href={resolveContactHref("website", store.website)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/20"
-                    >
-                      وب‌سایت
-                    </a>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => scrollToSection("reviews")}
-                    className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/20"
-                  >
-                    نظرات
-                  </button>
-                </div>
-              </div>
-              {store.description && (
-                <p className="mt-3 max-w-3xl text-sm leading-6 text-white/70">
-                  {store.description}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
+      <Suspense fallback={null}>
+        <StorePageChromeSync
+          categories={categories}
+          reviewCount={review_summary.review_count}
+          onOpenAbout={openAbout}
+          onOpenReviews={openReviews}
+        />
+      </Suspense>
 
-      <section className="grid grid-cols-2 gap-2 sm:gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {storeTrustBadges.map((badge) => (
-          <Card key={badge} className="border-border">
-            <CardContent className="flex items-center gap-3 py-4">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-surface-muted text-sky-600">
-                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" className="h-5 w-5">
-                  <path
-                    d="M10 2.8 16.2 6v6.2c0 2.8-2 5.3-6.2 5.9-4.2-.6-6.2-3.1-6.2-5.9V6L10 2.8Z"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path d="m7.5 10.3 1.8 1.8 3.8-4" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
-              <p className="font-semibold text-foreground">{formatTrustBadgeLabel(badge)}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </section>
-
-      <Tabs
-        items={STORE_SECTION_ITEMS.map((item) => ({
-          ...item,
-          label:
-            item.key === "products"
-              ? `محصولات (${products.length})`
-              : item.key === "reviews"
-                ? `نظرات (${review_summary.review_count})`
-                : item.label,
-        }))}
-        activeKey={activeSection}
-        onChange={(key) => scrollToSection(key as StoreSectionKey)}
+      <StoreCollapsingCover
+        storeName={store.name}
+        coverUrl={coverUrl}
+        logoUrl={logoUrl}
+        description={store.description}
+        ratingText={ratingText}
+        reviewCount={review_summary.review_count}
+        onOpenReviews={openReviews}
+        onOpenAbout={openAbout}
+        trailingAction={<MessageSellerButton storeId={store.id} variant="icon" />}
       />
 
-      {activeSection === "products" && (
-        <section ref={productsSectionRef} id="products" className="scroll-mt-24 space-y-4">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h2 className="text-2xl font-semibold text-foreground">محصولات</h2>
+      <Modal
+        open={aboutOpen}
+        onClose={() => setAboutOpen(false)}
+        title="درباره فروشگاه"
+        className="max-h-[min(85vh,36rem)] overflow-y-auto sm:max-w-md"
+      >
+        <div className="space-y-4 text-sm leading-7 text-foreground">
+          {store.about_text ? <p className="whitespace-pre-wrap">{store.about_text}</p> : null}
+          {store.description ? (
+            <p className={store.about_text ? "text-foreground-muted" : undefined}>{store.description}</p>
+          ) : null}
+          {!store.about_text && !store.description ? (
+            <p className="text-foreground-muted">توضیحی ثبت نشده است.</p>
+          ) : null}
 
+          {(store.phone || store.website) && (
+            <div className="space-y-1.5 border-t border-border/70 pt-3">
+              {store.phone ? (
+                <p>
+                  <span className="text-foreground-muted">تلفن: </span>
+                  {store.phone}
+                </p>
+              ) : null}
+              {store.website ? (
+                <a
+                  href={store.website}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block truncate text-brand hover:underline"
+                >
+                  {store.website}
+                </a>
+              ) : null}
             </div>
-            <Badge variant="info">{products.length} موجود</Badge>
-          </div>
+          )}
 
-          <Suspense fallback={null}>
-            <ProductBrowser slug={slug} initialProducts={products} categories={categories} />
-          </Suspense>
-        </section>
-      )}
-
-      {activeSection === "reviews" && (
-        <section ref={reviewsSectionRef} id="reviews" className="scroll-mt-24 space-y-4">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h2 className="text-2xl font-semibold text-foreground">نظرات</h2>
-              <p className="mt-1 text-sm text-foreground-muted">
-                میانگین امتیاز و بازخوردهای اخیر خریداران اینجا نمایش داده می‌شود.
-              </p>
+          {activeLinks.length > 0 ? (
+            <div className="flex flex-wrap gap-2 border-t border-border/70 pt-3">
+              {activeLinks.map((link) => (
+                <a
+                  key={link.id}
+                  href={resolveContactHref((link.icon_key as SocialPlatformKey) || "other", link.url)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm transition hover:border-brand/40 hover:text-brand"
+                >
+                  <SocialIcon platform={(link.icon_key as SocialPlatformKey) || "other"} />
+                  {link.icon_key
+                    ? getSocialPlatformLabel(link.icon_key as SocialPlatformKey)
+                    : link.label}
+                </a>
+              ))}
             </div>
-            <Badge variant="success">{review_summary.review_count} نظر</Badge>
+          ) : null}
+
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/70 pt-3">
+            <MessageSellerButton storeId={store.id} />
+            <button
+              type="button"
+              onClick={() => setAboutOpen(false)}
+              className="rounded-lg px-3 py-2 text-sm text-foreground-muted transition hover:bg-surface-muted hover:text-foreground"
+            >
+              بستن
+            </button>
           </div>
+        </div>
+      </Modal>
 
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-            <Card>
-              <CardContent className="space-y-4 py-6">
-                <div className="flex flex-wrap items-end justify-between gap-4">
-                  <div>
-                    <p className="text-xs tracking-[0.2em] text-foreground-muted">میانگین امتیاز</p>
-                    <p className="mt-2 text-5xl font-bold text-foreground">{ratingText}</p>
-                    <p className="mt-1 text-sm text-foreground-muted">
-                      بر اساس {review_summary.review_count} نظر عمومی
-                    </p>
-                  </div>
-                  <Badge variant="info">نظرات اخیر</Badge>
-                </div>
+      <section id="store-products" className="scroll-mt-24 space-y-3">
+        <Suspense fallback={null}>
+          <ProductBrowser slug={slug} initialProducts={products} categories={categories} />
+        </Suspense>
+      </section>
 
-                <div className="space-y-3">
-                  {review_summary.recent_reviews.length === 0 ? (
-                    <EmptyState
-                      title="هنوز نظری ثبت نشده"
-                      description="این فروشگاه هنوز نظر عمومی تاییدشده‌ای ندارد."
-                    />
-                  ) : (
-                    review_summary.recent_reviews.map((review) => (
-                      <div key={review.id} className="rounded-2xl border border-border p-4">
-                        <div className="flex items-center justify-between gap-3">
-                          <p className="font-medium text-foreground">{review.customer_name}</p>
-                          <Badge variant="success">{review.rating} / 5</Badge>
-                        </div>
-                        {review.title && <p className="mt-2 text-sm font-medium text-foreground">{review.title}</p>}
-                        {review.comment && <p className="mt-1 text-sm leading-6 text-foreground-muted">{review.comment}</p>}
-                        {review.image_urls.length > 0 && (
-                          <div className="mt-3 flex gap-2 overflow-x-auto">
-                            {review.image_urls.map((image) => (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                key={image}
-                                src={resolveMediaUrl(image)}
-                                alt={`تصویر نظر ${review.customer_name}`}
-                                className="h-16 w-16 shrink-0 rounded-lg border border-border object-cover"
-                              />
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="space-y-4 py-6">
-                <div>
-                  <p className="text-xs tracking-[0.2em] text-foreground-muted">خلاصه نظرات</p>
-                  <p className="mt-2 text-3xl font-bold text-foreground">{ratingText}</p>
-                  <p className="mt-1 text-sm text-foreground-muted">
-                    میانگین امتیاز و تعداد نظرات نمایش داده می‌شود.
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  {[
-                    `میانگین امتیاز: ${ratingText}`,
-                    `تعداد نظرات: ${review_summary.review_count}`,
-                  ].map((item) => (
-                    <div key={item} className="rounded-2xl bg-surface-muted px-4 py-3 text-sm text-foreground">
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-      )}
-
-      {activeSection === "about" && (
-        <section ref={aboutSectionRef} id="about" className="scroll-mt-24 space-y-4">
-          <div className="flex flex-wrap items-end justify-between gap-3">
+      <section
+        id="store-reviews"
+        className="scroll-mt-24 space-y-3 rounded-xl border border-border bg-surface/80 p-3 sm:space-y-4 sm:rounded-2xl sm:p-4 sm:p-5"
+      >
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-surface-muted text-brand">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden className="h-4 w-4">
+                <path
+                  d="M5.5 18.5 4 21l3.2-1.2A8.5 8.5 0 1 0 5.5 18.5Z"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M8.5 10.5h7M8.5 13.5h4.5"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </span>
             <div>
-              <h2 className="text-2xl font-semibold text-foreground">درباره فروشگاه</h2>
-              <p className="mt-1 text-sm text-foreground-muted">
-                جزئیات فروشگاه، راه‌های ارتباطی و لینک‌های اجتماعی.
+              <h2 className="text-base font-semibold text-foreground">نظرات خریداران</h2>
+              <p className="mt-0.5 text-sm text-foreground-muted">
+                میانگین {ratingText} بر اساس {review_summary.review_count} نظر عمومی
               </p>
             </div>
           </div>
+          <Badge variant="success">{review_summary.review_count} نظر</Badge>
+        </div>
 
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-            <Card>
-              <CardContent className="space-y-5 py-6">
-                <div>
-                  <p className="text-xs tracking-[0.2em] text-foreground-muted">جزئیات فروشگاه</p>
-                  <div className="mt-3 space-y-2 text-sm leading-6 text-foreground">
-                    {store.about_text && <p className="whitespace-pre-wrap">{store.about_text}</p>}
-                    {store.description && <p>{store.description}</p>}
-                    {store.shipping_policy_text && (
-                      <div className="rounded-2xl border border-border bg-background/50 p-3">
-                        <p className="mb-1 text-xs tracking-[0.2em] text-foreground-muted">سیاست ارسال</p>
-                        <p className="whitespace-pre-wrap">{store.shipping_policy_text}</p>
-                      </div>
-                    )}
-                    {store.location && <p>موقعیت: {store.location}</p>}
-                    {store.phone && <p>تلفن: {store.phone}</p>}
-                    {store.support_contact && <p>پشتیبانی: {store.support_contact}</p>}
-                    {store.website && (
-                      <p>
-                        وب‌سایت:{" "}
-                        <a href={store.website} target="_blank" rel="noreferrer" className="text-brand hover:underline">
-                          {store.website}
-                        </a>
-                      </p>
-                    )}
-                  </div>
+        {review_summary.recent_reviews.length === 0 ? (
+          <EmptyState
+            title="هنوز نظری ثبت نشده"
+            description="این فروشگاه هنوز نظر عمومی تاییدشده‌ای ندارد."
+          />
+        ) : (
+          <div className="space-y-3">
+            {review_summary.recent_reviews.map((review) => (
+              <div key={review.id} className="rounded-2xl border border-border p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-medium text-foreground">{review.customer_name}</p>
+                  <Badge variant="success">{review.rating} / 5</Badge>
                 </div>
-
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="space-y-4 py-6">
-                <div>
-                  <p className="text-xs tracking-[0.2em] text-foreground-muted">لینک‌های اجتماعی</p>
-                  <div className="mt-3 space-y-2">
-                    {activeLinks.length === 0 ? (
-                      <p className="text-sm text-foreground-muted">لینک اجتماعی تنظیم نشده است.</p>
-                    ) : (
-                      activeLinks.map((link) => (
-                        <a
-                          key={link.id}
-                          href={resolveContactHref((link.icon_key as SocialPlatformKey) || "other", link.url)}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex items-center gap-3 rounded-2xl border border-border px-3 py-3 text-sm text-foreground transition hover:border-brand/40 hover:bg-brand/5"
-                        >
-                          <SocialIcon
-                            platform={(link.icon_key as SocialPlatformKey) || "other"}
-                            className="text-foreground"
-                          />
-                          <div className="min-w-0">
-                            <p className="font-medium text-foreground">
-                              {link.icon_key
-                                ? getSocialPlatformLabel(link.icon_key as SocialPlatformKey)
-                                : link.label}
-                            </p>
-                            <p className="truncate text-xs text-foreground-muted">{link.url}</p>
-                          </div>
-                        </a>
-                      ))
-                    )}
+                {review.title ? (
+                  <p className="mt-2 text-sm font-medium text-foreground">{review.title}</p>
+                ) : null}
+                {review.comment ? (
+                  <p className="mt-1 text-sm leading-6 text-foreground-muted">{review.comment}</p>
+                ) : null}
+                {review.image_urls.length > 0 ? (
+                  <div className="mt-3 flex gap-2 overflow-x-auto">
+                    {review.image_urls.map((image) => (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        key={image}
+                        src={resolveMediaUrl(image)}
+                        alt={`تصویر نظر ${review.customer_name}`}
+                        className="h-16 w-16 shrink-0 rounded-lg border border-border object-cover"
+                      />
+                    ))}
                   </div>
-                </div>
-
-                {storeTrustBadges.length > 0 && (
-                  <div>
-                    <p className="text-xs tracking-[0.2em] text-foreground-muted">نشان‌های اعتماد</p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {storeTrustBadges.map((badge) => (
-                        <Badge key={badge} variant="info">
-                          {formatTrustBadgeLabel(badge)}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                ) : null}
+              </div>
+            ))}
           </div>
-        </section>
-      )}
+        )}
+      </section>
     </div>
   );
 }

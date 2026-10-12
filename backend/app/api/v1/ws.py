@@ -173,7 +173,7 @@ async def seller_chat_ws(
     await websocket.accept()
     manager.set_loop(asyncio.get_running_loop())
     try:
-        claims = consume_ws_ticket(ticket)
+        claims = consume_ws_ticket(ticket, db)
     except ValueError:
         await websocket.close(code=WS_UNAUTHORIZED)
         return
@@ -207,7 +207,7 @@ async def customer_chat_ws(
     await websocket.accept()
     manager.set_loop(asyncio.get_running_loop())
     try:
-        claims = consume_ws_ticket(ticket)
+        claims = consume_ws_ticket(ticket, db)
     except ValueError:
         await websocket.close(code=WS_UNAUTHORIZED)
         return
@@ -242,7 +242,7 @@ async def order_chat_ws(
     await websocket.accept()
     manager.set_loop(asyncio.get_running_loop())
     try:
-        claims = consume_ws_ticket(ticket)
+        claims = consume_ws_ticket(ticket, db)
     except ValueError:
         await websocket.close(code=WS_UNAUTHORIZED)
         return

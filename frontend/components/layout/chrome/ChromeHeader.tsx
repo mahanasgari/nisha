@@ -37,7 +37,7 @@ export function ChromeHeader({
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 border-b border-border bg-surface/90 backdrop-blur",
+        "sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-xl",
         className,
       )}
     >

@@ -76,7 +76,7 @@ export default function AdminStoresPage() {
     setActionId(storeId);
     try {
       const session = await supportApi.impersonateStore(storeId);
-      setSession(session.access_token, session.user);
+      setSession(session.access_token, session.user, session.refresh_token);
       toast.success("با حساب فروشنده وارد شدید");
       router.push(paths.seller.dashboard);
     } catch {

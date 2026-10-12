@@ -33,12 +33,39 @@ def _content_type_for(path: Path) -> str:
     }.get(suffix, "application/octet-stream")
 
 
+def _url_matches_key(url: str, key: str) -> bool:
+    """Exact key match via extract_private_key (not substring contains)."""
+    from app.services.private_media_service import extract_private_key
+
+    return extract_private_key(url) == key
+
+
 def _user_may_access_key(db: Session, user: User, key: str) -> bool:
     if user.role == UserRole.ADMIN:
         return True
 
-    proofs = db.query(PaymentProof).filter(PaymentProof.image_url.contains(key)).all()
+    from app.services.private_media_service import PRIVATE_MEDIA_PREFIX
+    from sqlalchemy import or_
+
+    key = key.lstrip("/")
+    candidates = (
+        f"{PRIVATE_MEDIA_PREFIX}{key}",
+        f"/uploads/{key}",
+    )
+    proofs = (
+        db.query(PaymentProof)
+        .filter(
+            or_(
+                PaymentProof.image_url.in_(candidates),
+                PaymentProof.image_url.like(f"%/{key}"),
+                PaymentProof.image_url.like(f"%/{key}?%"),
+            )
+        )
+        .all()
+    )
     for proof in proofs:
+        if not _url_matches_key(proof.image_url or "", key):
+            continue
         order = db.get(Order, proof.order_id)
         if order is None:
             continue
@@ -48,10 +75,18 @@ def _user_may_access_key(db: Session, user: User, key: str) -> bool:
 
     sub_proofs = (
         db.query(SubscriptionPaymentProof)
-        .filter(SubscriptionPaymentProof.image_url.contains(key))
+        .filter(
+            or_(
+                SubscriptionPaymentProof.image_url.in_(candidates),
+                SubscriptionPaymentProof.image_url.like(f"%/{key}"),
+                SubscriptionPaymentProof.image_url.like(f"%/{key}?%"),
+            )
+        )
         .all()
     )
     for proof in sub_proofs:
+        if not _url_matches_key(proof.image_url or "", key):
+            continue
         invoice = db.get(SubscriptionInvoice, proof.invoice_id)
         if invoice is not None and invoice.seller_user_id == user.id:
             return True
@@ -83,7 +118,9 @@ def get_private_media(
             if payload.get("role") == "CUSTOMER":
                 raise HTTPException(status_code=403, detail="Forbidden")
             user_id = int(payload.get("sub", ""))
-        except (ValueError, TypeError, HTTPException):
+        except HTTPException:
+            raise
+        except (ValueError, TypeError):
             raise HTTPException(status_code=401, detail="Authentication required") from None
         user = db.get(User, user_id)
         if user is None or not user.is_active:

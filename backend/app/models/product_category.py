@@ -25,10 +25,25 @@ class ProductCategory(TimestampMixin, Base):
         nullable=False,
         index=True,
     )
+    parent_id: Mapped[int | None] = mapped_column(
+        ForeignKey("product_categories.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     slug: Mapped[str] = mapped_column(String(100), nullable=False)
     sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     store: Mapped["Store"] = relationship("Store", back_populates="product_categories")
+    parent: Mapped["ProductCategory | None"] = relationship(
+        "ProductCategory",
+        remote_side="ProductCategory.id",
+        back_populates="children",
+    )
+    children: Mapped[list["ProductCategory"]] = relationship(
+        "ProductCategory",
+        back_populates="parent",
+        cascade="all, delete-orphan",
+    )
     products: Mapped[list["Product"]] = relationship("Product", back_populates="category")

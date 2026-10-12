@@ -21,17 +21,18 @@ def _utcnow() -> datetime:
 
 
 def expire_stale_reservations(db: Session, *, limit: int = 100) -> int:
-    """Cancel expired PENDING_PAYMENT orders and restore stock.
+    """Cancel expired PENDING_PAYMENT / PAYMENT_UPLOADED orders and restore stock.
 
     Idempotent: uses stock_restored and status checks under row locks.
     """
     now = _utcnow()
+    expireable = (OrderStatus.PENDING_PAYMENT, OrderStatus.PAYMENT_UPLOADED)
     candidates = list(
         db.scalars(
             select(Order)
             .options(selectinload(Order.items))
             .where(
-                Order.status == OrderStatus.PENDING_PAYMENT,
+                Order.status.in_(expireable),
                 Order.reservation_expires_at.is_not(None),
                 Order.stock_restored.is_(False),
             )
@@ -59,7 +60,7 @@ def expire_stale_reservations(db: Session, *, limit: int = 100) -> int:
             .where(Order.id == order.id)
             .with_for_update()
         )
-        if locked is None or locked.stock_restored or locked.status != OrderStatus.PENDING_PAYMENT:
+        if locked is None or locked.stock_restored or locked.status not in expireable:
             continue
         locked_expires = locked.reservation_expires_at
         if locked_expires is None:

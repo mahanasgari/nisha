@@ -19,7 +19,7 @@ export function PricingPeriodToggle({ value, onChange, className }: PricingPerio
   return (
     <div
       className={cn(
-        "inline-flex flex-wrap items-center justify-center gap-1 rounded-full border border-border bg-surface-muted/60 p-1",
+        "inline-flex flex-wrap items-center justify-center gap-1 rounded-lg border border-border bg-surface-muted/60 p-1",
         className,
       )}
       role="group"
@@ -33,9 +33,9 @@ export function PricingPeriodToggle({ value, onChange, className }: PricingPerio
             type="button"
             onClick={() => onChange(option.value)}
             className={cn(
-              "rounded-full px-4 py-2 text-sm font-medium transition-colors",
+              "rounded-md px-4 py-2 text-sm font-medium transition-colors",
               selected
-                ? "bg-foreground text-background shadow-sm"
+                ? "bg-surface text-foreground shadow-sm"
                 : "text-foreground-muted hover:text-foreground",
             )}
           >

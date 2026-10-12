@@ -52,3 +52,10 @@ backend/uploads/
 nisha_flutter/android/key.properties
 nisha_flutter/android/**/*.jks
 nisha_flutter/android/**/*.keystore
+
+# Local tooling / alt build dirs
+.next-dev/
+.local/
+.mimocode/
+.agents/
+skills-lock.json

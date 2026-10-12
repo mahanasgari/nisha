@@ -17,27 +17,38 @@ export function RotatingWords({
 
   useEffect(() => {
     if (words.length < 2) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const timer = setInterval(() => {
+    let swapTimer = 0;
+    const timer = window.setInterval(() => {
       setLeaving(true);
-      setTimeout(() => {
+      swapTimer = window.setTimeout(() => {
         setIndex((current) => (current + 1) % words.length);
         setLeaving(false);
-      }, 260);
+      }, 280);
     }, intervalMs);
 
-    return () => clearInterval(timer);
+    return () => {
+      window.clearInterval(timer);
+      window.clearTimeout(swapTimer);
+    };
   }, [words.length, intervalMs]);
 
   return (
-    <span
-      className={cn(
-        "inline-block transition-all duration-300 ease-out motion-reduce:transition-none",
-        leaving ? "-translate-y-2 opacity-0" : "translate-y-0 opacity-100",
-        className,
-      )}
-    >
-      {words[index]}
+    <span className="relative inline-grid max-w-full align-baseline">
+      {words.map((word) => (
+        <span key={word} className="invisible col-start-1 row-start-1 whitespace-nowrap" aria-hidden>
+          {word}
+        </span>
+      ))}
+      <span
+        className={cn(
+          "col-start-1 row-start-1 whitespace-nowrap transition-all duration-300 ease-out motion-reduce:transition-none",
+          leaving ? "-translate-y-3 opacity-0" : "translate-y-0 opacity-100",
+        )}
+      >
+        <span className={className}>{words[index]}</span>
+      </span>
     </span>
   );
 }

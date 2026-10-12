@@ -149,6 +149,14 @@ def claim_order(
         payload.invoice_password,
     )
 
+    # Lock order row first so concurrent claims cannot steal ownership.
+    locked_order = db.scalar(
+        select(Order).where(Order.id == order.id).with_for_update()
+    )
+    if locked_order is None:
+        raise ServiceError("Order not found", status_code=404)
+    order = locked_order
+
     claim = db.scalar(
         select(OrderClaim)
         .where(OrderClaim.order_id == order.id)

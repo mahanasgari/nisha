@@ -1,40 +1,50 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import * as categoriesApi from "@/lib/api/seller/categories";
 import { ApiError } from "@/lib/api/errors";
 import { useSellerFetch } from "@/hooks/useSellerFetch";
 import { useToast } from "@/contexts/ToastContext";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { ErrorAlert } from "@/components/ui/ErrorAlert";
-import { Input } from "@/components/ui/Input";
-import { LoadingState } from "@/components/ui/LoadingState";
 
 export function ProductCategoryManager() {
   const toast = useToast();
+  const inputRef = useRef<HTMLInputElement>(null);
   const { data, error, isLoading, refetch } = useSellerFetch(
     () => categoriesApi.listCategories(),
     [],
   );
+  const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
+  const [parentId, setParentId] = useState<number | "">("");
   const [saving, setSaving] = useState(false);
+
+  const categories = data ?? [];
+  const roots = useMemo(
+    () => categories.filter((c) => !c.parent_id),
+    [categories],
+  );
 
   const handleCreate = useCallback(async () => {
     const trimmed = name.trim();
     if (!trimmed) return;
     setSaving(true);
     try {
-      await categoriesApi.createCategory({ name: trimmed });
+      await categoriesApi.createCategory({
+        name: trimmed,
+        parent_id: parentId === "" ? null : parentId,
+      });
       setName("");
-      toast.success("دسته‌بندی اضافه شد");
+      setParentId("");
+      setOpen(false);
+      toast.success(parentId === "" ? "دسته‌بندی اضافه شد" : "زیردسته اضافه شد");
       await refetch();
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "ذخیره دسته‌بندی ناموفق بود");
     } finally {
       setSaving(false);
     }
-  }, [name, refetch, toast]);
+  }, [name, parentId, refetch, toast]);
 
   async function handleDelete(id: number) {
     try {
@@ -46,58 +56,128 @@ export function ProductCategoryManager() {
     }
   }
 
-  if (isLoading) return <LoadingState message="در حال بارگذاری دسته‌بندی‌ها..." />;
+  if (isLoading) return null;
   if (error) return <ErrorAlert message={error} />;
 
-  const categories = data ?? [];
-
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>دسته‌بندی محصولات</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-sm text-foreground-muted">
-          دسته‌بندی‌ها در ویترین فروشگاه برای فیلتر محصولات نمایش داده می‌شوند.
-        </p>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-          <Input
-            label="نام دسته جدید"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="مثلا: کیف و کفش"
-            className="flex-1"
-          />
-          <Button type="button" onClick={() => void handleCreate()} loading={saving} disabled={!name.trim()}>
-            افزودن
-          </Button>
-        </div>
-        {categories.length === 0 ? (
-          <p className="text-sm text-foreground-muted">هنوز دسته‌بندی نساخته‌اید.</p>
-        ) : (
-          <ul className="divide-y divide-border rounded-xl border border-border">
-            {categories.map((category) => (
-              <li key={category.id} className="flex items-center justify-between gap-3 px-4 py-3">
-                <div>
-                  <p className="font-medium text-foreground">{category.name}</p>
-                  <p className="text-xs text-foreground-muted" dir="ltr">
-                    {category.slug}
-                  </p>
-                </div>
-                <Button
+    <div className="space-y-2">
+      <ul className="flex flex-wrap items-center gap-1.5">
+        {roots.map((root) => {
+          const children = categories.filter((c) => c.parent_id === root.id);
+          return (
+            <li key={root.id} className="contents">
+              <span className="group inline-flex items-center gap-1 rounded-md border border-border bg-surface-muted/50 py-0.5 pe-0.5 ps-2 text-[11px] text-foreground">
+                <span className="font-medium">{root.name}</span>
+                <button
                   type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="text-red-600 hover:text-red-700"
-                  onClick={() => void handleDelete(category.id)}
+                  onClick={() => void handleDelete(root.id)}
+                  className="rounded px-1 text-foreground-muted opacity-60 transition hover:bg-surface hover:text-red-600 hover:opacity-100"
+                  aria-label={`حذف ${root.name}`}
                 >
-                  حذف
-                </Button>
-              </li>
-            ))}
-          </ul>
+                  ×
+                </button>
+              </span>
+              {children.map((child) => (
+                <span
+                  key={child.id}
+                  className="group inline-flex items-center gap-1 rounded-md border border-dashed border-border bg-surface py-0.5 pe-0.5 ps-2 text-[11px] text-foreground-muted"
+                >
+                  <span>
+                    {root.name} / {child.name}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => void handleDelete(child.id)}
+                    className="rounded px-1 opacity-60 transition hover:bg-surface-muted hover:text-red-600 hover:opacity-100"
+                    aria-label={`حذف ${child.name}`}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </li>
+          );
+        })}
+
+        {open ? (
+          <li className="flex w-full flex-wrap items-center gap-1.5 sm:w-auto">
+            <form
+              className="inline-flex flex-wrap items-center gap-1"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void handleCreate();
+              }}
+            >
+              <select
+                value={parentId === "" ? "" : String(parentId)}
+                onChange={(e) => setParentId(e.target.value ? Number(e.target.value) : "")}
+                className="h-6 rounded-md border border-border bg-surface px-1 text-[11px] text-foreground"
+                aria-label="دسته والد"
+              >
+                <option value="">دسته اصلی</option>
+                {roots.map((root) => (
+                  <option key={root.id} value={root.id}>
+                    زیردستهٔ {root.name}
+                  </option>
+                ))}
+              </select>
+              <input
+                ref={inputRef}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    setName("");
+                    setParentId("");
+                    setOpen(false);
+                  }
+                }}
+                placeholder="نام دسته"
+                aria-label="نام دسته جدید"
+                autoFocus
+                disabled={saving}
+                className="h-6 w-28 rounded-md border border-border bg-surface px-1.5 text-[11px] text-foreground placeholder:text-foreground-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+              />
+              <button
+                type="submit"
+                disabled={saving || !name.trim()}
+                className="h-6 rounded-md bg-brand px-2 text-[11px] font-medium text-white disabled:opacity-50"
+              >
+                {saving ? "…" : "ثبت"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  setName("");
+                  setParentId("");
+                }}
+                className="h-6 rounded-md px-2 text-[11px] text-foreground-muted"
+              >
+                لغو
+              </button>
+            </form>
+          </li>
+        ) : (
+          <li>
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(true);
+                requestAnimationFrame(() => inputRef.current?.focus());
+              }}
+              className="inline-flex h-6 items-center gap-0.5 rounded-md border border-dashed border-border px-1.5 text-[11px] text-foreground-muted transition hover:border-brand hover:text-brand"
+              aria-label="افزودن دسته‌بندی"
+            >
+              <span aria-hidden>+</span>
+              دسته / زیردسته
+            </button>
+          </li>
         )}
-      </CardContent>
-    </Card>
+      </ul>
+      <p className="text-[11px] text-foreground-muted">
+        دسته اصلی و زیردسته در منوی همبرگری فروشگاه نمایش داده می‌شود.
+      </p>
+    </div>
   );
 }

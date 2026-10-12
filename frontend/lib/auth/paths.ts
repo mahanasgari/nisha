@@ -21,6 +21,8 @@ export const paths = {
     orderDetail: (id: number | string) => `/seller/orders/${id}`,
     conversations: "/seller/conversations",
     conversationDetail: (id: number | string) => `/seller/conversations/${id}`,
+    customers: "/seller/customers",
+    customerDetail: (key: string) => `/seller/customers/${encodeURIComponent(key)}`,
     discounts: "/seller/discounts",
     analytics: "/seller/analytics",
     subscription: "/seller/subscription",

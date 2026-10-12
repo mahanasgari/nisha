@@ -32,6 +32,7 @@ class PublicStoreProfile(BaseModel):
     guest_checkout_enabled: bool = False
     theme_preset: str | None = None
     primary_color: str | None = None
+    design_style: str | None = None
     about_text: str | None = None
     shipping_policy_text: str | None = None
     default_shipping_cost: Decimal = Decimal("0")
@@ -278,6 +279,7 @@ class CheckoutResponse(BaseModel):
     total_amount: Decimal
     items: list[CheckoutOrderItemSummary]
     payment_method: CheckoutPaymentInstructions
+    warning: str | None = None
 
 
 class MediaUploadResponse(BaseModel):

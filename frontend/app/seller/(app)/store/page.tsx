@@ -7,6 +7,7 @@ import { useToast } from "@/contexts/ToastContext";
 import { useSellerFetch } from "@/hooks/useSellerFetch";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StoreSettingsForm } from "@/components/seller/StoreSettingsForm";
+import { AppearancePanel } from "@/components/theme/AppearancePanel";
 import { Button } from "@/components/ui/Button";
 import { ErrorAlert } from "@/components/ui/ErrorAlert";
 import { LoadingState } from "@/components/ui/LoadingState";
@@ -22,11 +23,20 @@ export default function SellerStorePage() {
     await refetch();
   }
 
-  if (isLoading) return <LoadingState message="در حال بارگذاری فروشگاه..." />;
+  if (isLoading) {
+    return (
+      <div className="page-stack">
+        <PageHeader description="پروفایل عمومی فروشگاه خود را مدیریت کنید" />
+        <AppearancePanel />
+        <LoadingState message="در حال بارگذاری فروشگاه..." />
+      </div>
+    );
+  }
   if (error || !data) {
     return (
       <div className="page-stack">
         <PageHeader description="پروفایل عمومی فروشگاه خود را مدیریت کنید" />
+        <AppearancePanel />
         <ErrorAlert message={error ?? "بارگذاری فروشگاه ممکن نشد"} />
       </div>
     );
@@ -42,6 +52,7 @@ export default function SellerStorePage() {
           </Link>
         }
       />
+      <AppearancePanel />
       <StoreSettingsForm store={data} onSubmit={handleSubmit} />
     </div>
   );

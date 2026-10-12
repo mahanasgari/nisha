@@ -2,7 +2,7 @@ import { cn } from "@/lib/cn";
 import type { ButtonHTMLAttributes } from "react";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
-export type ButtonSize = "sm" | "md";
+export type ButtonSize = "sm" | "md" | "lg";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
@@ -12,20 +12,22 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-brand text-brand-foreground shadow-sm hover:bg-brand/90 focus-visible:ring-brand",
+    "vui-primary-btn bg-[rgb(var(--btn-primary))] text-[rgb(var(--btn-primary-fg))] shadow-sm hover:opacity-90 focus-visible:ring-brand/40",
   secondary:
-    "border border-border bg-surface text-foreground hover:bg-surface-muted",
-  ghost: "text-foreground hover:bg-surface-muted",
-  danger: "bg-red-600 dark:bg-red-700 text-white shadow-sm hover:bg-red-700 dark:hover:bg-red-800 focus-visible:ring-red-500 dark:focus-visible:ring-red-400",
+    "border border-border bg-surface text-foreground shadow-sm hover:bg-surface-muted focus-visible:ring-brand/40",
+  ghost: "text-foreground-muted hover:bg-surface-muted hover:text-foreground focus-visible:ring-brand/40",
+  danger:
+    "bg-red-600 text-white shadow-sm hover:bg-red-700 focus-visible:ring-red-500 dark:bg-red-700 dark:hover:bg-red-800",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: "px-3 py-1.5 text-sm",
-  md: "px-4 py-2 text-sm",
+  sm: "h-8 px-3 text-xs",
+  md: "h-10 px-4 text-sm",
+  lg: "h-11 px-5 text-sm",
 };
 
 const baseButtonClasses =
-  "inline-flex items-center justify-center gap-2 rounded-full font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60";
 
 /** Shared classes for `<Link>` / `<a>` that should look like a Button (never nest Button inside Link). */
 export function buttonClassName({

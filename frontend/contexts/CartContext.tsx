@@ -30,6 +30,8 @@ function sameLine(line: CartLine, productId: number, variantId?: number | null):
 type CartContextValue = {
   slug: string;
   items: CartLine[];
+  /** False until localStorage cart for this slug has been loaded (SSR-safe). */
+  hydrated: boolean;
   itemCount: number;
   subtotal: number;
   addItem: (
@@ -46,10 +48,13 @@ type CartContextValue = {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ slug, children }: { slug: string; children: ReactNode }) {
+  // Start empty so SSR and the first client paint match. Remount with
+  // key={slug} in StoreLayoutWrapper isolates carts across stores.
   const [items, setItems] = useState<CartLine[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    setHydrated(false);
     setItems(loadCartFromStorage(slug));
     setHydrated(true);
   }, [slug]);
@@ -175,6 +180,7 @@ export function CartProvider({ slug, children }: { slug: string; children: React
     () => ({
       slug,
       items,
+      hydrated,
       itemCount,
       subtotal,
       addItem,
@@ -186,6 +192,7 @@ export function CartProvider({ slug, children }: { slug: string; children: React
     [
       slug,
       items,
+      hydrated,
       itemCount,
       subtotal,
       addItem,

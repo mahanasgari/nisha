@@ -1,5 +1,8 @@
+from datetime import datetime, timedelta, timezone
+
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.schemas.chat import ConversationDetailResponse, MessageCreate, MessageResponse
 from app.schemas.customer_portal import CustomerReviewCreateRequest, CustomerReviewResponse
 from app.schemas.public import PublicReviewCreateRequest
@@ -37,8 +40,10 @@ async def upload_payment_proof(
         old_status = order.status
         if order.status == OrderStatus.PENDING_PAYMENT:
             order.status = OrderStatus.PAYMENT_UPLOADED
-            # Keep reservation until seller confirms/rejects; extend hold while proof is reviewed.
-            order.reservation_expires_at = None
+            # Keep a finite hold so abandoned proofs cannot freeze inventory forever.
+            order.reservation_expires_at = datetime.now(timezone.utc) + timedelta(
+                minutes=settings.PAYMENT_REVIEW_HOLD_MINUTES
+            )
             order_access_service.append_status_history(
                 db,
                 order=order,

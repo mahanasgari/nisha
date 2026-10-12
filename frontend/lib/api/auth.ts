@@ -17,3 +17,11 @@ export function register(payload: RegisterRequest): Promise<TokenResponse> {
 export function getCurrentUser(): Promise<User> {
   return apiGet<User>("/api/v1/auth/me");
 }
+
+export function refresh(refreshToken: string): Promise<TokenResponse> {
+  return apiPost<TokenResponse>(
+    "/api/v1/auth/refresh",
+    { refresh_token: refreshToken },
+    { auth: false },
+  );
+}

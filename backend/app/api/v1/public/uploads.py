@@ -51,9 +51,9 @@ async def guest_upload_file(
     request: Request,
     file: UploadFile = File(...),
 ) -> MediaUploadResponse:
-    """Unauthenticated file upload for guest checkout (rate-limited)."""
+    """Unauthenticated file upload for guest checkout (rate-limited, images only)."""
     try:
-        media = await save_uploaded_media(file, subdir="media")
+        media = await save_uploaded_media(file, subdir="media", image_only=True)
     except ServiceError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.message) from exc
     return MediaUploadResponse.model_validate(media)

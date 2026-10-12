@@ -39,7 +39,7 @@ export default function CustomerConversationsPage() {
       )}
 
       {data && data.length > 0 && (
-        <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
+        <div className="overflow-hidden rounded-xl border border-border bg-surface">
           {data.map((item) => (
             <ConversationListItemRow
               key={item.id}

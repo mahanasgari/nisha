@@ -2,6 +2,7 @@
 
 import { WorkspaceShell } from "@/components/layout/WorkspaceShell";
 import { AdminAuthGuard } from "@/components/auth/AdminAuthGuard";
+import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
 import { useAuth } from "@/contexts/AuthContext";
 import { paths } from "@/lib/auth/paths";
 
@@ -30,8 +31,10 @@ export default function AdminAppLayout({ children }: { children: React.ReactNode
         title="فضای عملیات"
         userName={user?.full_name ?? null}
         userMeta={user?.email ?? null}
+        identityName={user?.full_name ?? "مدیر"}
         navItems={navItems}
         onLogout={logout}
+        topActions={<ThemeSwitcher variant="design" />}
       >
         {children}
       </WorkspaceShell>

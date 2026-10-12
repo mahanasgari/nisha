@@ -24,10 +24,10 @@ export function Tabs({ items, activeKey, onChange, className, children }: TabsPr
             type="button"
             onClick={() => onChange(item.key)}
             className={cn(
-              "rounded-full px-4 py-2 text-sm font-medium transition-colors",
+              "rounded-xl px-4 py-2 text-sm font-medium transition-colors",
               activeKey === item.key
-                ? "bg-brand text-brand-foreground"
-                : "bg-surface text-foreground-muted ring-1 ring-border hover:bg-surface-muted",
+                ? "bg-brand text-brand-foreground shadow-sm"
+                : "text-foreground-muted hover:bg-surface-muted hover:text-foreground",
             )}
           >
             {item.label}

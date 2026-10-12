@@ -13,9 +13,15 @@ type ChatComposerProps = {
   }) => Promise<void>;
   disabled?: boolean;
   useGuestUpload?: boolean;
+  preferCustomerUpload?: boolean;
 };
 
-export function ChatComposer({ onSend, disabled, useGuestUpload = false }: ChatComposerProps) {
+export function ChatComposer({
+  onSend,
+  disabled,
+  useGuestUpload = false,
+  preferCustomerUpload = false,
+}: ChatComposerProps) {
   const [text, setText] = useState("");
   const [attachment, setAttachment] = useState<File | null>(null);
   const [attachmentPreview, setAttachmentPreview] = useState<string | null>(null);
@@ -46,8 +52,9 @@ export function ChatComposer({ onSend, disabled, useGuestUpload = false }: ChatC
 
       if (attachment) {
         setUploading(true);
-        const uploadFn = useGuestUpload ? uploadGuestImage : uploadPublicImage;
-        const uploaded = await uploadFn(attachment);
+        const uploaded = useGuestUpload
+          ? await uploadGuestImage(attachment)
+          : await uploadPublicImage(attachment, { preferCustomer: preferCustomerUpload });
         attachment_url = uploaded.url;
         attachment_mime_type = uploaded.mime_type ?? attachment.type ?? null;
       }

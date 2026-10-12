@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/SocialIcon";
 import { socialInputHint, socialInputPlaceholder } from "@/lib/seller/contactChannels";
 import { formatMoneyInput, moneyInputToNumber, parseMoneyInput } from "@/lib/moneyInput";
+import { cn } from "@/lib/cn";
 import type { Store, StoreUpdate } from "@/types/seller/store";
 
 type EditableSocialLink = {
@@ -100,6 +101,7 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
     Boolean(store.guest_checkout_enabled && entitlements.guest_checkout),
   );
   const [themePreset, setThemePreset] = useState(store.theme_preset ?? "default");
+  const [designStyle, setDesignStyle] = useState(store.design_style ?? "saas");
   const [primaryColor, setPrimaryColor] = useState(store.primary_color ?? "");
   const [aboutText, setAboutText] = useState(store.about_text ?? "");
   const [shippingPolicyText, setShippingPolicyText] = useState(store.shipping_policy_text ?? "");
@@ -150,6 +152,7 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
     setIsActive(store.is_active);
     setGuestCheckoutEnabled(Boolean(store.guest_checkout_enabled && canGuestCheckout));
     setThemePreset(store.theme_preset ?? "default");
+    setDesignStyle(store.design_style ?? "saas");
     setPrimaryColor(store.primary_color ?? "");
     setAboutText(store.about_text ?? "");
     setShippingPolicyText(store.shipping_policy_text ?? "");
@@ -266,6 +269,7 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
         ...(canTheme
           ? {
               theme_preset: themePreset || null,
+              design_style: designStyle || null,
               primary_color: primaryColor.trim() || null,
             }
           : {}),
@@ -306,14 +310,18 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-3">
                 <p className="text-sm font-medium text-foreground">لوگو</p>
-                <div className="overflow-hidden rounded-3xl border border-dashed border-border bg-surface-muted">
+                <div className="flex h-40 items-center justify-center overflow-hidden rounded-3xl border border-dashed border-border bg-surface-muted">
                   {logoPreview ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={logoPreview} alt="پیش‌نمایش لوگوی فروشگاه" className="h-40 w-full object-cover" />
+                    <img
+                      src={logoPreview}
+                      alt="پیش‌نمایش لوگوی فروشگاه"
+                      className="h-28 w-28 rounded-2xl border border-border object-cover shadow-sm"
+                    />
                   ) : (
-                    <div className="flex h-40 items-center justify-center text-sm text-foreground-muted">
+                    <p className="px-4 text-center text-sm text-foreground-muted">
                       هنوز لوگویی بارگذاری نشده است
-                    </div>
+                    </p>
                   )}
                 </div>
                 <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={uploadLogo} />
@@ -327,7 +335,11 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
                 <div className="overflow-hidden rounded-3xl border border-dashed border-border bg-surface-muted">
                   {coverPreview ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={coverPreview} alt="پیش‌نمایش تصویر روی جلد" className="h-40 w-full object-cover" />
+                    <img
+                      src={coverPreview}
+                      alt="پیش‌نمایش تصویر روی جلد"
+                      className="h-40 w-full object-cover"
+                    />
                   ) : (
                     <div className="flex h-40 items-center justify-center text-sm text-foreground-muted">
                       هنوز تصویری برای جلد بارگذاری نشده است
@@ -425,7 +437,7 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
                 />
               ) : (
                 socialLinks.map((link, index) => (
-                  <div key={`${index}-${link.platform}-${link.url}`} className="rounded-3xl border border-neutral-200 p-4">
+                  <div key={`${index}-${link.platform}-${link.url}`} className="rounded-3xl border border-border bg-surface/60 p-4">
                     <div className="flex items-start gap-3">
                       <SocialIcon platform={link.platform} />
                       <div className="min-w-0 flex-1 space-y-3">
@@ -516,8 +528,8 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
           </FormSection>
 
           <FormSection
-            title="ظاهر و صفحات (پلن حرفه‌ای+)"
-            description="رنگ برند، تم، درباره ما و سیاست ارسال. در پلن‌های پایین‌تر ممکن است ذخیره نشود."
+            title="ظاهر فروشگاه (ویترین عمومی)"
+            description="تم و رنگ برند برای صفحه عمومی فروشگاه — جدا از ظاهر پنل فروشنده. در پلن‌های پایین‌تر ممکن است ذخیره نشود."
           >
             {!(canTheme || canPages) && (
               <p className="text-sm text-foreground-muted">
@@ -527,9 +539,43 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
                 </Link>
               </p>
             )}
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-foreground">استایل ویترین</p>
+              <p className="text-xs text-foreground-muted">
+                این استایل فقط روی فروشگاه عمومی اعمال می‌شود؛ ظاهر پنل فروشنده جداست (نوار بالای صفحه).
+              </p>
+              <div className="grid grid-cols-3 gap-2">
+                {(
+                  [
+                    { value: "saas", label: "مدرن" },
+                    { value: "classic", label: "کلاسیک" },
+                    { value: "glass", label: "شیشه‌ای" },
+                  ] as const
+                ).map((option) => {
+                  const active = designStyle === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      disabled={!canTheme}
+                      onClick={() => setDesignStyle(option.value)}
+                      aria-pressed={active}
+                      className={cn(
+                        "rounded-lg border px-2 py-2 text-sm font-medium transition disabled:opacity-60",
+                        active
+                          ? "border-brand bg-brand/10 text-foreground ring-1 ring-brand/30"
+                          : "border-border text-foreground-muted hover:border-brand/40 hover:text-foreground",
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
             <div className="grid gap-4 md:grid-cols-2">
               <label className="space-y-1 text-sm">
-                <span>تم</span>
+                <span>تم رنگ ویترین</span>
                 <select
                   className="w-full rounded-xl border border-border bg-background px-3 py-2 disabled:opacity-60"
                   value={themePreset}

@@ -59,6 +59,7 @@ class Settings(BaseSettings):
     SUBSCRIPTION_PAYMENT_PROVIDER: Literal["card_to_card"] = "card_to_card"
     SUBSCRIPTION_PROOF_SUBDIR: str = "subscription-proofs"
     ORDER_RESERVATION_MINUTES: int = 20
+    PAYMENT_REVIEW_HOLD_MINUTES: int = 1440
     PRIVATE_UPLOAD_DIR: str = "./private_uploads"
     ALLOW_DEMO_SEED: bool = False
     RESERVATION_CLEANUP_ENABLED: bool = True

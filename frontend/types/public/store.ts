@@ -22,6 +22,7 @@ export type PublicStoreProfile = {
   guest_checkout_enabled: boolean;
   theme_preset?: string | null;
   primary_color?: string | null;
+  design_style?: string | null;
   about_text?: string | null;
   shipping_policy_text?: string | null;
   default_shipping_cost?: string;
@@ -32,6 +33,7 @@ export type PublicProductCategory = {
   id: number;
   name: string;
   slug: string;
+  parent_id?: number | null;
 };
 
 export type PublicStoreSocialLink = {

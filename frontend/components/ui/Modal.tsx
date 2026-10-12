@@ -80,7 +80,7 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
         aria-modal="true"
         aria-labelledby={title ? "modal-title" : undefined}
         className={cn(
-          "relative z-10 w-full max-w-[calc(100vw-2rem)] rounded-3xl border border-border bg-surface p-6 shadow-xl sm:max-w-lg",
+          "relative z-10 w-full max-w-[calc(100vw-2rem)] rounded-lg border border-border bg-surface p-6 shadow-xl sm:max-w-lg glass-panel backdrop-blur-xl",
           className,
         )}
       >

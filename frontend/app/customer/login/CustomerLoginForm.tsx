@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { AuthPageFrame } from "@/components/auth/AuthPageFrame";
 import { useCustomerAuth } from "@/contexts/CustomerAuthContext";
 import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { paths } from "@/lib/auth/paths";
 import { ApiError } from "@/lib/api/errors";
@@ -15,9 +17,12 @@ export default function CustomerLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const rawRedirect = searchParams.get("redirect");
-  const redirect = rawRedirect && rawRedirect.startsWith("/")
-    ? rawRedirect
-    : paths.customer.dashboard;
+  const redirect =
+    rawRedirect &&
+    rawRedirect.startsWith("/") &&
+    !rawRedirect.startsWith("//")
+      ? rawRedirect
+      : paths.customer.dashboard;
   const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -47,69 +52,67 @@ export default function CustomerLoginForm() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-surface p-6 shadow-sm">
-        <h1 className="text-2xl font-bold text-foreground max-md:text-xl">ورود مشتری</h1>
-        <p className="mt-1 text-sm text-foreground-muted">برای ارسال پیام به فروشندگان و حفظ تاریخچه گفتگو وارد شوید</p>
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <Input
-            label="ایمیل یا تلفن"
-            value={loginId}
-            onChange={(e) => setLoginId(e.target.value)}
-            required
-          />
-          <Input
-            label="رمز عبور"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          {error && (
-            <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-700 dark:text-red-200" role="alert">
-              {error}
+    <AuthPageFrame>
+      <Card className="mx-auto w-full max-w-md">
+        <CardHeader>
+          <CardTitle>ورود مشتری</CardTitle>
+          <p className="mt-1 text-sm text-foreground-muted">
+            برای ارسال پیام به فروشندگان و حفظ تاریخچه گفتگو وارد شوید
+          </p>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="ایمیل یا تلفن"
+              value={loginId}
+              onChange={(e) => setLoginId(e.target.value)}
+              required
+            />
+            <Input
+              label="رمز عبور"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            {error && (
+              <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-200" role="alert">
+                {error}
+              </p>
+            )}
+            {resendEmail && (
+              <button
+                type="button"
+                className="w-full text-sm font-medium text-brand-deep hover:underline"
+                onClick={async () => {
+                  try {
+                    await resendVerificationEmail(resendEmail, "customer");
+                    setError("ایمیل تأیید دوباره ارسال شد.");
+                  } catch {
+                    setError("ارسال دوباره ایمیل ممکن نشد");
+                  }
+                }}
+              >
+                ارسال دوباره ایمیل تأیید
+              </button>
+            )}
+            <Button type="submit" className="w-full" loading={submitting}>
+              ورود
+            </Button>
+            <p className="text-center text-sm text-foreground-muted">
+              حساب ندارید؟{" "}
+              <Link href={paths.customer.register} className="font-medium text-brand-deep hover:underline">
+                ثبت‌نام
+              </Link>
             </p>
-          )}
-          {resendEmail && (
-            <button
-              type="button"
-              className="w-full text-sm font-medium text-brand-deep hover:underline"
-              onClick={async () => {
-                try {
-                  await resendVerificationEmail(resendEmail, "customer");
-                  setError("ایمیل تأیید دوباره ارسال شد.");
-                  setResendEmail(null);
-                } catch (resendErr) {
-                  setError(
-                    resendErr instanceof ApiError ? resendErr.message : "ارسال مجدد ناموفق بود",
-                  );
-                }
-              }}
-            >
-              ارسال مجدد ایمیل تأیید
-            </button>
-          )}
-          <Button type="submit" className="w-full" loading={submitting}>
-            ورود
-          </Button>
-        </form>
-        <p className="mt-4 text-center text-sm text-foreground-muted">
-          حساب ندارید؟{" "}
-          <Link href={paths.customer.register} className="font-medium text-brand-deep hover:underline">
-            ثبت‌نام
-          </Link>
-        </p>
-        <p className="mt-2 text-center text-sm text-foreground-muted">
-          <Link href={paths.customer.recover} className="font-medium text-brand-deep hover:underline">
-            رمز عبور را فراموش کرده‌اید؟
-          </Link>
-        </p>
-        <p className="mt-2 text-center text-sm">
-          <Link href={paths.home} className="text-foreground-muted hover:underline">
-            بازگشت به صفحه اصلی
-          </Link>
-        </p>
-      </div>
-    </div>
+            <p className="text-center text-sm">
+              <Link href={paths.customer.recover} className="font-medium text-brand-deep hover:underline">
+                رمز عبور را فراموش کردی؟
+              </Link>
+            </p>
+          </form>
+        </CardContent>
+      </Card>
+    </AuthPageFrame>
   );
 }

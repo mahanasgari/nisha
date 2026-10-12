@@ -4,24 +4,27 @@ import { useRouter } from "next/navigation";
 import * as productsApi from "@/lib/api/seller/products";
 import { paths } from "@/lib/auth/paths";
 import { useToast } from "@/contexts/ToastContext";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { ProductForm } from "@/components/seller/ProductForm";
+import { NewProductComposer } from "@/components/seller/NewProductComposer";
 import type { ProductCreate } from "@/types/seller/product";
 
 export default function NewProductPage() {
   const router = useRouter();
   const toast = useToast();
 
-  async function handleSubmit(data: ProductCreate | import("@/types/seller/product").ProductUpdate) {
-    await productsApi.createProduct(data as ProductCreate);
-    toast.success("محصول ایجاد شد");
+  async function handlePublish(data: ProductCreate, mode: "list" | "edit") {
+    const product = await productsApi.createProduct(data);
+    toast.success("محصول منتشر شد");
+    if (mode === "edit") {
+      router.push(paths.seller.productEdit(product.id));
+      return product;
+    }
     router.push(paths.seller.products);
+    return product;
   }
 
   return (
-    <div className="page-stack">
-      <PageHeader title="محصول جدید" description="یک محصول به فروشگاه خود اضافه کنید" size="page" />
-      <ProductForm onSubmit={handleSubmit} submitLabel="ایجاد محصول" />
+    <div className="mx-auto w-full max-w-2xl py-1 sm:py-2">
+      <NewProductComposer onPublish={handlePublish} />
     </div>
   );
 }

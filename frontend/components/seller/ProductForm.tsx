@@ -9,11 +9,13 @@ import { useSellerEntitlements } from "@/hooks/useSellerEntitlements";
 import { useSellerFetch } from "@/hooks/useSellerFetch";
 import * as categoriesApi from "@/lib/api/seller/categories";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/Card";
+import { FormSection } from "@/components/ui/FormSection";
 import { Input } from "@/components/ui/Input";
 import { MoneyInput } from "@/components/ui/MoneyInput";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
+import { cn } from "@/lib/cn";
+import { resolveMediaUrl } from "@/lib/media";
 import { formatMoneyInput, moneyInputToNumber, parseMoneyInput } from "@/lib/moneyInput";
 import type {
   Product,
@@ -27,6 +29,8 @@ import type {
 
 type ProductFormProps = {
   initial?: Product;
+  /** Prefill gallery when creating (e.g. photo-first flow). Ignored if `initial` has images. */
+  seedImages?: ProductImageInput[];
   onSubmit: (data: ProductCreate | ProductUpdate) => Promise<void>;
   submitLabel?: string;
 };
@@ -104,19 +108,6 @@ function normalizeVariants(variants: Product["variants"]): EditableVariant[] {
   }));
 }
 
-function emptyImage(): EditableImage {
-  return {
-    clientKey: crypto.randomUUID(),
-    image_url: "",
-    thumbnail_url: "",
-    alt_text: "",
-    sort_order: 0,
-    mime_type: "",
-    width: null,
-    height: null,
-  };
-}
-
 function emptyField(): EditableField {
   return {
     clientKey: crypto.randomUUID(),
@@ -162,8 +153,22 @@ async function uploadImageFile(file: File): Promise<ProductImageInput> {
   };
 }
 
+function normalizeImageInputs(images: ProductImageInput[]): EditableImage[] {
+  return images.map((image, index) => ({
+    clientKey: crypto.randomUUID(),
+    image_url: image.image_url,
+    thumbnail_url: image.thumbnail_url ?? "",
+    alt_text: image.alt_text ?? "",
+    sort_order: image.sort_order ?? index,
+    mime_type: image.mime_type ?? "",
+    width: image.width ?? null,
+    height: image.height ?? null,
+  }));
+}
+
 export function ProductForm({
   initial,
+  seedImages,
   onSubmit,
   submitLabel = "ذخیره محصول",
 }: ProductFormProps) {
@@ -181,9 +186,11 @@ export function ProductForm({
     initial?.shipping_cost ? formatMoneyInput(initial.shipping_cost) : "",
   );
   const [isActive, setIsActive] = useState(initial?.is_active ?? true);
-  const [images, setImages] = useState<EditableImage[]>(
-    initial && initial.images.length > 0 ? normalizeImages(initial.images) : [emptyImage()],
-  );
+  const [images, setImages] = useState<EditableImage[]>(() => {
+    if (initial && initial.images.length > 0) return normalizeImages(initial.images);
+    if (seedImages && seedImages.length > 0) return normalizeImageInputs(seedImages);
+    return [];
+  });
   const [fields, setFields] = useState<EditableField[]>(
     initial ? normalizeFields(initial.form_fields) : [],
   );
@@ -194,12 +201,12 @@ export function ProductForm({
   const [videoMimeType, setVideoMimeType] = useState(initial?.video_mime_type ?? "");
   const [videoError, setVideoError] = useState<string | null>(null);
   const [videoUploading, setVideoUploading] = useState(false);
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
   const videoInputRef = useRef<HTMLInputElement | null>(null);
+  const addImageInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     setTitle(initial?.title ?? "");
@@ -209,7 +216,7 @@ export function ProductForm({
     setCategoryId(initial?.category_id ? String(initial.category_id) : "");
     setShippingCost(initial?.shipping_cost ? formatMoneyInput(initial.shipping_cost) : "");
     setIsActive(initial?.is_active ?? true);
-    setImages(initial && initial.images.length > 0 ? normalizeImages(initial.images) : [emptyImage()]);
+    setImages(initial && initial.images.length > 0 ? normalizeImages(initial.images) : []);
     setFields(initial ? normalizeFields(initial.form_fields) : []);
     setVariants(initial ? normalizeVariants(initial.variants) : []);
     setVideoUrl(initial?.video_url ?? "");
@@ -242,22 +249,6 @@ export function ProductForm({
     setVariants((prev) => prev.filter((_, i) => i !== index));
   }
 
-  function handleImageDrop(targetIndex: number) {
-    if (dragIndex === null || dragIndex === targetIndex) {
-      setDragIndex(null);
-      return;
-    }
-    const from = dragIndex;
-    setImages((prev) => {
-      if (from < 0 || from >= prev.length) return prev;
-      const next = [...prev];
-      const [moved] = next.splice(from, 1);
-      next.splice(targetIndex, 0, moved);
-      return next;
-    });
-    setDragIndex(null);
-  }
-
   async function handleFileChange(index: number, event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -272,6 +263,42 @@ export function ProductForm({
         height: payload.height,
         alt_text: payload.alt_text ?? "",
       });
+    } catch (err) {
+      setImageError(err instanceof ApiError ? err.message : "بارگذاری تصویر ناموفق بود");
+    } finally {
+      event.target.value = "";
+    }
+  }
+
+  async function handleAddImages(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files ?? []);
+    if (files.length === 0) return;
+    setImageError(null);
+    const remaining = maxImages - images.length;
+    if (remaining <= 0) {
+      setImageError(`حداکثر ${maxImages} تصویر مجاز است.`);
+      event.target.value = "";
+      return;
+    }
+    const toUpload = files.slice(0, remaining);
+    try {
+      const uploaded = await Promise.all(toUpload.map((file) => uploadImageFile(file)));
+      setImages((prev) => [
+        ...prev,
+        ...uploaded.map((payload) => ({
+          clientKey: crypto.randomUUID(),
+          image_url: payload.image_url,
+          thumbnail_url: payload.thumbnail_url,
+          alt_text: payload.alt_text ?? "",
+          sort_order: 0,
+          mime_type: payload.mime_type,
+          width: payload.width,
+          height: payload.height,
+        })),
+      ]);
+      if (files.length > remaining) {
+        setImageError(`فقط ${remaining} تصویر دیگر قابل افزودن بود.`);
+      }
     } catch (err) {
       setImageError(err instanceof ApiError ? err.message : "بارگذاری تصویر ناموفق بود");
     } finally {
@@ -465,203 +492,138 @@ export function ProductForm({
   }
 
   return (
-    <Card>
-      <CardContent className="space-y-8 py-6">
-        <form onSubmit={handleSubmit} className="space-y-8">
-          {error && (
-            <p className="rounded-lg bg-red-50 dark:bg-red-500/10 px-3 py-2 text-sm text-red-700" role="alert">
-              {error}
-            </p>
-          )}
-          {imageError && (
-            <p className="rounded-lg bg-amber-50 dark:bg-amber-500/10 px-3 py-2 text-sm text-amber-700 dark:text-amber-300" role="alert">
-              {imageError}
-            </p>
-          )}
+    <form onSubmit={handleSubmit} className="space-y-4 pb-[calc(7.5rem+env(safe-area-inset-bottom))] sm:space-y-5 sm:pb-6">
+      {error ? (
+        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-500/10" role="alert">
+          {error}
+        </p>
+      ) : null}
+      {imageError ? (
+        <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-500/10 dark:text-amber-300" role="alert">
+          {imageError}
+        </p>
+      ) : null}
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <Input label="عنوان" value={title} onChange={(e) => setTitle(e.target.value)} required />
+      <FormSection title="اطلاعات اصلی" description="عنوان، قیمت و موجودی برای نمایش در فروشگاه.">
+        <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
+          <div className="sm:col-span-2">
             <Input
-              label="مقدار موجودی"
-              type="number"
-              min="0"
-              value={stock}
-              onChange={(e) => setStock(e.target.value)}
+              label="عنوان محصول"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               required
             />
+          </div>
+          <div className="sm:col-span-2">
             <Textarea
               label="توضیحات"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="md:col-span-2"
             />
-            <MoneyInput
-              label="قیمت"
-              value={price}
-              onValueChange={setPrice}
-              required
-            />
-            <Select
-              label="دسته‌بندی"
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-            >
-              <option value="">بدون دسته‌بندی</option>
-              {(categories ?? []).map((category) => (
-                <option key={category.id} value={String(category.id)}>
-                  {category.name}
-                </option>
-              ))}
-            </Select>
-            <MoneyInput
-              label="هزینه ارسال این محصول"
-              value={shippingCost}
-              onValueChange={setShippingCost}
-              hint="خالی = طبق تنظیمات فروشگاه"
-            />
-              <div className="flex items-end">
-                <label htmlFor="product-is-active" className="flex items-center gap-2 text-sm text-foreground">
-                  <input
-                    id="product-is-active"
-                    type="checkbox"
-                    checked={isActive}
-                    onChange={(e) => setIsActive(e.target.checked)}
-                    className="rounded border-border"
-                  />
-                  محصول فعال است
-                </label>
-              </div>
           </div>
+          <MoneyInput label="قیمت" value={price} onValueChange={setPrice} required />
+          <Input
+            label="موجودی"
+            type="number"
+            min="0"
+            value={stock}
+            onChange={(e) => setStock(e.target.value)}
+            required
+          />
+          <Select label="دسته‌بندی" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
+            <option value="">بدون دسته‌بندی</option>
+            {(categories ?? []).map((category) => (
+              <option key={category.id} value={String(category.id)}>
+                {category.name}
+              </option>
+            ))}
+          </Select>
+          <MoneyInput
+            label="هزینه ارسال این محصول"
+            value={shippingCost}
+            onValueChange={setShippingCost}
+            hint="خالی = طبق تنظیمات فروشگاه"
+          />
+          <label htmlFor="product-is-active" className="flex items-center gap-2 text-sm text-foreground sm:col-span-2">
+            <input
+              id="product-is-active"
+              type="checkbox"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+              className="rounded border-border"
+            />
+            محصول در فروشگاه نمایش داده شود
+          </label>
+        </div>
+      </FormSection>
 
-          <section className="space-y-4">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs tracking-[0.2em] text-foreground-muted">واریانت‌ها</p>
-                <p className="text-sm text-foreground-muted">
-                  مانند سایز یا رنگ. اگر قیمت واریانت را خالی بگذارید، قیمت اصلی محصول اعمال می‌شود. با وجود واریانت فعال، موجودی کل محصول برابر مجموع موجودی واریانت‌های فعال محاسبه می‌شود و خریدار باید حتما یک واریانت انتخاب کند.
-                </p>
-              </div>
-              <Button type="button" variant="secondary" onClick={() => setVariants((prev) => [...prev, emptyVariant()])}>
-                افزودن واریانت
-              </Button>
-            </div>
-            <div className="space-y-4">
-              {variants.length === 0 ? (
-                <p className="text-sm text-foreground-muted">این محصول بدون واریانت فروخته می‌شود.</p>
-              ) : (
-                variants.map((variant, index) => (
-                  <div key={variant.clientKey} className="rounded-2xl border border-border p-4">
-                    <div className="grid gap-4 md:grid-cols-3">
-                      <Input
-                        label="نام واریانت"
-                        value={variant.name}
-                        onChange={(e) => setVariant(index, { name: e.target.value })}
-                        placeholder="مثلا سایز L"
-                      />
-                      <MoneyInput
-                        label="قیمت واریانت (اختیاری)"
-                        value={variant.priceOverride}
-                        onValueChange={(next) => setVariant(index, { priceOverride: next })}
-                        placeholder="خالی = قیمت اصلی"
-                      />
-                      <Input
-                        label="موجودی واریانت"
-                        type="number"
-                        min="0"
-                        value={variant.stockQuantity}
-                        onChange={(e) => setVariant(index, { stockQuantity: e.target.value })}
-                      />
-                    </div>
-                    <div className="mt-3 flex flex-wrap items-center gap-3">
-                      <label htmlFor={`variant-active-${variant.clientKey}`} className="flex items-center gap-2 text-sm text-foreground">
-                        <input
-                          id={`variant-active-${variant.clientKey}`}
-                          type="checkbox"
-                          checked={variant.isActive}
-                          onChange={(e) => setVariant(index, { isActive: e.target.checked })}
-                        />
-                        فعال
-                      </label>
-                      <Button type="button" variant="ghost" size="sm" onClick={() => setVariants((prev) => moveItem(prev, index, -1))} disabled={index === 0}>
-                        بالا
-                      </Button>
-                      <Button type="button" variant="ghost" size="sm" onClick={() => setVariants((prev) => moveItem(prev, index, 1))} disabled={index === variants.length - 1}>
-                        پایین
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
-                        onClick={() => removeVariant(index)}
-                      >
-                        حذف
-                      </Button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </section>
-
-          <section className="space-y-4">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs tracking-[0.2em] text-foreground-muted">گالری</p>
-                <p className="text-sm text-foreground-muted">
-                  تا {maxImages} تصویر بارگذاری کنید و با کشیدن کارت‌ها (یا دکمه‌های بالا/پایین) ترتیب گالری را مشخص کنید؛ تصویر اول، تصویر اصلی است.
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="whitespace-nowrap text-xs text-foreground-muted">{images.length} / {maxImages}</span>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  disabled={images.length >= maxImages}
-                  onClick={() => setImages((prev) => (prev.length >= maxImages ? prev : [...prev, emptyImage()]))}
-                >
-                  افزودن تصویر
-                </Button>
-              </div>
-            </div>
-            <div className="space-y-4">
-              {images.map((image, index) => (
-                <div
-                  key={image.clientKey}
-                  onDragOver={(event) => event.preventDefault()}
-                  onDrop={(event) => {
-                    event.preventDefault();
-                    handleImageDrop(index);
-                  }}
-                  className={`grid gap-4 rounded-2xl border p-4 transition lg:grid-cols-[180px_1fr] ${
-                    dragIndex === index ? "border-brand opacity-60" : "border-border"
-                  }`}
-                >
-                  <div className="space-y-3">
-                    <div
-                      draggable
-                      onDragStart={() => setDragIndex(index)}
-                      onDragEnd={() => setDragIndex(null)}
-                      title="برای جابه‌جایی بکشید"
-                      className="flex cursor-grab items-center justify-center gap-1 rounded-lg border border-dashed border-border px-2 py-1 text-xs text-foreground-muted active:cursor-grabbing"
-                    >
-                      ⡀⣿ کشیدن برای جابه‌جایی
-                    </div>
-                    <div className="aspect-square overflow-hidden rounded-xl bg-surface-muted">
-                      {image.image_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={image.thumbnail_url || image.image_url}
-                          alt={image.alt_text || title}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-sm text-foreground-muted">
-                          بدون تصویر
-                        </div>
-                      )}
-                    </div>
+      <FormSection
+        title="تصاویر"
+        description={`تصویر اول، تصویر اصلی است. حداکثر ${maxImages} تصویر.`}
+        action={
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            disabled={images.length >= maxImages}
+            onClick={() => addImageInputRef.current?.click()}
+          >
+            افزودن تصویر
+          </Button>
+        }
+      >
+        <input
+          ref={addImageInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={(event) => void handleAddImages(event)}
+        />
+        {images.length === 0 ? (
+          <button
+            type="button"
+            onClick={() => addImageInputRef.current?.click()}
+            className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-surface-muted/40 px-4 py-10 text-sm text-foreground-muted transition hover:border-brand/40 hover:text-foreground"
+          >
+            <span className="font-medium text-foreground">بارگذاری تصویر</span>
+            <span className="text-xs">برای نمایش در فروشگاه حداقل یک تصویر لازم است</span>
+          </button>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {images.map((image, index) => (
+              <div
+                key={image.clientKey}
+                className={cn(
+                  "overflow-hidden rounded-xl border bg-surface",
+                  index === 0 ? "border-brand ring-1 ring-brand/30" : "border-border",
+                )}
+              >
+                <div className="relative aspect-square bg-surface-muted">
+                  {image.image_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={resolveMediaUrl(image.thumbnail_url || image.image_url) || image.thumbnail_url || image.image_url}
+                      alt={image.alt_text || title || "تصویر محصول"}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-xs text-foreground-muted">بدون تصویر</div>
+                  )}
+                  {index === 0 ? (
+                    <span className="absolute start-2 top-2 rounded-full bg-brand px-2 py-0.5 text-[10px] font-medium text-white">
+                      اصلی
+                    </span>
+                  ) : null}
+                </div>
+                <div className="space-y-2 p-2">
+                  <Input
+                    label="متن جایگزین"
+                    value={image.alt_text ?? ""}
+                    onChange={(e) => setImage(index, { alt_text: e.target.value })}
+                  />
+                  <div className="flex flex-wrap gap-1">
                     <input
                       ref={(el) => {
                         fileInputs.current[image.clientKey] = el;
@@ -674,65 +636,13 @@ export function ProductForm({
                     <Button
                       type="button"
                       variant="secondary"
-                      className="w-full"
+                      size="sm"
+                      className="flex-1"
                       onClick={() => fileInputs.current[image.clientKey]?.click()}
                     >
-                      بارگذاری تصویر
+                      تعویض
                     </Button>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <Input
-                        label="آدرس تصویر"
-                        value={image.image_url}
-                        onChange={(e) => setImage(index, { image_url: e.target.value })}
-                      />
-                      <Input
-                        label="آدرس بندانگشتی"
-                        value={image.thumbnail_url ?? ""}
-                        onChange={(e) => setImage(index, { thumbnail_url: e.target.value })}
-                      />
-                      <Input
-                        label="متن جایگزین"
-                        value={image.alt_text ?? ""}
-                        onChange={(e) => setImage(index, { alt_text: e.target.value })}
-                      />
-                      <Input
-                        label="نوع MIME"
-                        value={image.mime_type ?? ""}
-                        onChange={(e) => setImage(index, { mime_type: e.target.value })}
-                      />
-                      <Input
-                        label="عرض"
-                        type="number"
-                        min="1"
-                        value={image.width ?? ""}
-                        onChange={(e) =>
-                          setImage(index, {
-                            width: e.target.value ? Number(e.target.value) : null,
-                          })
-                        }
-                      />
-                      <Input
-                        label="ارتفاع"
-                        type="number"
-                        min="1"
-                        value={image.height ?? ""}
-                        onChange={(e) =>
-                          setImage(index, {
-                            height: e.target.value ? Number(e.target.value) : null,
-                          })
-                        }
-                      />
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Button type="button" variant="ghost" size="sm" onClick={() => setImages((prev) => moveItem(prev, index, -1))} disabled={index === 0}>
-                        بالا
-                      </Button>
-                      <Button type="button" variant="ghost" size="sm" onClick={() => setImages((prev) => moveItem(prev, index, 1))} disabled={index === images.length - 1}>
-                        پایین
-                      </Button>
+                    {index > 0 ? (
                       <Button
                         type="button"
                         variant="ghost"
@@ -745,76 +655,73 @@ export function ProductForm({
                             return next;
                           });
                         }}
-                        disabled={index === 0}
                       >
                         اصلی
                       </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
-                        onClick={() => removeImage(index)}
-                      >
-                        حذف
-                      </Button>
-                    </div>
+                    ) : null}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-600 dark:text-red-400"
+                      onClick={() => removeImage(index)}
+                    >
+                      حذف
+                    </Button>
                   </div>
                 </div>
-              ))}
-            </div>
-            {hasPrimaryImage ? null : (
-              <p className="text-sm text-amber-700 dark:text-amber-300">حداقل یک نشانی تصویر اضافه کنید یا یک تصویر بارگذاری کنید تا محصول در صفحه عمومی نمایش داده شود.</p>
-            )}
-          </section>
-
-          <section className="space-y-4">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs tracking-[0.2em] text-foreground-muted">ویدیوی محصول</p>
-                <p className="text-sm text-foreground-muted">
-                  {canVideo
-                    ? "یک ویدیوی MP4 یا WebM با حجم حداکثر ۵۰ مگابایت بارگذاری کنید (اختیاری). ویدیو در انتهای گالری صفحه محصول نمایش داده می‌شود."
-                    : "ویدیوی محصول در پلن حرفه‌ای و بالاتر فعال است."}
-                </p>
               </div>
-              {canVideo && (
-              <div className="flex gap-2">
+            ))}
+          </div>
+        )}
+        {!hasPrimaryImage ? (
+          <p className="mt-3 text-xs text-amber-700 dark:text-amber-300">برای نمایش عمومی، حداقل یک تصویر اضافه کنید.</p>
+        ) : null}
+      </FormSection>
+
+      <FormSection
+        title="ویدیو (اختیاری)"
+        description={canVideo ? "MP4 یا WebM تا ۵۰ مگابایت." : "در پلن حرفه‌ای و بالاتر فعال است."}
+        action={
+          canVideo ? (
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                loading={videoUploading}
+                onClick={() => videoInputRef.current?.click()}
+              >
+                {videoUrl.trim() ? "تعویض ویدیو" : "بارگذاری ویدیو"}
+              </Button>
+              {videoUrl.trim() ? (
                 <Button
                   type="button"
-                  variant="secondary"
-                  loading={videoUploading}
-                  onClick={() => videoInputRef.current?.click()}
+                  variant="ghost"
+                  size="sm"
+                  className="text-red-600 dark:text-red-400"
+                  onClick={() => {
+                    setVideoUrl("");
+                    setVideoMimeType("");
+                    setVideoError(null);
+                  }}
                 >
-                  بارگذاری ویدیو
+                  حذف
                 </Button>
-                {videoUrl.trim() && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
-                    onClick={() => {
-                      setVideoUrl("");
-                      setVideoMimeType("");
-                      setVideoError(null);
-                    }}
-                  >
-                    حذف ویدیو
-                  </Button>
-                )}
-              </div>
-              )}
+              ) : null}
             </div>
-            {!canVideo ? (
-              <p className="text-sm text-foreground-muted">
-                برای افزودن ویدیو،{" "}
-                <Link href={paths.seller.subscription} className="text-brand underline-offset-2 hover:underline">
-                  پلن را ارتقا دهید
-                </Link>
-                .
-              </p>
-            ) : (
-              <>
+          ) : undefined
+        }
+      >
+        {!canVideo ? (
+          <p className="text-sm text-foreground-muted">
+            <Link href={paths.seller.subscription} className="text-brand underline-offset-2 hover:underline">
+              ارتقا پلن
+            </Link>{" "}
+            برای افزودن ویدیو.
+          </p>
+        ) : (
+          <>
             <input
               ref={videoInputRef}
               type="file"
@@ -822,96 +729,186 @@ export function ProductForm({
               className="hidden"
               onChange={(event) => void handleVideoChange(event)}
             />
-            {videoError && (
-              <p className="rounded-lg bg-amber-50 dark:bg-amber-500/10 px-3 py-2 text-sm text-amber-700 dark:text-amber-300" role="alert">
+            {videoError ? (
+              <p className="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-500/10 dark:text-amber-300" role="alert">
                 {videoError}
               </p>
-            )}
+            ) : null}
             {videoUrl.trim() ? (
-              <div className="space-y-3 rounded-2xl border border-border p-4">
-                <video src={videoUrl} controls preload="metadata" className="max-h-72 w-full rounded-xl bg-black object-contain" />
-                <Input
-                  label="آدرس ویدیو"
-                  value={videoUrl}
-                  onChange={(e) => setVideoUrl(e.target.value)}
-                />
-              </div>
+              <video
+                src={videoUrl}
+                controls
+                preload="metadata"
+                className="max-h-64 w-full rounded-xl bg-black object-contain"
+              />
             ) : (
-              <p className="text-sm text-foreground-muted">هنوز ویدیویی برای این محصول انتخاب نشده است.</p>
+              <p className="text-sm text-foreground-muted">ویدیویی انتخاب نشده است.</p>
             )}
-              </>
-            )}
-          </section>
+          </>
+        )}
+      </FormSection>
 
-          <section className="space-y-4">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs tracking-[0.2em] text-foreground-muted">فیلدهای سفارشی</p>
-                <p className="text-sm text-foreground-muted">
-                  {canCustomFields
-                    ? "فرم پرداخت این محصول را بسازید. گزینه‌ها را در هر خط به‌شکل `برچسب|مقدار` بنویسید."
-                    : "فیلدهای سفارشی در پلن حرفه‌ای و بالاتر فعال است."}
-                </p>
+      <FormSection
+        title="واریانت‌ها (اختیاری)"
+        description="مثل سایز یا رنگ. اگر قیمت واریانت خالی باشد، قیمت اصلی اعمال می‌شود."
+        action={
+          <Button type="button" variant="secondary" size="sm" onClick={() => setVariants((prev) => [...prev, emptyVariant()])}>
+            افزودن
+          </Button>
+        }
+      >
+        {variants.length === 0 ? (
+          <p className="text-sm text-foreground-muted">بدون واریانت — محصول با یک قیمت و موجودی فروخته می‌شود.</p>
+        ) : (
+          <div className="space-y-3">
+            {variants.map((variant, index) => (
+              <div key={variant.clientKey} className="space-y-3 rounded-xl border border-border p-3 sm:p-4">
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <Input
+                    label="نام"
+                    value={variant.name}
+                    onChange={(e) => setVariant(index, { name: e.target.value })}
+                    placeholder="مثلاً سایز L"
+                  />
+                  <MoneyInput
+                    label="قیمت (اختیاری)"
+                    value={variant.priceOverride}
+                    onValueChange={(next) => setVariant(index, { priceOverride: next })}
+                    placeholder="خالی = قیمت اصلی"
+                  />
+                  <Input
+                    label="موجودی"
+                    type="number"
+                    min="0"
+                    value={variant.stockQuantity}
+                    onChange={(e) => setVariant(index, { stockQuantity: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <label htmlFor={`variant-active-${variant.clientKey}`} className="me-auto flex items-center gap-2 text-sm text-foreground">
+                    <input
+                      id={`variant-active-${variant.clientKey}`}
+                      type="checkbox"
+                      checked={variant.isActive}
+                      onChange={(e) => setVariant(index, { isActive: e.target.checked })}
+                    />
+                    فعال
+                  </label>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setVariants((prev) => moveItem(prev, index, -1))} disabled={index === 0}>
+                    بالا
+                  </Button>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setVariants((prev) => moveItem(prev, index, 1))} disabled={index === variants.length - 1}>
+                    پایین
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-600 dark:text-red-400"
+                    onClick={() => removeVariant(index)}
+                  >
+                    حذف
+                  </Button>
+                </div>
               </div>
-              {canCustomFields && (
-              <Button type="button" variant="secondary" onClick={() => setFields((prev) => [...prev, emptyField()])}>
-                افزودن فیلد
-              </Button>
-              )}
-            </div>
-            {!canCustomFields && (
-              <p className="text-sm text-foreground-muted">
-                <Link href={paths.seller.subscription} className="text-brand underline-offset-2 hover:underline">
-                  مشاهده پلن‌ها و ارتقا
-                </Link>
-              </p>
-            )}
-            {canCustomFields && (
-            <div className="space-y-4">
-              {fields.length === 0 ? (
-                <p className="text-sm text-foreground-muted">این محصول به فیلد سفارشی در پرداخت نیاز ندارد.</p>
-              ) : (
-                fields.map((field, index) => (
-                  <div key={field.clientKey} className="rounded-2xl border border-border p-4">
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <Input
-                        label="کلید فیلد"
-                        value={field.field_key}
-                        onChange={(e) => setField(index, { field_key: e.target.value })}
-                      />
-                      <Input
-                        label="برچسب"
-                        value={field.label}
-                        onChange={(e) => setField(index, { label: e.target.value })}
-                      />
-                      <label className="space-y-2 text-sm text-foreground">
-                        <span className="block font-medium">نوع فیلد</span>
-                        <select
-                          className="w-full rounded-lg border border-border bg-surface px-3 py-2"
-                          value={field.field_type}
-                          onChange={(e) => {
-                            const nextType = e.target.value as ProductFieldType;
-                            setField(index, {
-                              field_type: nextType,
-                              optionsText:
-                                nextType === "DROPDOWN" || nextType === "RADIO"
-                                  ? field.optionsText
-                                  : "",
-                            });
-                          }}
-                          >
-                          {FIELD_TYPES.map((type) => (
-                            <option key={type} value={type}>
-                              {FIELD_TYPE_LABELS[type]}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <Input
-                        label="متن راهنما"
-                        value={field.placeholder ?? ""}
-                        onChange={(e) => setField(index, { placeholder: e.target.value })}
-                      />
+            ))}
+          </div>
+        )}
+      </FormSection>
+
+      <FormSection
+        title="فیلدهای سفارشی (اختیاری)"
+        description={
+          canCustomFields
+            ? "سوال‌هایی که مشتری هنگام خرید پر می‌کند."
+            : "در پلن حرفه‌ای و بالاتر فعال است."
+        }
+        action={
+          canCustomFields ? (
+            <Button type="button" variant="secondary" size="sm" onClick={() => setFields((prev) => [...prev, emptyField()])}>
+              افزودن
+            </Button>
+          ) : undefined
+        }
+      >
+        {!canCustomFields ? (
+          <p className="text-sm text-foreground-muted">
+            <Link href={paths.seller.subscription} className="text-brand underline-offset-2 hover:underline">
+              ارتقا پلن
+            </Link>{" "}
+            برای فیلدهای سفارشی.
+          </p>
+        ) : fields.length === 0 ? (
+          <p className="text-sm text-foreground-muted">بدون فیلد سفارشی.</p>
+        ) : (
+          <div className="space-y-3">
+            {fields.map((field, index) => (
+              <div key={field.clientKey} className="space-y-3 rounded-xl border border-border p-3 sm:p-4">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Input
+                    label="برچسب"
+                    value={field.label}
+                    onChange={(e) => {
+                      const label = e.target.value;
+                      const key =
+                        field.field_key.trim() ||
+                        label
+                          .trim()
+                          .toLowerCase()
+                          .replace(/\s+/g, "_")
+                          .replace(/[^\w\u0600-\u06FF-]/g, "") ||
+                        `field_${index + 1}`;
+                      setField(index, {
+                        label,
+                        field_key: field.field_key.trim() ? field.field_key : key,
+                      });
+                    }}
+                  />
+                  <label className="space-y-1.5 text-sm text-foreground">
+                    <span className="block font-medium">نوع</span>
+                    <select
+                      className="w-full rounded-lg border border-border bg-surface px-3 py-2"
+                      value={field.field_type}
+                      onChange={(e) => {
+                        const nextType = e.target.value as ProductFieldType;
+                        setField(index, {
+                          field_type: nextType,
+                          optionsText:
+                            nextType === "DROPDOWN" || nextType === "RADIO" ? field.optionsText : "",
+                        });
+                      }}
+                    >
+                      {FIELD_TYPES.map((type) => (
+                        <option key={type} value={type}>
+                          {FIELD_TYPE_LABELS[type]}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <Input
+                    label="کلید فیلد"
+                    value={field.field_key}
+                    onChange={(e) => setField(index, { field_key: e.target.value })}
+                    hint="شناسه داخلی — معمولاً خودکار پر می‌شود"
+                  />
+                  <Input
+                    label="متن راهنما"
+                    value={field.placeholder ?? ""}
+                    onChange={(e) => setField(index, { placeholder: e.target.value })}
+                  />
+                  {(field.field_type === "DROPDOWN" || field.field_type === "RADIO") && (
+                    <Textarea
+                      label="گزینه‌ها"
+                      hint="هر خط: برچسب|مقدار"
+                      value={field.optionsText}
+                      onChange={(e) => setField(index, { optionsText: e.target.value })}
+                      rows={3}
+                      className="sm:col-span-2"
+                    />
+                  )}
+                  <details className="sm:col-span-2">
+                    <summary className="cursor-pointer text-xs text-foreground-muted">تنظیمات پیشرفته</summary>
+                    <div className="mt-2 grid gap-3 sm:grid-cols-2">
                       <Input
                         label="توضیح کمکی"
                         value={field.help_text ?? ""}
@@ -922,58 +919,50 @@ export function ProductForm({
                         hint='نمونه: {"min": 1, "max": 10}'
                         value={field.validationText}
                         onChange={(e) => setField(index, { validationText: e.target.value })}
-                        rows={4}
-                        className="md:col-span-2"
+                        rows={3}
                       />
-                      {(field.field_type === "DROPDOWN" || field.field_type === "RADIO") && (
-                        <Textarea
-                          label="گزینه‌ها"
-                          hint="هر خط در قالب برچسب|مقدار"
-                          value={field.optionsText}
-                          onChange={(e) => setField(index, { optionsText: e.target.value })}
-                          rows={4}
-                          className="md:col-span-2"
-                        />
-                      )}
                     </div>
-                    <div className="mt-3 flex flex-wrap items-center gap-3">
-                      <label htmlFor={`field-required-${field.clientKey}`} className="flex items-center gap-2 text-sm text-foreground">
-                        <input
-                          id={`field-required-${field.clientKey}`}
-                          type="checkbox"
-                          checked={field.is_required}
-                          onChange={(e) => setField(index, { is_required: e.target.checked })}
-                        />
-                        الزامی
-                      </label>
-                      <Button type="button" variant="ghost" size="sm" onClick={() => setFields((prev) => moveItem(prev, index, -1))} disabled={index === 0}>
-                        بالا
-                      </Button>
-                      <Button type="button" variant="ghost" size="sm" onClick={() => setFields((prev) => moveItem(prev, index, 1))} disabled={index === fields.length - 1}>
-                        پایین
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
-                        onClick={() => removeField(index)}
-                      >
-                        حذف
-                      </Button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-            )}
-          </section>
+                  </details>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <label htmlFor={`field-required-${field.clientKey}`} className="me-auto flex items-center gap-2 text-sm text-foreground">
+                    <input
+                      id={`field-required-${field.clientKey}`}
+                      type="checkbox"
+                      checked={field.is_required}
+                      onChange={(e) => setField(index, { is_required: e.target.checked })}
+                    />
+                    الزامی
+                  </label>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setFields((prev) => moveItem(prev, index, -1))} disabled={index === 0}>
+                    بالا
+                  </Button>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setFields((prev) => moveItem(prev, index, 1))} disabled={index === fields.length - 1}>
+                    پایین
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-600 dark:text-red-400"
+                    onClick={() => removeField(index)}
+                  >
+                    حذف
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </FormSection>
 
-          <Button type="submit" loading={loading}>
+      <div className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-30 border-t border-border bg-surface/95 p-3 backdrop-blur sm:static sm:bottom-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none lg:bottom-0">
+        <div className="mx-auto flex max-w-5xl gap-2 sm:justify-end">
+          <Button type="submit" loading={loading} className="w-full sm:w-auto">
             {submitLabel}
           </Button>
-        </form>
-      </CardContent>
-    </Card>
+        </div>
+      </div>
+    </form>
   );
 }

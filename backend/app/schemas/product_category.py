@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 class ProductCategoryCreate(BaseModel):
     name: str = Field(min_length=1, max_length=255)
     slug: str | None = Field(default=None, min_length=1, max_length=100)
+    parent_id: int | None = None
     sort_order: int = 0
     is_active: bool = True
 
@@ -13,6 +14,7 @@ class ProductCategoryCreate(BaseModel):
 class ProductCategoryUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=255)
     slug: str | None = Field(default=None, min_length=1, max_length=100)
+    parent_id: int | None = None
     sort_order: int | None = None
     is_active: bool | None = None
 
@@ -28,6 +30,7 @@ class ProductCategoryResponse(BaseModel):
 
     id: int
     store_id: int
+    parent_id: int | None = None
     name: str
     slug: str
     sort_order: int
@@ -42,3 +45,4 @@ class ProductCategorySummary(BaseModel):
     id: int
     name: str
     slug: str
+    parent_id: int | None = None

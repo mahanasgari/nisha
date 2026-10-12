@@ -1,7 +1,7 @@
 "use client";
 
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { useState, type ReactNode } from "react";
 import { BrandMark } from "@/components/layout/chrome/BrandMark";
 import { ChromeFooter } from "@/components/layout/chrome/ChromeFooter";
 import {
@@ -9,9 +9,12 @@ import {
   ChromeMobileDrawer,
   MobileNavLink,
 } from "@/components/layout/chrome/ChromeMobileDrawer";
+import { LandingAtmosphere } from "@/components/landing/LandingAtmosphere";
 import { SellerPrimaryCta } from "@/components/landing/SellerPrimaryCta";
+import { landingButtonClasses } from "@/components/landing/buttonStyles";
 import { paths } from "@/lib/auth/paths";
-import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
+import "@/app/landing.css";
 
 type LandingShellProps = {
   children: ReactNode;
@@ -19,40 +22,60 @@ type LandingShellProps = {
 
 export function LandingShell({ children }: LandingShellProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const closeMenu = () => setMenuOpen(false);
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <div className="relative flex min-h-screen flex-col bg-background text-foreground">
-      <div className="relative flex min-h-screen flex-1 flex-col overflow-hidden">
-        <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -left-20 top-24 h-64 w-64 rounded-full bg-brand/10 blur-3xl animate-float-slow dark:bg-brand/15 dark:opacity-50" />
-          <div className="absolute -right-16 top-40 h-72 w-72 rounded-full bg-accent/10 blur-3xl animate-float-slower dark:bg-fuchsia-500/10 dark:opacity-40" />
-          <div className="absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-brand/5 blur-3xl animate-drift dark:bg-brand/10 dark:opacity-30" />
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/80 to-transparent" />
-        </div>
+    <div data-landing className="relative flex min-h-screen flex-col bg-[#09090b] text-foreground">
+      <LandingAtmosphere />
 
-        <header className="sticky top-0 z-40 border-b border-border bg-surface/90 backdrop-blur">
-          <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 max-md:py-2 sm:px-6 lg:px-8 lg:py-4">
-            <BrandMark showTagline />
+      <div className="relative flex min-h-screen flex-1 flex-col">
+        <header className={cn("landing-header sticky top-0 z-40", scrolled && "is-scrolled")}>
+          <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:h-16 sm:px-6 lg:px-8">
+            <BrandMark showTagline={false} />
 
-            <div className="hidden items-center gap-2 md:flex">
+            <nav className="hidden items-center gap-1 md:flex">
               <Link
-                href={paths.pricing}
-                className="rounded-lg px-3 py-2 text-sm text-foreground-muted transition-colors hover:text-foreground"
+                href="#features"
+                className="rounded-lg px-3 py-2 text-sm text-zinc-400 transition-colors hover:text-white"
+              >
+                امکانات
+              </Link>
+              <Link
+                href="#how"
+                className="rounded-lg px-3 py-2 text-sm text-zinc-400 transition-colors hover:text-white"
+              >
+                نحوه کار
+              </Link>
+              <Link
+                href="#pricing"
+                className="rounded-lg px-3 py-2 text-sm text-zinc-400 transition-colors hover:text-white"
               >
                 قیمت‌ها
               </Link>
               <Link
                 href={paths.about}
-                className="rounded-lg px-3 py-2 text-sm text-foreground-muted transition-colors hover:text-foreground"
+                className="rounded-lg px-3 py-2 text-sm text-zinc-400 transition-colors hover:text-white"
               >
                 درباره ما
               </Link>
-              <Link href={paths.seller.login}>
-                <Button variant="ghost" size="sm">ورود فروشنده</Button>
-              </Link>
-              <SellerPrimaryCta variant="secondary" size="sm" />
-            </div>
+              <div className="ms-2 flex items-center gap-2">
+                <Link
+                  href={paths.seller.login}
+                  className={landingButtonClasses({ variant: "ghost", size: "sm" })}
+                >
+                  ورود
+                </Link>
+                <SellerPrimaryCta variant="primary" size="sm" guestLabel="شروع رایگان" />
+              </div>
+            </nav>
 
             <ChromeMenuToggle
               open={menuOpen}
@@ -61,7 +84,7 @@ export function LandingShell({ children }: LandingShellProps) {
           </div>
         </header>
 
-        <main className="relative z-10 mx-auto w-full max-w-7xl flex-1 px-4 pb-16 pt-8 sm:px-6 lg:px-8 lg:pt-10">
+        <main className="relative z-10 w-full flex-1 pb-20 pt-2 sm:pt-4">
           {children}
         </main>
 
@@ -69,20 +92,26 @@ export function LandingShell({ children }: LandingShellProps) {
       </div>
 
       <ChromeMobileDrawer open={menuOpen} onClose={closeMenu}>
-        <MobileNavLink href={paths.pricing} onClose={closeMenu}>
-          <Button variant="ghost" size="sm" className="w-full justify-start">قیمت‌ها</Button>
+        <MobileNavLink href="#features" onClose={closeMenu}>
+          <span className="block w-full rounded-lg px-3 py-2 text-start text-sm">امکانات</span>
+        </MobileNavLink>
+        <MobileNavLink href="#how" onClose={closeMenu}>
+          <span className="block w-full rounded-lg px-3 py-2 text-start text-sm">نحوه کار</span>
+        </MobileNavLink>
+        <MobileNavLink href="#pricing" onClose={closeMenu}>
+          <span className="block w-full rounded-lg px-3 py-2 text-start text-sm">قیمت‌ها</span>
         </MobileNavLink>
         <MobileNavLink href={paths.about} onClose={closeMenu}>
-          <Button variant="ghost" size="sm" className="w-full justify-start">درباره ما</Button>
+          <span className="block w-full rounded-lg px-3 py-2 text-start text-sm">درباره ما</span>
         </MobileNavLink>
         <MobileNavLink href={paths.trackOrder} onClose={closeMenu}>
-          <Button variant="ghost" size="sm" className="w-full justify-start">پیگیری سفارش</Button>
+          <span className="block w-full rounded-lg px-3 py-2 text-start text-sm">پیگیری سفارش</span>
         </MobileNavLink>
         <MobileNavLink href={paths.seller.login} onClose={closeMenu}>
-          <Button variant="ghost" size="sm" className="w-full justify-start">ورود فروشنده</Button>
+          <span className="block w-full rounded-lg px-3 py-2 text-start text-sm">ورود فروشنده</span>
         </MobileNavLink>
-        <div onClickCapture={closeMenu}>
-          <SellerPrimaryCta variant="secondary" size="md" className="w-full justify-start" />
+        <div onClickCapture={closeMenu} className="px-1 pt-2">
+          <SellerPrimaryCta variant="primary" size="md" className="w-full" guestLabel="شروع رایگان" />
         </div>
       </ChromeMobileDrawer>
     </div>

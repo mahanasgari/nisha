@@ -1,16 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import * as dashboardApi from "@/lib/api/seller/dashboard";
+import * as onboardingApi from "@/lib/api/seller/onboarding";
 import * as storeApi from "@/lib/api/seller/store";
 import { paths } from "@/lib/auth/paths";
 import { formatMoney } from "@/lib/format";
 import { useSellerEntitlements } from "@/hooks/useSellerEntitlements";
 import { useSellerFetch } from "@/hooks/useSellerFetch";
+import { useToast } from "@/contexts/ToastContext";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StatCard } from "@/components/seller/StatCard";
 import { Badge } from "@/components/ui/Badge";
-import { buttonClassName } from "@/components/ui/Button";
+import { Button, buttonClassName } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorAlert } from "@/components/ui/ErrorAlert";
 import { StatCardSkeleton } from "@/components/ui/StatCardSkeleton";
@@ -27,9 +30,11 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 
 export default function SellerDashboardPage() {
-  const { data, error, isLoading } = useSellerFetch(() => dashboardApi.getDashboard(), []);
+  const { data, error, isLoading, setData } = useSellerFetch(() => dashboardApi.getDashboard(), []);
   const { data: store } = useSellerFetch(() => storeApi.getStore(), []);
   const { plan } = useSellerEntitlements();
+  const toast = useToast();
+  const [skipping, setSkipping] = useState(false);
 
   if (isLoading) {
     return (
@@ -50,12 +55,24 @@ export default function SellerDashboardPage() {
     );
   }
 
-  const canResumeOnboarding =
-    data.onboarding_status === "IN_PROGRESS" ||
-    data.onboarding_status === "NOT_STARTED" ||
-    data.onboarding_status === "SKIPPED";
   const readinessPercent = Math.max(0, Math.min(100, data.store_readiness_score));
-  const showOnboardingCard = canResumeOnboarding;
+  const showOnboardingCard =
+    data.onboarding_status === "IN_PROGRESS" || data.onboarding_status === "NOT_STARTED";
+
+  async function skipOnboarding() {
+    setSkipping(true);
+    try {
+      await onboardingApi.updateOnboarding({ status: "SKIPPED" });
+      setData((current) =>
+        current ? { ...current, onboarding_status: "SKIPPED" } : current,
+      );
+      toast.success("راه‌اندازی رد شد؛ هر وقت خواستی از تنظیمات ادامه بده.");
+    } catch {
+      toast.error("رد کردن راه‌اندازی ممکن نشد. دوباره امتحان کن.");
+    } finally {
+      setSkipping(false);
+    }
+  }
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -83,54 +100,30 @@ export default function SellerDashboardPage() {
       />
 
       {showOnboardingCard && (
-        <Card className="overflow-hidden border-brand/20 bg-gradient-to-br from-brand/10 via-surface to-surface shadow-sm">
-          <CardContent className="space-y-5 py-6">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant={readinessPercent >= 85 ? "success" : "info"}>
-                {readinessPercent}% تکمیل پروفایل
-              </Badge>
-              {data.onboarding_status === "SKIPPED" ? (
-                <Badge variant="neutral">راه‌اندازی بعداً</Badge>
-              ) : (
-                <Badge variant="warning">راه‌اندازی در حال انجام</Badge>
-              )}
+        <Card className="border-brand/20 bg-brand/5 shadow-sm">
+          <CardContent className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0 space-y-1">
+              <p className="text-sm font-semibold text-foreground">راه‌اندازی فروشگاه ناتمام است</p>
+              <p className="text-xs text-foreground-muted">
+                {readinessPercent}% تکمیل
+                {data.store_readiness_missing_tasks.length > 0
+                  ? ` · باقی‌مانده: ${data.store_readiness_missing_tasks.slice(0, 2).join("، ")}`
+                  : ""}
+              </p>
+              <div className="mt-2 h-1.5 max-w-xs overflow-hidden rounded-full bg-surface-muted">
+                <div
+                  className="h-full rounded-full bg-brand transition-[width] duration-500"
+                  style={{ width: `${readinessPercent}%` }}
+                />
+              </div>
             </div>
-
-            <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-end">
-              <div className="space-y-3">
-                <h2 className="text-xl font-semibold text-foreground">ادامه تنظیمات فروشگاه</h2>
-                <p className="max-w-3xl text-sm leading-6 text-foreground-muted">
-                  چند جزئیات مانده؛ کاملش کن تا مشتری راحت‌تر بهت اعتماد کند.
-                </p>
-                {data.store_readiness_missing_tasks.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {data.store_readiness_missing_tasks.map((task) => (
-                      <Badge key={task} variant="neutral">
-                        {task}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-foreground-muted">پیشرفت</span>
-                  <span className="font-semibold text-foreground">{readinessPercent}%</span>
-                </div>
-                <div className="h-2 overflow-hidden rounded-full bg-surface-muted">
-                  <div
-                    className="h-full rounded-full bg-brand transition-[width] duration-500"
-                    style={{ width: `${readinessPercent}%` }}
-                  />
-                </div>
-                <Link
-                  href={paths.seller.onboarding}
-                  className={buttonClassName({ className: "w-full" })}
-                >
-                  ادامه راه‌اندازی
-                </Link>
-              </div>
+            <div className="flex shrink-0 flex-wrap gap-2">
+              <Link href={paths.seller.onboarding} className={buttonClassName({ size: "sm" })}>
+                ادامه
+              </Link>
+              <Button type="button" variant="ghost" size="sm" loading={skipping} onClick={() => void skipOnboarding()}>
+                فعلاً رد کن
+              </Button>
             </div>
           </CardContent>
         </Card>

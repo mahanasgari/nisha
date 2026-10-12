@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { HowItWorks } from "@/components/landing/HowItWorks";
+import { LandingFaq } from "@/components/landing/LandingFaq";
+import { LandingMarquee } from "@/components/landing/LandingMarquee";
 import { LandingPricing } from "@/components/landing/LandingPricing";
 import { LandingStorePreview } from "@/components/landing/LandingStorePreview";
 import { Reveal } from "@/components/landing/Reveal";
-import { RotatingWords } from "@/components/landing/RotatingWords";
 import { SellerPrimaryCta } from "@/components/landing/SellerPrimaryCta";
 import { landingButtonClasses } from "@/components/landing/buttonStyles";
 import { paths } from "@/lib/auth/paths";
+import { cn } from "@/lib/cn";
 
 const metaDescription =
   "فروشگاه آنلاینت را رایگان بساز، با کارت‌به‌کارت فروش کن و روی هر سفارش کارمزد نده — ساده و کم‌هزینه برای فروشنده‌های ایرانی.";
@@ -27,33 +30,28 @@ export const metadata: Metadata = {
   },
 };
 
-const heroWords = ["کارت‌به‌کارت", "بدون کارمزد فروش", "شروع رایگان", "ویترین قشنگ"];
-
 const stats = [
-  { value: "۵ دقیقه", label: "تا ساخت فروشگاه و گذاشتن اولین محصول" },
-  { value: "۰ تومان", label: "شروع رایگان — روی فروش کارمزد نمی‌گیریم" },
-  { value: "کارت‌به‌کارت", label: "پرداخت آشنا برای مشتری؛ بدون درگاه گران" },
+  { value: "۵ دقیقه", label: "تا ساخت فروشگاه و اولین محصول" },
+  { value: "۰ تومان", label: "شروع رایگان — بدون کارمزد فروش" },
+  { value: "کارت‌به‌کارت", label: "پرداخت آشنا برای مشتری ایرانی" },
+  { value: "۲۴/۷", label: "ویترین آنلاین همیشه در دسترس" },
 ];
 
 const capabilities = [
   {
-    emoji: "🏬",
     title: "ویترین خودت",
     description: "اسم، لوگو و کاور را بگذار تا فروشگاهت جدی و قابل‌اعتماد دیده شود.",
   },
   {
-    emoji: "💳",
     title: "فروش با کارت‌به‌کارت",
     description:
-      "مشتری خرید می‌کند، به کارت تو واریز می‌کند و رسید را همان‌جا می‌فرستد. تو فقط تایید می‌کنی — بدون کارمزد روی هر سفارش.",
+      "مشتری خرید می‌کند، به کارت تو واریز می‌کند و رسید را همان‌جا می‌فرستد. تو فقط تایید می‌کنی.",
   },
   {
-    emoji: "💬",
     title: "چت با مشتری",
     description: "سوال سایز و رنگ؟ همان‌جا داخل فروشگاه جواب بده تا فروش راحت‌تر بسته شود.",
   },
   {
-    emoji: "📊",
     title: "آمار فروش",
     description: "بازدید و فروش روزانه را از روز اول ببین تا بدانی چه چیزی بهتر می‌فروشد.",
   },
@@ -61,192 +59,241 @@ const capabilities = [
 
 const buyerPoints = [
   {
-    emoji: "💳",
     title: "پرداخت کارت‌به‌کارت",
     description: "همان روشی که همه بلدند: واریز به کارت و آپلود رسید — بدون سردرگمی درگاه.",
   },
   {
-    emoji: "🧾",
     title: "خرید سریع",
     description: "اسم و شماره کافی است؛ نیازی به ساخت حساب طولانی نیست.",
   },
   {
-    emoji: "🔎",
     title: "پیگیری سفارش",
     description: "با کد و رمز فاکتور، وضعیت سفارش را هر وقت بخواهد می‌بیند.",
   },
 ];
 
+function LandingSection({
+  children,
+  className,
+  id,
+}: {
+  children: ReactNode;
+  className?: string;
+  id?: string;
+}) {
+  return (
+    <section id={id} className={cn("mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8", className)}>
+      {children}
+    </section>
+  );
+}
+
 export default function HomePage() {
   return (
     <div className="space-y-24 lg:space-y-32">
-      <section className="grid gap-12 pt-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-center lg:pt-10">
-        <div className="space-y-8">
-          <Reveal>
-            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface/80 px-4 py-2 text-sm font-medium text-foreground-muted shadow-sm">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-brand" />
-              برای فروشنده‌های ایرانی که می‌خواهند ساده بفروشند
+      {/* Hero — shadcn centered SaaS composition */}
+      <LandingSection className="pt-6 sm:pt-10 lg:pt-14">
+        <div className="mx-auto max-w-3xl text-center">
+          <div className="landing-enter" style={{ animationDelay: "0ms" }}>
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-1.5 text-xs font-medium text-zinc-300 sm:text-sm">
+              <span className="h-1.5 w-1.5 rounded-full bg-violet-400" />
+              فروشگاه‌ساز کارت‌به‌کارت برای ایران
             </div>
-          </Reveal>
+          </div>
 
-          <Reveal delay={100}>
-            <h1 className="max-w-3xl text-4xl font-semibold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              فروشگاه آنلاینت را بساز
-              <span className="mt-2 block pb-2">
-                با{" "}
-                <RotatingWords
-                  words={heroWords}
-                  className="bg-gradient-to-r from-brand via-violet-500 to-fuchsia-500 bg-clip-text text-transparent"
-                />
-              </span>
+          <div className="landing-enter mt-7" style={{ animationDelay: "70ms" }}>
+            <p className="landing-display text-5xl text-white sm:text-6xl lg:text-7xl">نیشا</p>
+          </div>
+
+          <div className="landing-enter mt-4" style={{ animationDelay: "120ms" }}>
+            <h1 className="landing-display text-balance text-3xl text-white sm:text-4xl lg:text-5xl">
+              فروشگاه آنلاینت را بساز،{" "}
+              <span className="text-zinc-500">با کارت‌به‌کارت بفروش</span>
             </h1>
-          </Reveal>
+          </div>
 
-          <Reveal delay={200}>
-            <p className="max-w-2xl text-base leading-8 text-foreground-muted sm:text-lg">
-              ویترینت را بالا بیاور، محصول بگذار و با کارت‌به‌کارت سفارش بگیر. روی فروش کارمزد
-              نمی‌گیریم — فقط وقتی لازم شد، برای ابزارهای بیشتر اشتراک بگیر.
+          <div className="landing-enter mt-5" style={{ animationDelay: "180ms" }}>
+            <p className="mx-auto max-w-2xl text-pretty text-base leading-8 text-zinc-400 sm:text-lg">
+              ویترینت را بالا بیاور، محصول بگذار و سفارش بگیر — بدون کارمزد روی هر فروش. فقط وقتی لازم
+              شد، برای ابزارهای بیشتر اشتراک بگیر.
             </p>
-          </Reveal>
+          </div>
 
-          <Reveal delay={300}>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <SellerPrimaryCta size="lg" className="px-6" guestLabel="ساخت فروشگاه رایگان" sellerLabel="رفتن به داشبورد" />
-              <Link href={paths.seller.login} className={landingButtonClasses({ variant: "ghost", size: "lg", className: "px-6" })}>
-                ورود فروشنده
-              </Link>
-            </div>
-          </Reveal>
-
-          <Reveal delay={400}>
-            <div className="flex flex-wrap gap-3 text-sm text-foreground-muted">
-              <span className="rounded-full border border-border bg-surface/70 px-3 py-2">کارت‌به‌کارت</span>
-              <span className="rounded-full border border-border bg-surface/70 px-3 py-2">بدون کارمزد فروش</span>
-              <span className="rounded-full border border-border bg-surface/70 px-3 py-2">شروع رایگان</span>
-            </div>
-          </Reveal>
+          <div
+            className="landing-enter mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row"
+            style={{ animationDelay: "240ms" }}
+          >
+            <SellerPrimaryCta
+              size="lg"
+              className="min-w-[11rem] px-6"
+              guestLabel="شروع رایگان"
+              sellerLabel="رفتن به داشبورد"
+            />
+            <Link
+              href={paths.seller.login}
+              className={landingButtonClasses({
+                variant: "secondary",
+                size: "lg",
+                className: "min-w-[11rem] px-6",
+              })}
+            >
+              ورود فروشنده
+            </Link>
+          </div>
         </div>
 
-        <Reveal direction="left" delay={200} className="lg:pt-4">
+        <div className="landing-preview-enter relative mt-12 sm:mt-16">
+          <div className="pointer-events-none absolute inset-x-8 -top-10 h-24 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(139,92,246,0.35),transparent_70%)] blur-2xl" />
           <LandingStorePreview />
-        </Reveal>
-      </section>
-
-      <Reveal>
-        <section className="grid gap-6 rounded-[2rem] border border-border/70 bg-surface/85 p-6 shadow-sm sm:grid-cols-3 sm:p-8">
-          {stats.map((item) => (
-            <div key={item.label} className="space-y-2 text-center sm:text-start">
-              <p className="bg-gradient-to-r from-brand to-fuchsia-500 bg-clip-text text-3xl font-bold text-transparent sm:text-4xl">
-                {item.value}
-              </p>
-              <p className="text-sm leading-6 text-foreground-muted">{item.label}</p>
-            </div>
-          ))}
-        </section>
-      </Reveal>
-
-      <section className="space-y-10">
-        <Reveal>
-          <div className="max-w-2xl space-y-3">
-            <p className="text-sm font-medium tracking-[0.26em] text-brand">چرا نیشا؟</p>
-            <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl lg:text-5xl">
-              فروش ساده، هزینه کم
-            </h2>
-            <p className="max-w-xl text-sm leading-7 text-foreground-muted sm:text-base">
-              همان چیزهایی که برای فروش روزمره لازم داری — بدون پیچیدگی اضافه.
-            </p>
-          </div>
-        </Reveal>
-
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {capabilities.map((item, index) => (
-            <Reveal key={item.title} delay={index * 100} className="h-full">
-              <article className="group h-full rounded-3xl border border-border/70 bg-surface/85 p-6 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-brand/30 hover:shadow-lg">
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-brand/10 text-2xl transition-transform duration-300 group-hover:scale-110">
-                  {item.emoji}
-                </span>
-                <h3 className="mt-5 text-lg font-semibold text-foreground">{item.title}</h3>
-                <p className="mt-3 text-sm leading-7 text-foreground-muted">{item.description}</p>
-              </article>
-            </Reveal>
-          ))}
         </div>
-        <p className="text-center text-xs text-foreground-muted sm:text-sm">
-          خرید مهمان و بعضی ابزارهای پیشرفته از پلن پایه به بعد فعال می‌شوند.
-        </p>
-      </section>
+      </LandingSection>
 
-      <section className="space-y-10">
+      <LandingSection>
+        <LandingMarquee />
+      </LandingSection>
+
+      <LandingSection>
         <Reveal>
-          <div className="max-w-2xl space-y-3">
-            <p className="text-sm font-medium tracking-[0.26em] text-brand">چطور کار می‌کند؟</p>
-            <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl lg:text-5xl">
-              از صفر تا اولین فروش، در ۴ قدم
-            </h2>
-            <p className="max-w-xl text-sm leading-7 text-foreground-muted sm:text-base">
-              کوتاه و واضح — هر قدم را پایین ببین.
-            </p>
-          </div>
-        </Reveal>
-
-        <HowItWorks />
-      </section>
-
-      <LandingPricing />
-
-      <section className="space-y-10">
-        <Reveal>
-          <div className="max-w-2xl space-y-3">
-            <p className="text-sm font-medium tracking-[0.26em] text-brand">برای مشتری‌هایت</p>
-            <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl lg:text-5xl">
-              خرید آشنا و بی‌دردسر
-            </h2>
-            <p className="max-w-xl text-sm leading-7 text-foreground-muted sm:text-base">
-              کارت‌به‌کارت، سفارش سریع و پیگیری شفاف — همان چیزی که مشتری ایرانی راحت است.
-            </p>
-          </div>
-        </Reveal>
-
-        <div className="grid gap-4 md:grid-cols-3">
-          {buyerPoints.map((item, index) => (
-            <Reveal key={item.title} delay={index * 120} className="h-full">
-              <div className="h-full rounded-3xl border border-border/70 bg-surface/85 p-6 shadow-sm">
-                <span className="text-3xl">{item.emoji}</span>
-                <h3 className="mt-4 text-lg font-semibold text-foreground">{item.title}</h3>
-                <p className="mt-2 text-sm leading-7 text-foreground-muted">{item.description}</p>
+          <div className="landing-surface grid gap-6 px-4 py-6 sm:grid-cols-2 sm:px-6 sm:py-8 lg:grid-cols-4 lg:divide-x lg:divide-x-reverse lg:divide-white/10">
+            {stats.map((item, index) => (
+              <div
+                key={item.label}
+                className={cn(
+                  "space-y-2 px-1 text-center lg:px-5 lg:text-start",
+                  index === 0 && "lg:ps-0",
+                  index === stats.length - 1 && "lg:pe-0",
+                )}
+              >
+                <p className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+                  {item.value}
+                </p>
+                <p className="text-sm leading-6 text-zinc-400">{item.label}</p>
               </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </Reveal>
+      </LandingSection>
 
-      <Reveal>
-        <section className="relative overflow-hidden rounded-[2rem] border border-border/70 bg-surface/90 p-8 shadow-sm sm:p-10 lg:p-12">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(124,58,237,0.09),transparent_36%)]" />
-          <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_auto] lg:items-center">
-            <div className="space-y-4">
-              <p className="text-sm font-medium tracking-[0.26em] text-brand">بیا شروع کنیم</p>
-              <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-4xl">
+      <LandingSection id="features">
+        <div className="space-y-10">
+          <Reveal>
+            <div className="mx-auto max-w-2xl space-y-3 text-center">
+              <p className="landing-eyebrow">چرا نیشا؟</p>
+              <h2 className="landing-display text-3xl text-white sm:text-4xl lg:text-5xl">
+                فروش ساده، هزینه کم
+              </h2>
+              <p className="mx-auto max-w-xl text-sm leading-7 text-zinc-400 sm:text-base">
+                همان چیزهایی که برای فروش روزمره لازم داری — بدون پیچیدگی اضافه.
+              </p>
+            </div>
+          </Reveal>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {capabilities.map((item, index) => (
+              <Reveal key={item.title} delay={index * 70} className="h-full">
+                <article className="landing-surface group h-full p-6 transition-colors duration-300 hover:border-violet-400/30 hover:bg-violet-500/[0.06] sm:p-7">
+                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-sm font-semibold text-violet-300 transition-colors group-hover:border-violet-400/40 group-hover:bg-violet-500/15">
+                    {String(index + 1).padStart(2, "0")}
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-7 text-zinc-400">{item.description}</p>
+                </article>
+              </Reveal>
+            ))}
+          </div>
+          <p className="text-center text-xs text-zinc-500 sm:text-sm">
+            خرید مهمان و بعضی ابزارهای پیشرفته از پلن پایه به بعد فعال می‌شوند.
+          </p>
+        </div>
+      </LandingSection>
+
+      <LandingSection id="how">
+        <div className="space-y-10">
+          <Reveal>
+            <div className="mx-auto max-w-2xl space-y-3 text-center">
+              <p className="landing-eyebrow">چطور کار می‌کند؟</p>
+              <h2 className="landing-display text-3xl text-white sm:text-4xl lg:text-5xl">
+                از صفر تا اولین فروش
+              </h2>
+              <p className="mx-auto max-w-xl text-sm leading-7 text-zinc-400 sm:text-base">
+                چهار قدم کوتاه — هر کدام را پایین دنبال کن.
+              </p>
+            </div>
+          </Reveal>
+          <HowItWorks />
+        </div>
+      </LandingSection>
+
+      <LandingSection id="pricing">
+        <LandingPricing className="landing-pricing" />
+      </LandingSection>
+
+      <LandingSection>
+        <div className="space-y-10">
+          <Reveal>
+            <div className="mx-auto max-w-2xl space-y-3 text-center">
+              <p className="landing-eyebrow">برای مشتری‌هایت</p>
+              <h2 className="landing-display text-3xl text-white sm:text-4xl lg:text-5xl">
+                خرید آشنا و بی‌دردسر
+              </h2>
+              <p className="mx-auto max-w-xl text-sm leading-7 text-zinc-400 sm:text-base">
+                کارت‌به‌کارت، سفارش سریع و پیگیری شفاف — همان چیزی که مشتری ایرانی راحت است.
+              </p>
+            </div>
+          </Reveal>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            {buyerPoints.map((item, index) => (
+              <Reveal key={item.title} delay={index * 70} className="h-full">
+                <div className="landing-surface h-full p-6">
+                  <div className="mb-4 h-px w-10 bg-gradient-to-l from-violet-400 to-transparent" />
+                  <h3 className="text-lg font-semibold text-white">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-7 text-zinc-400">{item.description}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </LandingSection>
+
+      <LandingSection id="faq">
+        <LandingFaq />
+      </LandingSection>
+
+      <LandingSection>
+        <Reveal>
+          <section className="landing-glow-ring relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-violet-600/20 via-[#111113] to-[#09090b] p-8 sm:p-10 lg:p-12">
+            <div className="pointer-events-none absolute -end-10 -top-16 h-48 w-48 rounded-full bg-fuchsia-500/20 blur-3xl" />
+            <div className="relative mx-auto max-w-2xl space-y-6 text-center">
+              <p className="landing-eyebrow">بیا شروع کنیم</p>
+              <h2 className="landing-display text-3xl text-white sm:text-4xl">
                 امروز ویترینت را بساز، فردا بفروش
               </h2>
-              <p className="max-w-2xl text-sm leading-7 text-foreground-muted sm:text-base">
-                رایگان شروع کن، لینک فروشگاهت را برای مشتری بفرست و با کارت‌به‌کارت فروش بگیر — بدون
-                کارمزد روی هر سفارش.
+              <p className="text-sm leading-7 text-zinc-400 sm:text-base">
+                رایگان شروع کن، لینک فروشگاهت را برای مشتری بفرست و با کارت‌به‌کارت فروش بگیر.
               </p>
+              <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <SellerPrimaryCta
+                  size="lg"
+                  className="min-w-[11rem] px-6"
+                  guestLabel="ساخت فروشگاه رایگان"
+                  sellerLabel="رفتن به داشبورد"
+                />
+                <Link
+                  href={paths.seller.login}
+                  className={landingButtonClasses({
+                    variant: "secondary",
+                    size: "lg",
+                    className: "min-w-[11rem] px-6",
+                  })}
+                >
+                  ورود فروشنده
+                </Link>
+              </div>
             </div>
-
-            <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-              <SellerPrimaryCta size="lg" className="px-6" guestLabel="ساخت فروشگاه رایگان" sellerLabel="رفتن به داشبورد" />
-              <Link
-                href={paths.seller.login}
-                className={landingButtonClasses({ variant: "secondary", size: "lg", className: "px-6" })}
-              >
-                ورود فروشنده
-              </Link>
-            </div>
-          </div>
-        </section>
-      </Reveal>
+          </section>
+        </Reveal>
+      </LandingSection>
     </div>
   );
 }

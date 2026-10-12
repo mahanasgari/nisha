@@ -7,29 +7,27 @@ export function useSellerFetch<T>(fetchFn: () => Promise<T>, deps: unknown[] = [
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const cancelledRef = useRef(false);
+  const requestIdRef = useRef(0);
   const fetchFnRef = useRef(fetchFn);
   fetchFnRef.current = fetchFn;
 
   const refetch = useCallback(async () => {
-    if (cancelledRef.current) return null;
+    const requestId = ++requestIdRef.current;
     setIsLoading(true);
     setError(null);
     try {
       const result = await fetchFnRef.current();
-      if (!cancelledRef.current) {
-        setData(result);
-      }
+      if (requestId !== requestIdRef.current) return null;
+      setData(result);
       return result;
     } catch (err) {
-      if (!cancelledRef.current) {
-        const message = err instanceof ApiError ? err.message : "مشکلی پیش آمد؛ دوباره امتحان کن";
-        setError(message);
-        setData(null);
-      }
+      if (requestId !== requestIdRef.current) return null;
+      const message = err instanceof ApiError ? err.message : "مشکلی پیش آمد؛ دوباره امتحان کن";
+      setError(message);
+      setData(null);
       return null;
     } finally {
-      if (!cancelledRef.current) {
+      if (requestId === requestIdRef.current) {
         setIsLoading(false);
       }
     }
@@ -37,10 +35,10 @@ export function useSellerFetch<T>(fetchFn: () => Promise<T>, deps: unknown[] = [
   }, deps);
 
   useEffect(() => {
-    cancelledRef.current = false;
     void refetch();
     return () => {
-      cancelledRef.current = true;
+      // Invalidate in-flight responses from this effect cycle.
+      requestIdRef.current += 1;
     };
   }, [refetch]);
 

@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { AuthPageFrame } from "@/components/auth/AuthPageFrame";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -58,7 +59,7 @@ export function UserRecoverForm({ title, loginHref, afterVerifyHref }: UserRecov
       if (!res.access_token || !res.user) {
         throw new Error("بازیابی کامل نشد");
       }
-      setSession(res.access_token, res.user);
+      setSession(res.access_token, res.user, res.refresh_token);
       router.replace(afterVerifyHref);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "بازیابی ناموفق بود");
@@ -68,10 +69,10 @@ export function UserRecoverForm({ title, loginHref, afterVerifyHref }: UserRecov
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-xl space-y-6">
+    <AuthPageFrame>
+      <div className="mx-auto w-full max-w-xl space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
           <p className="mt-1 text-sm text-foreground-muted">
             کد بازیابی به ایمیلت فرستاده می‌شود.
           </p>
@@ -105,19 +106,19 @@ export function UserRecoverForm({ title, loginHref, afterVerifyHref }: UserRecov
                   تنظیم رمز جدید
                 </Button>
                 {hint && (
-                  <p className="rounded-lg bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
+                  <p className="rounded-lg bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
                     راهنمای تحویل: {hint}
                   </p>
                 )}
                 {debugCode && process.env.NODE_ENV !== "production" && (
-                  <p className="rounded-lg bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
+                  <p className="rounded-lg bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
                     کد توسعه: {debugCode}
                   </p>
                 )}
               </form>
             )}
             {error && (
-              <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-700 dark:text-red-200" role="alert">
+              <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-200" role="alert">
                 {error}
               </p>
             )}
@@ -129,6 +130,6 @@ export function UserRecoverForm({ title, loginHref, afterVerifyHref }: UserRecov
           </CardContent>
         </Card>
       </div>
-    </div>
+    </AuthPageFrame>
   );
 }

@@ -20,6 +20,7 @@ export type Store = {
   guest_checkout_enabled: boolean;
   theme_preset: string | null;
   primary_color: string | null;
+  design_style: string | null;
   about_text: string | null;
   shipping_policy_text: string | null;
   default_shipping_cost: string;
@@ -69,6 +70,7 @@ export type StoreUpdate = {
   guest_checkout_enabled?: boolean;
   theme_preset?: string | null;
   primary_color?: string | null;
+  design_style?: string | null;
   about_text?: string | null;
   shipping_policy_text?: string | null;
   default_shipping_cost?: number | string | null;

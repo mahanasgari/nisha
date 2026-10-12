@@ -99,13 +99,17 @@ def update_store(db: Session, store: Store, data: StoreUpdate) -> Store:
                 status_code=403,
             )
 
-    theme_fields = {"theme_preset", "primary_color"}
+    theme_fields = {"theme_preset", "primary_color", "design_style"}
     if theme_fields.intersection(update_data):
         entitlements = get_seller_entitlements(db, store.owner_id)
         if not entitlements.get("store_theme"):
             # Ignore theme fields on lower plans so other store settings can still save.
             for field in theme_fields:
                 update_data.pop(field, None)
+
+    if "design_style" in update_data and update_data["design_style"] is not None:
+        if update_data["design_style"] not in {"saas", "classic", "glass"}:
+            update_data.pop("design_style", None)
 
     page_fields = {"about_text", "shipping_policy_text"}
     if page_fields.intersection(update_data):

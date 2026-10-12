@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthPageFrame } from "@/components/auth/AuthPageFrame";
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
@@ -61,10 +62,10 @@ export default function CustomerRecoverPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-xl space-y-6">
+    <AuthPageFrame>
+      <div className="mx-auto w-full max-w-xl space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground max-md:text-xl">بازیابی رمز عبور</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground max-md:text-xl">بازیابی رمز عبور</h1>
           <p className="mt-1 text-sm text-foreground-muted">
             کد را با ایمیل یا پیامک دریافت کنید و سپس رمز جدید تعیین کنید.
           </p>
@@ -130,6 +131,6 @@ export default function CustomerRecoverPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </AuthPageFrame>
   );
 }

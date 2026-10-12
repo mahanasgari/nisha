@@ -1,21 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { TouchEvent as ReactTouchEvent } from "react";
 import * as storesApi from "@/lib/api/public/stores";
 import { useCart } from "@/contexts/CartContext";
 import { resolveMediaUrl } from "@/lib/media";
 import { MessageSellerButton } from "@/components/store/MessageSellerButton";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorAlert } from "@/components/ui/ErrorAlert";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { OrbLoader } from "@/components/ui/OrbLoader";
 import { useToast } from "@/contexts/ToastContext";
 import { formatMoney, formatDateTime } from "@/lib/format";
 import { paths } from "@/lib/auth/paths";
+import { cn } from "@/lib/cn";
 import type { PublicProductDetailResponse } from "@/types/public/store";
 
 type ProductPageClientProps = {
@@ -27,16 +26,6 @@ type GalleryMediaItem =
   | { kind: "image"; key: string; fullUrl: string; previewUrl: string; alt: string | null }
   | { kind: "video"; key: string; srcUrl: string };
 
-const FIELD_TYPE_LABELS: Record<string, string> = {
-  TEXT: "متن کوتاه",
-  TEXTAREA: "متن بلند",
-  NUMBER: "عدد",
-  DROPDOWN: "فهرست کشویی",
-  RADIO: "گزینه‌های رادیویی",
-  CHECKBOX: "چک‌باکس",
-  FILE_UPLOAD: "بارگذاری فایل",
-};
-
 export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
   const { addItem } = useCart();
   const toast = useToast();
@@ -47,6 +36,7 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
   const [quantity, setQuantity] = useState(1);
   const [selectedVariantId, setSelectedVariantId] = useState<number | null>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [descOpen, setDescOpen] = useState(false);
   const touchStartX = useRef<number | null>(null);
 
   useEffect(() => {
@@ -62,6 +52,7 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
           setQuantity(1);
           setSelectedVariantId(null);
           setLightboxOpen(false);
+          setDescOpen(false);
         }
       } catch {
         if (!cancelled) setError("محصول پیدا نشد یا در دسترس نیست.");
@@ -74,16 +65,10 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
     };
   }, [slug, productId]);
 
-  const badges = useMemo(
-    () => data?.store.trust_badges ?? [],
-    [data?.store.trust_badges],
-  );
-
   if (loading) {
     return (
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <Skeleton className="h-[520px] w-full rounded-3xl" />
-        <Skeleton className="h-[520px] w-full rounded-3xl" />
+      <div className="flex min-h-[40vh] items-center justify-center py-16">
+        <OrbLoader state="searching" size={64} label="در حال بارگذاری محصول..." />
       </div>
     );
   }
@@ -94,15 +79,11 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
 
   if (!data) {
     return (
-      <EmptyState
-        title="محصول در دسترس نیست"
-        description="این محصول وجود ندارد یا فعال نیست."
-      />
+      <EmptyState title="محصول در دسترس نیست" description="این محصول وجود ندارد یا فعال نیست." />
     );
   }
 
   const { store, product, review_summary, public_reviews } = data;
-
   const variants = product.variants ?? [];
   const selectedVariant =
     variants.find((v) => v.id === selectedVariantId) ??
@@ -111,6 +92,7 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
     null;
   const effectiveStock = selectedVariant ? selectedVariant.stock_quantity : product.stock_quantity;
   const effectivePrice = selectedVariant?.price_override ?? product.price;
+  const outOfStock = effectiveStock <= 0;
 
   const mediaItems: GalleryMediaItem[] = product.images.map((item) => ({
     kind: "image" as const,
@@ -125,12 +107,11 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
 
   const activeIndex = mediaItems.length > 0 ? Math.min(selectedImage, mediaItems.length - 1) : 0;
   const activeMedia = mediaItems[activeIndex] ?? null;
-  const lineTotal = parseFloat(effectivePrice) * quantity;
+  const longDescription = (product.description?.length ?? 0) > 160;
 
   function goToMedia(index: number) {
     if (mediaItems.length < 2) return;
-    const next = (index + mediaItems.length) % mediaItems.length;
-    setSelectedImage(next);
+    setSelectedImage((index + mediaItems.length) % mediaItems.length);
   }
 
   function handleGalleryTouchStart(event: ReactTouchEvent<HTMLElement>) {
@@ -146,332 +127,318 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
     const endX = event.changedTouches[0]?.clientX ?? startX;
     const deltaX = endX - startX;
     if (Math.abs(deltaX) < 40) return;
-    if (deltaX < 0) {
-      goToMedia(activeIndex + 1);
-    } else {
-      goToMedia(activeIndex - 1);
-    }
+    goToMedia(deltaX < 0 ? activeIndex + 1 : activeIndex - 1);
   }
 
   function handleAddToCart() {
-    if (effectiveStock <= 0) {
+    if (outOfStock) {
       toast.error("این محصول ناموجود است");
+      return;
+    }
+    if (variants.length > 0 && !selectedVariant) {
+      toast.error("یک گزینه انتخاب کن");
       return;
     }
     addItem(product, quantity, selectedVariant);
     toast.success(
       selectedVariant
-        ? `«${product.title} — ${selectedVariant.name}» به سبد خرید اضافه شد`
-        : "محصول به سبد خرید اضافه شد",
+        ? `«${product.title} — ${selectedVariant.name}» به سبد اضافه شد`
+        : "به سبد خرید اضافه شد",
     );
   }
 
   return (
-    <div className="page-stack">
-      <div className="flex flex-wrap items-center gap-2 text-sm text-neutral-500">
-        <Link href={paths.store(slug)} className="text-brand hover:underline">
-          بازگشت به فروشگاه
-        </Link>
-        <span>•</span>
-        <span>{store.name}</span>
-      </div>
+    <div className="mx-auto max-w-5xl pb-24 lg:pb-6">
+      <Link
+        href={paths.store(slug)}
+        className="mb-3 inline-flex items-center gap-1 text-sm text-foreground-muted transition hover:text-foreground"
+      >
+        <span aria-hidden>→</span>
+        بازگشت به {store.name}
+      </Link>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <Card className="overflow-hidden">
-          <CardContent className="space-y-4 p-4">
-            <div
-              className="relative overflow-hidden rounded-3xl bg-neutral-100"
-              onTouchStart={handleGalleryTouchStart}
-              onTouchEnd={handleGalleryTouchEnd}
-            >
-              {activeMedia ? (
-                activeMedia.kind === "image" ? (
+      <div className="grid gap-6 lg:grid-cols-2 lg:gap-10 lg:items-start">
+        {/* Gallery */}
+        <div className="min-w-0">
+          <div
+            className="relative overflow-hidden rounded-2xl bg-surface-muted"
+            onTouchStart={handleGalleryTouchStart}
+            onTouchEnd={handleGalleryTouchEnd}
+          >
+            {activeMedia ? (
+              activeMedia.kind === "image" ? (
+                <button
+                  type="button"
+                  className="block aspect-square w-full cursor-zoom-in"
+                  onClick={() => setLightboxOpen(true)}
+                  aria-label="بزرگ‌نمایی"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={activeMedia.previewUrl}
+                    alt={activeMedia.alt ?? product.title}
+                    className="h-full w-full object-cover"
+                  />
+                </button>
+              ) : (
+                <video
+                  src={activeMedia.srcUrl}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="aspect-square w-full bg-black object-contain"
+                />
+              )
+            ) : (
+              <div className="flex aspect-square items-center justify-center text-sm text-foreground-muted">
+                بدون تصویر
+              </div>
+            )}
+
+            {mediaItems.length > 1 ? (
+              <div className="absolute inset-x-0 bottom-3 flex justify-center gap-1.5">
+                {mediaItems.map((item, index) => (
                   <button
+                    key={item.key}
                     type="button"
-                    className="block h-[280px] w-full cursor-zoom-in sm:h-[420px]"
-                    onClick={() => setLightboxOpen(true)}
-                    aria-label="بزرگ‌نمایی تصویر"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    aria-label={`رسانه ${index + 1}`}
+                    onClick={() => setSelectedImage(index)}
+                    className={cn(
+                      "h-1.5 rounded-full transition-all",
+                      index === activeIndex ? "w-5 bg-white" : "w-1.5 bg-white/50",
+                    )}
+                  />
+                ))}
+              </div>
+            ) : null}
+          </div>
+
+          {mediaItems.length > 1 ? (
+            <div className="mt-2.5 hidden gap-2 overflow-x-auto pb-0.5 lg:flex">
+              {mediaItems.map((item, index) => (
+                <button
+                  key={item.key}
+                  type="button"
+                  onClick={() => setSelectedImage(index)}
+                  className={cn(
+                    "h-14 w-14 shrink-0 overflow-hidden rounded-lg border-2",
+                    index === activeIndex ? "border-brand" : "border-transparent opacity-70",
+                  )}
+                >
+                  {item.kind === "image" ? (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={activeMedia.previewUrl}
-                      alt={activeMedia.alt ?? product.title}
+                      src={item.previewUrl}
+                      alt=""
                       className="h-full w-full object-cover"
                     />
-                  </button>
-                ) : (
-                  <video
-                    src={activeMedia.srcUrl}
-                    controls
-                    playsInline
-                    preload="metadata"
-                    className="h-[280px] w-full bg-black object-contain sm:h-[420px]"
-                  />
-                )
-              ) : (
-                <div className="flex h-[280px] items-center justify-center text-neutral-400 sm:h-[420px]">
-                  تصویری در دسترس نیست
-                </div>
-              )}
-              {mediaItems.length > 1 && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => goToMedia(activeIndex - 1)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/45 px-3 py-1.5 text-sm text-white hover:bg-black/60"
-                    aria-label="مورد قبلی گالری"
-                  >
-                    ‹
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => goToMedia(activeIndex + 1)}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/45 px-3 py-1.5 text-sm text-white hover:bg-black/60"
-                    aria-label="مورد بعدی گالری"
-                  >
-                    ›
-                  </button>
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/45 px-3 py-1 text-xs text-white">
-                    {activeIndex + 1} / {mediaItems.length}
-                  </div>
-                </>
-              )}
+                  ) : (
+                    <span className="flex h-full w-full items-center justify-center bg-neutral-900 text-[10px] text-white">
+                      ویدیو
+                    </span>
+                  )}
+                </button>
+              ))}
             </div>
-            {mediaItems.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-1">
-                {mediaItems.map((item, index) => {
-                  const active = index === activeIndex;
+          ) : null}
+        </div>
+
+        {/* Buy panel */}
+        <div className="min-w-0 space-y-5">
+          <div className="space-y-2">
+            <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+              {product.title}
+            </h1>
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <p className="text-2xl font-semibold text-foreground">{formatMoney(effectivePrice)}</p>
+              <p
+                className={cn(
+                  "text-sm",
+                  outOfStock ? "text-red-600 dark:text-red-400" : "text-foreground-muted",
+                )}
+              >
+                {outOfStock ? "ناموجود" : `${effectiveStock} عدد موجود`}
+              </p>
+            </div>
+            {review_summary.review_count > 0 ? (
+              <p className="text-sm text-foreground-muted">
+                ★ {review_summary.average_rating.toFixed(1)} · {review_summary.review_count} نظر
+              </p>
+            ) : null}
+          </div>
+
+          {product.description ? (
+            <div className="space-y-1">
+              <p
+                className={cn(
+                  "text-sm leading-7 text-foreground-muted whitespace-pre-wrap",
+                  !descOpen && longDescription && "line-clamp-3",
+                )}
+              >
+                {product.description}
+              </p>
+              {longDescription ? (
+                <button
+                  type="button"
+                  className="text-sm font-medium text-brand"
+                  onClick={() => setDescOpen((open) => !open)}
+                >
+                  {descOpen ? "کمتر" : "بیشتر"}
+                </button>
+              ) : null}
+            </div>
+          ) : null}
+
+          {variants.length > 0 ? (
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-foreground">گزینه</p>
+              <div className="flex flex-wrap gap-2">
+                {variants.map((variant) => {
+                  const active = selectedVariant?.id === variant.id;
+                  const soldOut = variant.stock_quantity <= 0;
                   return (
                     <button
-                      key={item.key}
+                      key={variant.id}
                       type="button"
-                      onClick={() => setSelectedImage(index)}
-                      className={`shrink-0 overflow-hidden rounded-2xl border-2 transition ${
-                        active ? "border-brand" : "border-transparent"
-                      }`}
-                    >
-                      {item.kind === "image" ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={item.previewUrl} alt={item.alt ?? product.title} className="h-20 w-20 object-cover" />
-                      ) : (
-                        <span className="flex h-20 w-20 items-center justify-center bg-neutral-900 text-xs font-medium text-white">
-                          ▶ ویدیو
-                        </span>
+                      disabled={soldOut}
+                      onClick={() => {
+                        setSelectedVariantId(variant.id);
+                        setQuantity(1);
+                      }}
+                      className={cn(
+                        "rounded-full border px-3.5 py-2 text-sm transition",
+                        active
+                          ? "border-brand bg-brand/10 font-medium text-foreground"
+                          : "border-border text-foreground hover:border-brand/50",
+                        soldOut && "cursor-not-allowed opacity-40",
                       )}
+                    >
+                      {variant.name}
+                      {soldOut ? " · ناموجود" : ""}
                     </button>
                   );
                 })}
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </div>
+          ) : null}
 
-        <div className="page-stack">
-          <Card>
-            <CardContent className="space-y-4 py-6">
-              <div className="flex flex-wrap gap-2">
-                {badges.map((badge) => (
-                  <Badge key={badge} variant="info">
-                    {badge}
-                  </Badge>
-                ))}
-              </div>
-              <div>
-                <p className="text-sm text-foreground-muted">{store.name}</p>
-                <h1 className="mt-1 text-2xl font-bold text-foreground max-md:text-xl sm:text-3xl">{product.title}</h1>
-                <p className="mt-2 text-xl font-semibold text-foreground sm:text-2xl">{formatMoney(effectivePrice)}</p>
-              </div>
-              {product.description && <p className="text-sm leading-6 text-foreground-muted">{product.description}</p>}
-              <div className="space-y-3 rounded-3xl border border-border bg-surface-muted p-4">
-                {variants.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-xs tracking-[0.2em] text-foreground-muted">انتخاب واریانت</p>
-                    <div className="flex flex-wrap gap-2">
-                      {variants.map((variant) => {
-                        const active = selectedVariant?.id === variant.id;
-                        const outOfStock = variant.stock_quantity <= 0;
-                        return (
-                          <button
-                            key={variant.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedVariantId(variant.id);
-                              setQuantity(1);
-                            }}
-                            disabled={outOfStock}
-                            className={`rounded-full border px-4 py-2 text-sm transition ${
-                              active
-                                ? "border-brand bg-surface font-medium text-brand"
-                                : "border-border text-foreground hover:border-brand"
-                            } ${outOfStock ? "cursor-not-allowed opacity-50" : ""}`}
-                          >
-                            {variant.name}
-                            {variant.price_override ? ` — ${formatMoney(variant.price_override)}` : ""}
-                            {outOfStock ? " (ناموجود)" : ""}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="text-xs tracking-[0.2em] text-foreground-muted">تعداد</p>
-                    <p className="text-sm text-foreground-muted">پیش از افزودن به سبد خرید، مقدار را تنظیم کنید.</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="md"
-                      onClick={() => setQuantity((current) => Math.max(1, current - 1))}
-                      disabled={quantity <= 1}
-                      aria-label="کاهش تعداد"
-                    >
-                      -
-                    </Button>
-                    <div className="min-w-14 rounded-full border border-border bg-surface px-4 py-2 text-center text-sm font-medium text-foreground" aria-live="polite">
-                      {quantity}
-                    </div>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="md"
-                      onClick={() => setQuantity((current) => Math.min(effectiveStock, current + 1))}
-                      disabled={quantity >= effectiveStock}
-                      aria-label="افزایش تعداد"
-                    >
-                      +
-                    </Button>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-foreground-muted">جمع این ردیف</span>
-                  <span className="font-semibold text-foreground">{formatMoney(lineTotal)}</span>
-                </div>
-                <Button onClick={handleAddToCart} disabled={effectiveStock <= 0}>
-                  افزودن به سبد خرید
+          {/* Desktop purchase controls */}
+          <div className="hidden space-y-3 rounded-xl border border-border bg-surface p-4 lg:block">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-sm text-foreground-muted">تعداد</span>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  disabled={quantity <= 1 || outOfStock}
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  aria-label="کاهش"
+                >
+                  −
+                </Button>
+                <span className="min-w-8 text-center text-sm font-medium" aria-live="polite">
+                  {quantity}
+                </span>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  disabled={outOfStock || quantity >= effectiveStock}
+                  onClick={() => setQuantity((q) => Math.min(effectiveStock, q + 1))}
+                  aria-label="افزایش"
+                >
+                  +
                 </Button>
               </div>
-              <div className="flex flex-wrap gap-3">
-                <MessageSellerButton storeId={store.id} />
-                <Link href={paths.customer.checkout(slug)} className="inline-flex items-center rounded-xl bg-brand px-4 py-2.5 text-sm font-medium text-brand-foreground hover:bg-brand/90">
-                  رفتن به پرداخت
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+            <Button className="w-full" onClick={handleAddToCart} disabled={outOfStock}>
+              {outOfStock ? "ناموجود" : "افزودن به سبد"}
+            </Button>
+            <div className="flex justify-center">
+              <MessageSellerButton storeId={store.id} />
+            </div>
+          </div>
 
-          <Card>
-            <CardContent className="space-y-3 py-6">
-              <p className="text-xs tracking-[0.2em] text-foreground-muted">جزئیات محصول</p>
-              <div className="grid gap-3 text-sm text-foreground">
-                <p>
-                  موجودی: <span className="font-medium text-foreground">{effectiveStock}</span>
-                </p>
-                {variants.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="font-medium text-foreground">واریانت‌ها</p>
-                    {variants.map((variant) => (
-                      <p key={variant.id} className="text-foreground-muted">
-                        {variant.name} — {formatMoney(variant.price_override ?? product.price)} — موجودی {variant.stock_quantity}
-                      </p>
-                    ))}
-                  </div>
-                )}
-                <p>
-                  تصاویر: <span className="font-medium text-foreground">{product.image_count}</span>
-                </p>
-                {product.video_url && (
-                  <p>
-                    ویدیو: <span className="font-medium text-foreground">دارد</span>
-                  </p>
-                )}
-                {product.form_fields.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="font-medium text-foreground">فیلدهای سفارش سفارشی</p>
-                    <div className="space-y-2">
-                      {product.form_fields.map((field) => (
-                        <div key={field.id} className="rounded-xl border border-border p-3">
-                          <p className="font-medium text-foreground">{field.label}</p>
-                          <p className="text-xs uppercase tracking-[0.2em] text-foreground-muted">
-                            {FIELD_TYPE_LABELS[field.field_type] ?? field.field_type} {field.is_required ? "• الزامی" : ""}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          {product.form_fields.length > 0 ? (
+            <p className="text-xs text-foreground-muted">
+              هنگام پرداخت، {product.form_fields.length} فیلد اضافی ازت پرسیده می‌شود.
+            </p>
+          ) : null}
+
+          <div className="lg:hidden">
+            <MessageSellerButton storeId={store.id} />
+          </div>
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <Card>
-            <CardContent className="space-y-4 py-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs tracking-[0.2em] text-foreground-muted">نظرات عمومی</p>
-                  <h2 className="text-xl font-semibold text-foreground">
-                    میانگین {review_summary.average_rating.toFixed(1)} از {review_summary.review_count} خریدار
-                  </h2>
-                </div>
-                <Badge variant="success">{review_summary.review_count} نظر</Badge>
-              </div>
-              <div className="space-y-3">
-              {public_reviews.length === 0 ? (
-                <EmptyState title="هنوز نظری ثبت نشده" description="برای این محصول هیچ نظر تاییدشده‌ای وجود ندارد." />
-                ) : (
-                  public_reviews.map((review) => (
-                  <div key={review.id} className="rounded-2xl border border-border p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="font-medium text-foreground">{review.customer_name}</p>
-                      <Badge variant="success">{review.rating} / 5</Badge>
-                    </div>
-                    <p className="mt-1 text-xs text-foreground-muted">{formatDateTime(review.created_at)}</p>
-                    {review.title && <p className="mt-2 font-medium text-foreground">{review.title}</p>}
-                    {review.comment && <p className="mt-1 text-sm leading-6 text-foreground-muted">{review.comment}</p>}
-                    {review.image_urls.length > 0 && (
-                      <div className="mt-3 flex gap-2 overflow-x-auto">
-                        {review.image_urls.map((imageUrlItem) => (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            key={imageUrlItem}
-                            src={resolveMediaUrl(imageUrlItem)}
-                            alt=""
-                            className="h-16 w-16 shrink-0 rounded-lg border border-border object-cover"
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
-          </CardContent>
-        </Card>
+      {/* Reviews */}
+      <section className="mt-10 space-y-4 border-t border-border pt-8">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="text-base font-semibold text-foreground">نظرات</h2>
+          {review_summary.review_count > 0 ? (
+            <p className="text-sm text-foreground-muted">
+              ★ {review_summary.average_rating.toFixed(1)} · {review_summary.review_count} نظر
+            </p>
+          ) : null}
+        </div>
 
-        <Card>
-          <CardContent className="space-y-3 py-6">
-            <p className="text-xs tracking-[0.2em] text-foreground-muted">نمای کلی فروشگاه</p>
-            <p className="text-lg font-semibold text-foreground">{store.name}</p>
-            {store.description && <p className="text-sm leading-6 text-foreground-muted">{store.description}</p>}
-            {store.location && <p className="text-sm text-foreground">موقعیت: {store.location}</p>}
-            {store.phone && <p className="text-sm text-foreground">تلفن: {store.phone}</p>}
-            {store.website && (
-              <a href={store.website} target="_blank" rel="noreferrer" className="text-sm text-brand hover:underline">
-                وب‌سایت
-              </a>
-            )}
-          </CardContent>
-        </Card>
+        {public_reviews.length === 0 ? (
+          <p className="text-sm text-foreground-muted">هنوز نظری ثبت نشده است.</p>
+        ) : (
+          <ul className="space-y-4">
+            {public_reviews.map((review) => (
+              <li key={review.id} className="border-b border-border/70 pb-4 last:border-0">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm font-medium text-foreground">{review.customer_name}</p>
+                  <p className="text-xs text-foreground-muted">★ {review.rating}</p>
+                </div>
+                <p className="mt-0.5 text-xs text-foreground-muted">{formatDateTime(review.created_at)}</p>
+                {review.title ? (
+                  <p className="mt-2 text-sm font-medium text-foreground">{review.title}</p>
+                ) : null}
+                {review.comment ? (
+                  <p className="mt-1 text-sm leading-6 text-foreground-muted">{review.comment}</p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* Mobile sticky buy bar */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
+        <div className="mx-auto flex max-w-5xl items-center gap-2">
+          <div className="flex items-center gap-1.5 rounded-xl border border-border px-1">
+            <button
+              type="button"
+              className="px-2.5 py-2 text-lg leading-none text-foreground disabled:opacity-40"
+              disabled={quantity <= 1 || outOfStock}
+              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              aria-label="کاهش"
+            >
+              −
+            </button>
+            <span className="min-w-6 text-center text-sm font-medium">{quantity}</span>
+            <button
+              type="button"
+              className="px-2.5 py-2 text-lg leading-none text-foreground disabled:opacity-40"
+              disabled={outOfStock || quantity >= effectiveStock}
+              onClick={() => setQuantity((q) => Math.min(effectiveStock, q + 1))}
+              aria-label="افزایش"
+            >
+              +
+            </button>
+          </div>
+          <Button className="min-w-0 flex-1" onClick={handleAddToCart} disabled={outOfStock}>
+            {outOfStock ? "ناموجود" : `افزودن · ${formatMoney(parseFloat(effectivePrice) * quantity)}`}
+          </Button>
+        </div>
       </div>
 
-      {lightboxOpen && activeMedia?.kind === "image" && (
+      {lightboxOpen && activeMedia?.kind === "image" ? (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
           role="dialog"
           aria-modal="true"
           onClick={() => setLightboxOpen(false)}
@@ -482,18 +449,18 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
           <img
             src={activeMedia.fullUrl}
             alt={activeMedia.alt ?? product.title}
-            className="max-h-full max-w-full rounded-2xl object-contain"
+            className="max-h-full max-w-full object-contain"
             onClick={(event) => event.stopPropagation()}
           />
           <button
             type="button"
-            className="absolute left-4 top-4 rounded-full bg-white/90 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-white"
+            className="absolute end-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-sm text-neutral-900"
             onClick={() => setLightboxOpen(false)}
           >
-            بستن ✕
+            بستن
           </button>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

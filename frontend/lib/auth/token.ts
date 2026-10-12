@@ -1,6 +1,7 @@
 import type { User } from "@/types/auth";
 
 const TOKEN_KEY = "nisha_access_token";
+const REFRESH_TOKEN_KEY = "nisha_refresh_token";
 const USER_KEY = "nisha_user";
 
 function isBrowser(): boolean {
@@ -17,9 +18,20 @@ export function setToken(token: string): void {
   localStorage.setItem(TOKEN_KEY, token);
 }
 
+export function getRefreshToken(): string | null {
+  if (!isBrowser()) return null;
+  return localStorage.getItem(REFRESH_TOKEN_KEY);
+}
+
+export function setRefreshToken(token: string): void {
+  if (!isBrowser()) return;
+  localStorage.setItem(REFRESH_TOKEN_KEY, token);
+}
+
 export function clearToken(): void {
   if (!isBrowser()) return;
   localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
 }
 

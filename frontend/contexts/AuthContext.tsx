@@ -15,6 +15,7 @@ import {
   clearToken,
   getStoredUser,
   getToken,
+  setRefreshToken,
   setStoredUser,
   setToken,
 } from "@/lib/auth/token";
@@ -28,7 +29,7 @@ type AuthContextValue = {
   register: (payload: RegisterRequest) => Promise<RegisterResult>;
   logout: () => void;
   refreshUser: () => Promise<User | null>;
-  setSession: (accessToken: string, user: User) => void;
+  setSession: (accessToken: string, user: User, refreshToken?: string | null) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -37,11 +38,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const setSession = useCallback((accessToken: string, nextUser: User) => {
-    setToken(accessToken);
-    setStoredUser(nextUser);
-    setUser(nextUser);
-  }, []);
+  const setSession = useCallback(
+    (accessToken: string, nextUser: User, refreshToken?: string | null) => {
+      setToken(accessToken);
+      if (refreshToken) {
+        setRefreshToken(refreshToken);
+      }
+      setStoredUser(nextUser);
+      setUser(nextUser);
+    },
+    [],
+  );
 
   const refreshUser = useCallback(async (): Promise<User | null> => {
     const token = getToken();
@@ -82,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!response.access_token || !response.user) {
         throw new ApiError(403, "ایمیل تأیید نشده است");
       }
-      setSession(response.access_token, response.user);
+      setSession(response.access_token, response.user, response.refresh_token);
       return response.user;
     },
     [setSession],
@@ -97,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!response.access_token || !response.user) {
         throw new ApiError(500, "ثبت‌نام کامل نشد");
       }
-      setSession(response.access_token, response.user);
+      setSession(response.access_token, response.user, response.refresh_token);
       return { status: "authenticated", user: response.user };
     },
     [setSession],

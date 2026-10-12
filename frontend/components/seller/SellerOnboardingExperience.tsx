@@ -82,45 +82,45 @@ type StepMeta = {
 const STEP_ORDER: StepMeta[] = [
   {
     key: "welcome",
-    title: "خوش آمدی",
-    description: "چند دقیقه وقت بگذار؛ با هم فروشگاهت را راه می‌اندازیم.",
+    title: "شروع راه‌اندازی",
+    description: "در چند مرحله کوتاه فروشگاهت را آماده می‌کنیم.",
     helper: "هر وقت خواستی می‌توانی بعداً ادامه بدهی.",
   },
   {
     key: "store_identity",
-    title: "نام و ظاهر فروشگاه",
-    description: "اسمی که مشتری می‌بیند، با لوگو و کاور قشنگ.",
-    helper: "بعداً هم می‌توانی عوضشان کنی.",
+    title: "نام و ظاهر",
+    description: "نام فروشگاه، لوگو و تصویر جلد.",
+    helper: "بعداً از تنظیمات قابل تغییر است.",
   },
   {
     key: "store_information",
-    title: "درباره فروشگاه",
-    description: "یک توضیح کوتاه و دسته‌بندی تا مشتری بداند چه می‌فروشی.",
-    helper: "هرچه روشن‌تر بنویسی، اعتماد بیشتر می‌شود.",
+    title: "معرفی فروشگاه",
+    description: "توضیح کوتاه و دسته‌بندی.",
+    helper: "هرچه روشن‌تر، اعتماد بیشتر.",
   },
   {
     key: "contact_channels",
-    title: "راه ارتباطی",
-    description: "اختیاری — اینستاگرام، تلگرام یا هر لینکی که مشتری لازم دارد.",
-    helper: "اگر الان نداری، رد کن و بعداً اضافه کن.",
+    title: "راه‌های ارتباطی",
+    description: "اختیاری — اینستاگرام، تلگرام و غیره.",
+    helper: "می‌توانی این مرحله را رد کنی.",
   },
   {
     key: "payment_details",
-    title: "جزئیات پرداخت",
-    description: "کارت، رمزارز یا درگاه — تا مشتری بداند چطور پرداخت کند.",
+    title: "روش پرداخت",
+    description: "کارت، رمزارز یا درگاه برای دریافت پول.",
     helper: "بدون روش پرداخت، سفارش کامل نمی‌شود.",
   },
   {
     key: "first_product",
     title: "اولین محصول",
-    description: "یک محصول با عکس و قیمت کافی است تا فروشگاه زنده شود.",
-    helper: "بعداً می‌توانی محصول‌های بیشتری اضافه کنی.",
+    description: "یک محصول با عکس و قیمت.",
+    helper: "بعداً محصولات بیشتری اضافه می‌کنی.",
   },
   {
     key: "activation",
-    title: "آماده‌ای!",
-    description: "چک‌لیست را ببین و برو سراغ داشبورد.",
-    helper: "اگر چیزی کم است، از داشبورد برمی‌گردی و کاملش می‌کنی.",
+    title: "پایان",
+    description: "چک‌لیست را ببین و وارد داشبورد شو.",
+    helper: "موارد ناقص را بعداً از داشبورد کامل کن.",
   },
 ];
 
@@ -240,36 +240,64 @@ async function uploadImageWithPreview(file: File, setPreview: (value: string | n
   }
 }
 
-function StepBadge({ active, done, label }: { active?: boolean; done?: boolean; label: string }) {
+function StepNav({
+  steps,
+  activeKey,
+  completed,
+  onSelect,
+}: {
+  steps: StepMeta[];
+  activeKey: SellerOnboardingStepKey;
+  completed: SellerOnboardingStepKey[];
+  onSelect: (key: SellerOnboardingStepKey) => void;
+}) {
   return (
-    <div
-      className={cn(
-        "rounded-full px-3 py-1 text-xs font-medium",
-        done
-          ? "bg-brand/15 text-brand"
-          : active
-            ? "bg-surface text-foreground"
-            : "bg-surface-muted text-foreground-muted",
-      )}
-    >
-      {label}
-    </div>
-  );
-}
+    <nav aria-label="مراحل راه‌اندازی" className="space-y-1">
+      {steps.map((step, index) => {
+        const active = step.key === activeKey;
+        const done = completed.includes(step.key);
+        const prevKey = index > 0 ? steps[index - 1]?.key : null;
+        const reachable = index === 0 || done || active || (prevKey ? completed.includes(prevKey) : false);
 
-function ProgressBar({ current, total }: { current: number; total: number }) {
-  return (
-    <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${total}, minmax(0, 1fr))` }}>
-      {Array.from({ length: total }).map((_, index) => {
-        const active = index <= current;
         return (
-          <div
-            key={index}
-            className={cn("h-2 rounded-full transition-colors", active ? "bg-brand" : "bg-border")}
-          />
+          <button
+            key={step.key}
+            type="button"
+            disabled={!reachable}
+            onClick={() => onSelect(step.key)}
+            className={cn(
+              "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-start transition",
+              active
+                ? "bg-brand/10 text-foreground ring-1 ring-brand/25"
+                : reachable
+                  ? "text-foreground hover:bg-surface-muted"
+                  : "cursor-not-allowed text-foreground-muted/50",
+            )}
+          >
+            <span
+              className={cn(
+                "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+                done
+                  ? "bg-emerald-500 text-white"
+                  : active
+                    ? "bg-brand text-white"
+                    : "bg-surface-muted text-foreground-muted",
+              )}
+            >
+              {done ? "✓" : index + 1}
+            </span>
+            <span className="min-w-0">
+              <span className="block text-sm font-medium leading-tight">{step.title}</span>
+              {active ? (
+                <span className="mt-0.5 block text-[11px] leading-snug text-foreground-muted">
+                  {step.description}
+                </span>
+              ) : null}
+            </span>
+          </button>
         );
       })}
-    </div>
+    </nav>
   );
 }
 
@@ -491,6 +519,21 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
       await saveOnboardingProgress(buildNavigationPayload(targetStep));
     } catch (err) {
       const msg = err instanceof Error ? err.message : "ذخیره مرحله ناموفق بود";
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function goToStep(targetStep: SellerOnboardingStepKey) {
+    if (targetStep === activeStep.key) return;
+    setLoading(true);
+    setError(null);
+    try {
+      await saveOnboardingProgress(buildNavigationPayload(targetStep));
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "جابه‌جایی مرحله ناموفق بود";
       setError(msg);
       toast.error(msg);
     } finally {
@@ -936,199 +979,41 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
     ],
   );
 
-  function renderPreview() {
-    switch (activeStep.key) {
-      case "welcome":
-      case "activation":
-        return null;
-      case "store_identity":
-        return (
-          <Card className="overflow-hidden border-border bg-surface shadow-sm">
-            <div className="h-40 bg-gradient-to-br from-brand/30 via-brand/10 to-transparent">
-              {(drafts.storeIdentity.coverImageUrl || coverPreview) && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={coverPreview ?? resolveMediaUrl(drafts.storeIdentity.coverImageUrl) ?? drafts.storeIdentity.coverImageUrl}
-                  alt="پیش‌نمایش جلد"
-                  className="h-full w-full object-cover"
-                />
-              )}
-            </div>
-            <CardContent className="flex items-start gap-3">
-              <div className="-mt-12 rounded-3xl border border-border bg-surface p-2 shadow-lg">
-                {drafts.storeIdentity.logoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={logoPreview ?? resolveMediaUrl(drafts.storeIdentity.logoUrl) ?? drafts.storeIdentity.logoUrl}
-                    alt="لوگو"
-                    className="h-20 w-20 rounded-2xl object-cover"
-                  />
-                ) : (
-                  <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-surface-muted text-2xl font-semibold text-foreground-muted">
-                    {drafts.storeIdentity.name.trim().charAt(0) || "ن"}
-                  </div>
-                )}
-              </div>
-              <div className="min-w-0 flex-1 pt-3">
-                <p className="text-lg font-semibold text-foreground">{drafts.storeIdentity.name || "نام فروشگاه"}</p>
-                <p className="mt-1 text-sm text-foreground-muted">
-                  {drafts.storeInformation.description || "توضیحات فروشگاه اینجا دیده می‌شود."}
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <StepBadge done={Boolean(drafts.storeInformation.categorySlug)} label={drafts.storeInformation.categoryName || "دسته‌بندی"} />
-                  <StepBadge done={Boolean(drafts.contactChannels.length)} label="راه‌های ارتباطی" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        );
-      case "store_information":
-        return (
-          <Card className="border-border bg-surface shadow-sm">
-            <CardContent className="space-y-4 py-6">
-              <div>
-                <p className="text-xs tracking-[0.2em] text-foreground-muted">اطلاعات فروشگاه</p>
-                <p className="mt-1 text-lg font-semibold text-foreground">{drafts.storeIdentity.name || "نام فروشگاه"}</p>
-                <p className="mt-2 text-sm leading-6 text-foreground-muted">
-                  {drafts.storeInformation.description || "یک توضیح کوتاه و حرفه‌ای درباره فروشگاه خود بنویسید."}
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <StepBadge done={Boolean(drafts.storeInformation.categorySlug)} label={drafts.storeInformation.categoryName || "بدون دسته‌بندی"} />
-                <StepBadge done={Boolean(drafts.storeInformation.location)} label={drafts.storeInformation.location || "موقعیت اختیاری"} />
-              </div>
-            </CardContent>
-          </Card>
-        );
-      case "contact_channels":
-        return (
-          <Card className="border-border bg-surface shadow-sm">
-            <CardContent className="space-y-4 py-6">
-              <p className="text-xs tracking-[0.2em] text-foreground-muted">راه‌های ارتباطی</p>
-              {drafts.contactChannels.length === 0 ? (
-                <EmptyState title="هنوز کانالی اضافه نشده" description="چند راه ارتباطی اضافه کنید تا مشتری سریع‌تر شما را پیدا کند." />
-              ) : (
-                <div className="space-y-3">
-                  {drafts.contactChannels.map((link, index) => (
-                    <div
-                      key={`${index}-${link.platform}-${link.url}`}
-                      className="flex items-center gap-3 rounded-2xl border border-border bg-surface-muted/40 px-3 py-3"
-                    >
-                      <SocialIcon platform={link.platform} />
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-foreground">{makeSocialLinkLabel(link.platform, link.customLabel)}</p>
-                        <p className="truncate text-xs text-foreground-muted">{link.url || "نشانی هنوز ثبت نشده"}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        );
-      case "payment_details":
-        return (
-          <Card className="border-border bg-surface shadow-sm">
-            <CardContent className="space-y-4 py-6">
-              <p className="text-xs tracking-[0.2em] text-foreground-muted">روش پرداخت</p>
-              <div className="rounded-2xl border border-border bg-surface-muted/40 px-4 py-4">
-                <p className="text-sm font-medium text-foreground">
-                  {drafts.paymentDetails.displayName || "نام روش پرداخت"}
-                </p>
-                <p className="mt-1 text-xs text-foreground-muted">
-                  {paymentTypeLabel(drafts.paymentDetails.type)}
-                </p>
-                {drafts.paymentDetails.type === "CARD_TO_CARD" && (
-                  <div className="mt-3 space-y-1 text-sm text-foreground-muted">
-                    <p>{drafts.paymentDetails.cardNumber || "شماره کارت"}</p>
-                    <p>{drafts.paymentDetails.ownerName || "نام صاحب حساب"}</p>
-                  </div>
-                )}
-                {drafts.paymentDetails.type === "CRYPTO" && (
-                  <p className="mt-3 break-all text-sm text-foreground-muted">
-                    {drafts.paymentDetails.walletAddress || "آدرس کیف پول"}
-                  </p>
-                )}
-                {drafts.paymentDetails.type === "EXTERNAL_GATEWAY" && (
-                  <p className="mt-3 break-all text-sm text-foreground-muted">
-                    {drafts.paymentDetails.externalUrl || "نشانی درگاه"}
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        );
-      case "first_product":
-        return (
-          <Card className="border-border bg-surface shadow-sm">
-            <CardContent className="space-y-4 py-6">
-              <p className="text-xs tracking-[0.2em] text-foreground-muted">اولین محصول</p>
-              <div className="overflow-hidden rounded-3xl border border-border bg-surface-muted">
-                {drafts.firstProduct.imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={productPreview ?? resolveMediaUrl(drafts.firstProduct.imageUrl) ?? drafts.firstProduct.imageUrl}
-                    alt="پیش‌نمایش محصول"
-                    className="h-52 w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-52 items-center justify-center text-sm text-foreground-muted">تصویر محصول اینجا دیده می‌شود</div>
-                )}
-              </div>
-              <div>
-                <p className="text-lg font-semibold text-foreground">{drafts.firstProduct.title || "نام محصول"}</p>
-                <p className="mt-1 text-sm text-foreground-muted">
-                  {drafts.firstProduct.description || "توضیح کوتاه محصول را وارد کنید."}
-                </p>
-                <div className="mt-3 flex items-center gap-2">
-                  <span className="rounded-full bg-brand/10 px-3 py-1 text-sm font-medium text-brand">
-                    {drafts.firstProduct.price
-                      ? formatMoney(moneyForApi(drafts.firstProduct.price))
-                      : "قیمت"}
-                  </span>
-                  <span className="rounded-full bg-surface-muted px-3 py-1 text-sm text-foreground-muted">
-                    {drafts.firstProduct.stockQuantity || 1} موجود
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        );
-      default:
-        return null;
-    }
-  }
-
   function renderStep() {
     switch (activeStep.key) {
       case "welcome":
         return (
-          <Card className="border-border bg-surface shadow-sm">
-            <CardContent className="space-y-5 py-8">
-              <div className="space-y-2">
-                <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">{activeStep.title}</h1>
-                {activeStep.description && (
-                  <p className="max-w-xl text-sm leading-6 text-foreground-muted">{activeStep.description}</p>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <Button type="button" onClick={() => void continueWelcome()} loading={loading}>
-                  شروع
-                </Button>
-                <Button type="button" variant="secondary" onClick={() => void skipWelcome()} loading={loading}>
-                  بعداً
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="space-y-5 rounded-2xl border border-border bg-surface p-6 sm:p-8">
+            <p className="max-w-lg text-sm leading-6 text-foreground-muted">
+              حدود چند دقیقه طول می‌کشد. هر مرحله که تمام شود ذخیره می‌شود.
+            </p>
+            <ul className="space-y-2 text-sm text-foreground">
+              {STEP_ORDER.slice(1, -1).map((step, i) => (
+                <li key={step.key} className="flex items-center gap-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-surface-muted text-xs font-semibold text-foreground-muted">
+                    {i + 1}
+                  </span>
+                  <span>{step.title}</span>
+                  {step.key === "contact_channels" ? (
+                    <span className="text-xs text-foreground-muted">(اختیاری)</span>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+            <div className="flex flex-wrap gap-3 pt-1">
+              <Button type="button" onClick={() => void continueWelcome()} loading={loading}>
+                شروع راه‌اندازی
+              </Button>
+              <Button type="button" variant="ghost" onClick={() => void skipWelcome()} loading={loading}>
+                فعلاً رد کن
+              </Button>
+            </div>
+          </div>
         );
       case "store_identity":
         return (
           <Card className="border-border bg-surface shadow-sm">
-            <CardContent className="space-y-6 py-6">
-              <div>
-                <h2 className="text-xl font-semibold text-foreground">{activeStep.title}</h2>
-              </div>
+            <CardContent className="space-y-5 py-5 sm:py-6">
               <div className="grid gap-4 md:grid-cols-2">
                 <Input
                   label="نام فروشگاه"
@@ -1233,12 +1118,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
       case "store_information":
         return (
           <Card className="border-border bg-surface shadow-sm">
-            <CardContent className="space-y-6 py-6">
-              <div>
-                <p className="text-xs tracking-[0.2em] text-foreground-muted">{activeStep.title}</p>
-                <h2 className="mt-2 text-2xl font-semibold text-foreground">اطلاعات فروشگاه را کامل کنید</h2>
-                <p className="mt-2 text-sm leading-6 text-foreground-muted">{activeStep.helper}</p>
-              </div>
+            <CardContent className="space-y-5 py-5 sm:py-6">
               <Textarea
                 label="توضیحات فروشگاه"
                 value={drafts.storeInformation.description}
@@ -1272,14 +1152,13 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
                             }))
                           }
                           className={cn(
-                            "rounded-3xl border p-4 text-right transition-colors",
+                            "rounded-xl border px-3 py-2.5 text-start text-sm font-medium transition-colors",
                             selected
-                              ? "border-brand bg-brand/5 shadow-sm"
-                              : "border-border bg-surface hover:border-brand/40 hover:bg-surface-muted",
+                              ? "border-brand bg-brand/10 text-foreground ring-1 ring-brand/25"
+                              : "border-border bg-surface text-foreground-muted hover:border-brand/40 hover:text-foreground",
                           )}
                         >
-                          <p className="text-sm font-semibold text-foreground">{category.label}</p>
-                          <p className="mt-1 text-xs text-foreground-muted">{category.query}</p>
+                          {category.label}
                         </button>
                       );
                     })}
@@ -1326,17 +1205,13 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
       case "contact_channels":
         return (
           <Card className="border-border bg-surface shadow-sm">
-            <CardContent className="space-y-6 py-6">
-              <div>
-                <p className="text-xs tracking-[0.2em] text-foreground-muted">{activeStep.title}</p>
-                <h2 className="mt-2 text-2xl font-semibold text-foreground">راه‌های ارتباطی مشتری را اضافه کنید</h2>
-                <p className="mt-2 text-sm leading-6 text-foreground-muted">{activeStep.helper}</p>
-              </div>
-
-              <div className="space-y-2">
+            <CardContent className="space-y-5 py-5 sm:py-6">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-sm text-foreground-muted">اختیاری — می‌توانی رد کنی.</p>
                 <Button
                   type="button"
                   variant="secondary"
+                  size="sm"
                   onClick={() =>
                     markDraftChange((current) => ({
                       ...current,
@@ -1344,11 +1219,8 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
                     }))
                   }
                 >
-                  {drafts.contactChannels.length === 0 ? "افزودن لینک" : "افزودن لینک دیگر"}
+                  {drafts.contactChannels.length === 0 ? "افزودن لینک" : "لینک دیگر"}
                 </Button>
-                <p className="text-xs text-foreground-muted">
-                  بعد از هر لینک، برای لینک بعدی همین دکمه را بزن. وقتی تمام شد، ذخیره و ادامه.
-                </p>
               </div>
 
               <div className="space-y-3">
@@ -1447,40 +1319,6 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
                           type="button"
                           variant="ghost"
                           size="sm"
-                          onClick={() =>
-                            markDraftChange((current) => {
-                              const target = index - 1;
-                              if (target < 0) return current;
-                              const next = [...current.contactChannels];
-                              [next[index], next[target]] = [next[target], next[index]];
-                              return { ...current, contactChannels: next };
-                            })
-                          }
-                          disabled={index === 0}
-                        >
-                          بالا
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            markDraftChange((current) => {
-                              const target = index + 1;
-                              if (target >= current.contactChannels.length) return current;
-                              const next = [...current.contactChannels];
-                              [next[index], next[target]] = [next[target], next[index]];
-                              return { ...current, contactChannels: next };
-                            })
-                          }
-                          disabled={index === drafts.contactChannels.length - 1}
-                        >
-                          پایین
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
                           className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                           onClick={() =>
                             markDraftChange((current) => ({
@@ -1514,11 +1352,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
       case "payment_details":
         return (
           <Card className="border-border bg-surface shadow-sm">
-            <CardContent className="space-y-6 py-6">
-              <div>
-                <h2 className="text-xl font-semibold text-foreground">{activeStep.title}</h2>
-                <p className="mt-2 text-sm leading-6 text-foreground-muted">{activeStep.helper}</p>
-              </div>
+            <CardContent className="space-y-5 py-5 sm:py-6">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-1.5 md:col-span-2">
                   <label className="block text-sm font-medium text-foreground">نوع پرداخت</label>
@@ -1631,12 +1465,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
       case "first_product":
         return (
           <Card className="border-border bg-surface shadow-sm">
-            <CardContent className="space-y-6 py-6">
-              <div>
-                <p className="text-xs tracking-[0.2em] text-foreground-muted">{activeStep.title}</p>
-                <h2 className="mt-2 text-2xl font-semibold text-foreground">اولین محصول را منتشر کنید</h2>
-                <p className="mt-2 text-sm leading-6 text-foreground-muted">{activeStep.helper}</p>
-              </div>
+            <CardContent className="space-y-5 py-5 sm:py-6">
               <div className="grid gap-4 md:grid-cols-2">
                 <Input
                   label="نام محصول"
@@ -1727,17 +1556,24 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
       case "activation":
         return (
           <Card className="border-border bg-surface shadow-sm">
-            <CardContent className="space-y-5 py-6">
-              <div>
-                <h2 className="text-xl font-semibold text-foreground">{activeStep.title}</h2>
-                {activeStep.description && (
-                  <p className="mt-1 text-sm text-foreground-muted">{activeStep.description}</p>
-                )}
-              </div>
+            <CardContent className="space-y-5 py-5 sm:py-6">
               <div className="space-y-2">
                 {currentChecklist.map((item) => (
-                  <div key={item.label} className="flex items-center gap-3 rounded-xl border border-border px-3 py-2.5">
-                    <span className={cn("h-2.5 w-2.5 rounded-full", item.done ? "bg-emerald-500" : "bg-border")} />
+                  <div
+                    key={item.label}
+                    className={cn(
+                      "flex items-center gap-3 rounded-xl border px-3 py-2.5",
+                      item.done ? "border-emerald-500/30 bg-emerald-500/5" : "border-border",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-semibold",
+                        item.done ? "bg-emerald-500 text-white" : "bg-surface-muted text-foreground-muted",
+                      )}
+                    >
+                      {item.done ? "✓" : "·"}
+                    </span>
                     <span className="text-sm text-foreground">{item.label}</span>
                   </div>
                 ))}
@@ -1761,10 +1597,9 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
   if (hasCompletedOnboarding) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
-        <Card className="max-w-xl border-border bg-surface shadow-sm">
+        <Card className="max-w-md border-border bg-surface shadow-sm">
           <CardContent className="space-y-4 py-8">
-            <p className="text-xs tracking-[0.2em] text-foreground-muted">همه‌چیز روبه‌راه است</p>
-            <h1 className="text-3xl font-semibold text-foreground">فروشگاهت از قبل راه افتاده</h1>
+            <h1 className="text-2xl font-semibold text-foreground">فروشگاهت آماده است</h1>
             <p className="text-sm leading-6 text-foreground-muted">
               برو داشبورد و سفارش‌ها، محصولات و گفتگوها را از آنجا مدیریت کن.
             </p>
@@ -1778,55 +1613,83 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background px-4 py-6 text-foreground sm:px-6 lg:px-8">
-      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-20 top-24 h-64 w-64 rounded-full bg-brand/10 blur-3xl dark:bg-brand/15" />
-        <div className="absolute -right-16 top-40 h-72 w-72 rounded-full bg-accent/10 blur-3xl dark:bg-fuchsia-500/10" />
-        <div className="absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-brand/5 blur-3xl dark:bg-brand/10" />
-      </div>
-      <div className="relative mx-auto flex min-h-[calc(100vh-3rem)] max-w-7xl flex-col gap-6">
-        <div className="rounded-[2rem] border border-border bg-surface/90 p-5 shadow-sm backdrop-blur-xl">
-          <div className="mb-5">
-            <BrandMark showTagline />
-          </div>
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-            <div className="space-y-2">
-              <h1 className="text-xl font-semibold text-foreground sm:text-2xl">{activeStep.title}</h1>
-              {activeStep.description ? (
-                <p className="max-w-xl text-sm text-foreground-muted">{activeStep.description}</p>
-              ) : null}
-            </div>
-            <div className="min-w-[220px] space-y-3 rounded-3xl border border-border bg-surface-muted/60 p-4">
-              <div className="flex items-center justify-between text-sm text-foreground-muted">
-                <span>پیشرفت</span>
-                <span>{progressPercent}%</span>
-              </div>
-              <ProgressBar current={activeStepIndex} total={STEP_ORDER.length} />
-              <p className="text-xs text-foreground-muted">{savingNote}</p>
-            </div>
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-20 border-b border-border/80 bg-surface/90 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <BrandMark />
+          <div className="flex items-center gap-3 text-xs text-foreground-muted">
+            <span className="hidden sm:inline">{savingNote}</span>
+            <span className="rounded-full bg-surface-muted px-2.5 py-1 font-medium text-foreground">
+              {activeStepIndex + 1}/{STEP_ORDER.length}
+            </span>
           </div>
         </div>
-
-        {error && <ErrorAlert message={error} />}
-
-        <div className="grid flex-1 gap-6 xl:grid-cols-[minmax(0,1.15fr)_360px]">
-          <div className="space-y-6">{renderStep()}</div>
-          <div className="space-y-6">
-            {renderPreview()}
-            <Card className="border-border bg-surface shadow-sm">
-              <CardContent className="space-y-3 py-5">
-                <p className="text-xs tracking-[0.2em] text-foreground-muted">مراحل</p>
-                <div className="flex flex-wrap gap-2">
-                  {STEP_ORDER.map((step) => {
-                    const active = step.key === activeStep.key;
-                    const done = completedSteps.includes(step.key);
-                    return <StepBadge key={step.key} label={step.title} active={active} done={done} />;
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        <div className="h-1 bg-surface-muted">
+          <div
+            className="h-full bg-brand transition-[width] duration-300"
+            style={{ width: `${progressPercent}%` }}
+          />
         </div>
+      </header>
+
+      <div className="mx-auto grid max-w-5xl gap-8 px-4 py-6 sm:px-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:py-8">
+        <aside className="hidden lg:block">
+          <div className="sticky top-24 space-y-4">
+            <p className="px-3 text-xs font-medium uppercase tracking-wide text-foreground-muted">مراحل</p>
+            <StepNav
+              steps={STEP_ORDER}
+              activeKey={activeStep.key}
+              completed={completedSteps}
+              onSelect={(key) => void goToStep(key)}
+            />
+            <button
+              type="button"
+              className="px-3 text-xs text-foreground-muted underline-offset-2 hover:text-foreground hover:underline"
+              onClick={() => void skipWelcome()}
+            >
+              فعلاً برو داشبورد
+            </button>
+          </div>
+        </aside>
+
+        <main className="min-w-0 space-y-4">
+          <div className="space-y-1">
+            <p className="text-sm text-foreground-muted">
+              مرحله {activeStepIndex + 1} از {STEP_ORDER.length}
+            </p>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">{activeStep.title}</h1>
+            {activeStep.description ? (
+              <p className="max-w-xl text-sm leading-6 text-foreground-muted">{activeStep.description}</p>
+            ) : null}
+          </div>
+
+          <div className="flex gap-1.5 overflow-x-auto pb-1 lg:hidden" aria-label="مراحل">
+            {STEP_ORDER.map((step, index) => {
+              const active = step.key === activeStep.key;
+              const done = completedSteps.includes(step.key);
+              return (
+                <button
+                  key={step.key}
+                  type="button"
+                  onClick={() => void goToStep(step.key)}
+                  className={cn(
+                    "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium",
+                    active
+                      ? "bg-brand text-white"
+                      : done
+                        ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                        : "bg-surface-muted text-foreground-muted",
+                  )}
+                >
+                  {index + 1}. {step.title}
+                </button>
+              );
+            })}
+          </div>
+
+          {error ? <ErrorAlert message={error} /> : null}
+          {renderStep()}
+        </main>
       </div>
     </div>
   );

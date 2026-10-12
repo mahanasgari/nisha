@@ -1,8 +1,13 @@
+/** Normalize Persian/Arabic-Indic digits to ASCII 0-9. */
+export function normalizeDigits(value: string): string {
+  return value
+    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
+    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)));
+}
+
 /** Normalize Persian/Arabic digits and strip thousand separators for API/math. */
 export function parseMoneyInput(value: string): string {
-  const normalized = value
-    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
-    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)))
+  const normalized = normalizeDigits(value)
     .replace(/,/g, "")
     .replace(/[^\d.]/g, "");
 

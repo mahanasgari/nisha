@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.models.product import Product
@@ -59,6 +59,30 @@ def get_category_by_slug(db: Session, store_id: int, slug: str) -> ProductCatego
     )
 
 
+def _validate_parent(
+    db: Session,
+    store_id: int,
+    parent_id: int | None,
+    *,
+    category_id: int | None = None,
+) -> int | None:
+    if parent_id is None:
+        return None
+    parent = get_category(db, store_id, parent_id)
+    if parent.parent_id is not None:
+        raise ServiceError("زیردسته نمی‌تواند خودش والد داشته باشد — فقط یک سطح مجاز است", status_code=400)
+    if category_id is not None and parent_id == category_id:
+        raise ServiceError("دسته نمی‌تواند والد خودش باشد", status_code=400)
+    # Prevent attaching a parent under a node that already has children becoming nested deeper
+    if category_id is not None:
+        child_count = db.scalar(
+            select(func.count()).select_from(ProductCategory).where(ProductCategory.parent_id == category_id)
+        ) or 0
+        if child_count > 0:
+            raise ServiceError("دسته‌ای که زیردسته دارد نمی‌تواند خودش زیردسته شود", status_code=400)
+    return parent.id
+
+
 def create_category(db: Session, store: Store, data: ProductCategoryCreate) -> ProductCategory:
     slug = data.slug.strip() if data.slug else _unique_category_slug(db, store.id, data.name)
     if db.scalar(
@@ -69,8 +93,11 @@ def create_category(db: Session, store: Store, data: ProductCategoryCreate) -> P
     ):
         raise ServiceError("این شناسه دسته‌بندی قبلاً استفاده شده است", status_code=409)
 
+    parent_id = _validate_parent(db, store.id, data.parent_id)
+
     category = ProductCategory(
         store_id=store.id,
+        parent_id=parent_id,
         name=data.name.strip(),
         slug=slug,
         sort_order=data.sort_order,
@@ -108,6 +135,10 @@ def update_category(
         ):
             raise ServiceError("این شناسه دسته‌بندی قبلاً استفاده شده است", status_code=409)
         category.slug = slug
+    if "parent_id" in update_data:
+        category.parent_id = _validate_parent(
+            db, store.id, update_data["parent_id"], category_id=category.id
+        )
 
     db.commit()
     db.refresh(category)
@@ -137,3 +168,20 @@ def resolve_category_id(
         return None
     get_category(db, store_id, category_id)
     return category_id
+
+
+def category_ids_for_slug_filter(db: Session, store_id: int, category_slug: str) -> list[int]:
+    """Resolve a category slug to itself plus direct children (for parent filters)."""
+    category = get_category_by_slug(db, store_id, category_slug)
+    if category is None:
+        return []
+    child_ids = list(
+        db.scalars(
+            select(ProductCategory.id).where(
+                ProductCategory.store_id == store_id,
+                ProductCategory.parent_id == category.id,
+                ProductCategory.is_active.is_(True),
+            )
+        ).all()
+    )
+    return [category.id, *child_ids]

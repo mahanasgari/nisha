@@ -22,6 +22,30 @@ ALLOWED_IMAGE_CONTENT_TYPES = {
 ALLOWED_VIDEO_EXTENSIONS = {".mp4", ".webm"}
 ALLOWED_VIDEO_CONTENT_TYPES = {"video/mp4", "video/webm"}
 
+_ALLOWED_PUBLIC_URL_PREFIXES = (
+    "/uploads/",
+    "/api/v1/media/private/",
+)
+
+
+def assert_platform_media_url(url: str, *, field_label: str = "file") -> str:
+    """Reject external / attacker-controlled URLs for order/chat attachments."""
+    cleaned = (url or "").strip()
+    if not cleaned:
+        raise ServiceError(f"{field_label} is required", status_code=422)
+    # Allow absolute URLs only when they point at our upload paths.
+    path = cleaned
+    if "://" in cleaned:
+        from urllib.parse import urlparse
+
+        parsed = urlparse(cleaned)
+        path = parsed.path or ""
+    if not any(path.startswith(prefix) for prefix in _ALLOWED_PUBLIC_URL_PREFIXES):
+        raise ServiceError(f"Invalid {field_label} URL", status_code=422)
+    if ".." in path.split("/"):
+        raise ServiceError(f"Invalid {field_label} URL", status_code=422)
+    return cleaned
+
 
 @dataclass(slots=True)
 class UploadedMedia:
@@ -217,10 +241,10 @@ async def save_uploaded_video(file: UploadFile, *, subdir: str) -> UploadedMedia
     magic_ext = _detect_video_extension_from_magic(content[:16])
     declared_ext = _video_extension_from_filename(file.filename)
 
-    if magic_ext is None and content_type not in ALLOWED_VIDEO_CONTENT_TYPES:
+    if magic_ext is None:
         raise ServiceError("Only MP4 or WebM video files are allowed", status_code=422)
 
-    ext = magic_ext or declared_ext or ".mp4"
+    ext = magic_ext
     if content_type in ALLOWED_VIDEO_CONTENT_TYPES:
         mime = content_type
     elif ext == ".webm":

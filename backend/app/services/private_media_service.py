@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import secrets
-import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from urllib.parse import quote
 
 from jose import JWTError, jwt
+from sqlalchemy import delete as sa_delete
+from sqlalchemy.orm import Session
 
 from app.core.config import settings
 
@@ -107,16 +108,9 @@ def sign_private_media_url(url: str, *, minutes: int = 15) -> str:
     return f"{PRIVATE_MEDIA_PREFIX}{key}?token={quote(token)}"
 
 
-# --- WebSocket connection tickets (one-time, short-lived) ---
+# --- WebSocket connection tickets (one-time, short-lived, DB-backed) ---
 
-_consumed_ws_tickets: dict[str, float] = {}
 _WS_TICKET_TTL_SECONDS = 60
-
-
-def _purge_consumed_tickets(now: float) -> None:
-    stale = [jti for jti, ts in _consumed_ws_tickets.items() if now - ts > _WS_TICKET_TTL_SECONDS * 2]
-    for jti in stale:
-        _consumed_ws_tickets.pop(jti, None)
 
 
 def create_ws_ticket(claims: dict, *, ttl_seconds: int = _WS_TICKET_TTL_SECONDS) -> str:
@@ -130,7 +124,12 @@ def create_ws_ticket(claims: dict, *, ttl_seconds: int = _WS_TICKET_TTL_SECONDS)
     return jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
 
-def consume_ws_ticket(token: str) -> dict:
+def consume_ws_ticket(token: str, db: Session) -> dict:
+    """Decode and consume a WS ticket. Persists jti so multi-worker replay fails."""
+    from sqlalchemy.exc import IntegrityError
+
+    from app.models.ws_ticket import WsTicketJti
+
     try:
         payload = jwt.decode(
             token,
@@ -144,9 +143,16 @@ def consume_ws_ticket(token: str) -> dict:
     jti = payload.get("jti")
     if not isinstance(jti, str):
         raise ValueError("Invalid connection ticket")
-    now = time.time()
-    _purge_consumed_tickets(now)
-    if jti in _consumed_ws_tickets:
-        raise ValueError("Connection ticket already used")
-    _consumed_ws_tickets[jti] = now
+
+    # Opportunistic prune of expired consumptions (TTL * 2).
+    cutoff = datetime.now(UTC) - timedelta(seconds=_WS_TICKET_TTL_SECONDS * 2)
+    db.execute(sa_delete(WsTicketJti).where(WsTicketJti.consumed_at < cutoff))
+
+    row = WsTicketJti(jti=jti, consumed_at=datetime.now(UTC))
+    db.add(row)
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise ValueError("Connection ticket already used") from exc
     return payload

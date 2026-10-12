@@ -1,7 +1,8 @@
 "use client";
 
-import { use, useState } from "react";
+import { use } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import * as productsApi from "@/lib/api/seller/products";
 import { paths } from "@/lib/auth/paths";
 import { useToast } from "@/contexts/ToastContext";
@@ -53,19 +54,21 @@ export default function EditProductPage({ params }: PageProps) {
 
   if (isLoading) return <LoadingState message="در حال بارگذاری محصول..." />;
   if (error || !data) {
-    return (
-      <EmptyState title="خطا" description={error ?? "محصول پیدا نشد"} />
-    );
+    return <EmptyState title="خطا" description={error ?? "محصول پیدا نشد"} />;
   }
 
   return (
     <div className="page-stack">
-      <div className="flex items-center justify-between gap-4">
-        <PageHeader title="ویرایش محصول" description={data.title} size="page" />
-        <Button variant="danger" onClick={() => setShowDeleteModal(true)}>
-          حذف محصول
-        </Button>
-      </div>
+      <PageHeader
+        title="ویرایش محصول"
+        description={data.title}
+        size="page"
+        action={
+          <Button variant="danger" size="sm" onClick={() => setShowDeleteModal(true)}>
+            حذف محصول
+          </Button>
+        }
+      />
       <ProductForm initial={data} onSubmit={handleSubmit} submitLabel="ذخیره تغییرات" />
       <ConfirmModal
         open={showDeleteModal}

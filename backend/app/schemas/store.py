@@ -51,6 +51,7 @@ class StoreResponse(BaseModel):
     guest_checkout_enabled: bool = False
     theme_preset: str | None = None
     primary_color: str | None = None
+    design_style: str | None = None
     about_text: str | None = None
     shipping_policy_text: str | None = None
     default_shipping_cost: Decimal = Decimal("0")
@@ -81,6 +82,7 @@ class StoreUpdate(BaseModel):
     guest_checkout_enabled: bool | None = None
     theme_preset: str | None = Field(default=None, max_length=50)
     primary_color: str | None = Field(default=None, max_length=20)
+    design_style: str | None = Field(default=None, max_length=20, pattern="^(saas|classic|glass)$")
     about_text: str | None = None
     shipping_policy_text: str | None = None
     default_shipping_cost: Decimal | None = Field(default=None, ge=0)

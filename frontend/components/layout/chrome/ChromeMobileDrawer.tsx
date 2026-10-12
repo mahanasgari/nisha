@@ -10,6 +10,9 @@ type ChromeMobileDrawerProps = {
   onClose: () => void;
   children: ReactNode;
   className?: string;
+  panelClassName?: string;
+  /** Wrapper visibility; default matches top-tab shells (hidden from md up). */
+  viewportClassName?: string;
 };
 
 export function ChromeMobileDrawer({
@@ -17,6 +20,8 @@ export function ChromeMobileDrawer({
   onClose,
   children,
   className,
+  panelClassName,
+  viewportClassName = "md:hidden",
 }: ChromeMobileDrawerProps) {
   useBodyScrollLock(open);
 
@@ -30,7 +35,7 @@ export function ChromeMobileDrawer({
   }, [open, onClose]);
 
   return (
-    <div className="md:hidden" aria-hidden={!open}>
+    <div className={viewportClassName} aria-hidden={!open}>
       <button
         type="button"
         tabIndex={open ? 0 : -1}
@@ -45,6 +50,7 @@ export function ChromeMobileDrawer({
         className={cn(
           "fixed top-0 end-0 z-50 flex h-full w-[min(100%,20rem)] flex-col border-s border-border bg-surface shadow-xl transition-transform duration-200",
           open ? "translate-x-0" : "pointer-events-none ltr:translate-x-full rtl:-translate-x-full",
+          panelClassName,
         )}
         role="dialog"
         aria-modal={open}
@@ -89,7 +95,7 @@ export function ChromeMenuToggle({
       type="button"
       onClick={onToggle}
       className={cn(
-        "inline-flex h-10 w-10 max-md:h-9 max-md:w-9 items-center justify-center rounded-lg text-foreground-muted hover:bg-surface-muted md:hidden",
+        "inline-flex h-10 w-10 max-md:h-9 max-md:w-9 items-center justify-center rounded-lg text-foreground-muted hover:bg-surface-muted lg:hidden",
         className,
       )}
       aria-label="منو"

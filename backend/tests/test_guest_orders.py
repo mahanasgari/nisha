@@ -31,7 +31,7 @@ def test_upload_payment_proof_success(client, placed_order, db):
 
     order = db.get(Order, placed_order["order_id"])
     assert order.status == OrderStatus.PAYMENT_UPLOADED
-    assert order.reservation_expires_at is None
+    assert order.reservation_expires_at is not None
 
 
 def test_upload_wrong_password(client, placed_order):

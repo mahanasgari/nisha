@@ -175,7 +175,8 @@ def get_or_create_conversation(
         order = _get_order(db, order_id)
         if store_id is not None and order.store_id != store_id:
             raise ServiceError("Order not found", status_code=404)
-        if customer_id is not None and order.customer_id is not None and order.customer_id != customer_id:
+        # Guest orders (customer_id is None) must be claimed before customer chat.
+        if customer_id is not None and order.customer_id != customer_id:
             raise ServiceError("Order not found", status_code=404)
 
         conversation = _get_conversation_for_order(db, order.id)
@@ -414,12 +415,18 @@ def _send_message(
     sender_user_id: int | None,
     payload: MessageCreate,
 ) -> MessageResponse:
+    from app.utils.upload import assert_platform_media_url
+
+    attachment_url = payload.attachment_url
+    if attachment_url:
+        attachment_url = assert_platform_media_url(attachment_url, field_label="attachment")
+
     message = Message(
         conversation_id=conversation.id,
         sender_type=sender_type,
         sender_user_id=sender_user_id,
         body=payload.body.strip(),
-        attachment_url=payload.attachment_url,
+        attachment_url=attachment_url,
         attachment_mime_type=payload.attachment_mime_type,
         is_read=False,
     )

@@ -6,6 +6,7 @@ import * as storesApi from "@/lib/api/public/stores";
 import { ProductCard } from "@/components/store/ProductCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorAlert } from "@/components/ui/ErrorAlert";
+import { OrbLoader } from "@/components/ui/OrbLoader";
 import { Skeleton } from "@/components/ui/Skeleton";
 import type {
   ProductSortKey,
@@ -28,7 +29,7 @@ const SORT_OPTIONS: { value: ProductSortKey; label: string }[] = [
 ];
 
 const FIELD_CLASSES =
-  "rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none transition focus:border-brand";
+  "rounded-lg border border-border bg-surface/80 px-2.5 py-2 text-sm text-foreground outline-none transition focus:border-brand focus:ring-1 focus:ring-brand/20";
 
 /**
  * Storefront product browser (roadmap task 14).
@@ -156,46 +157,11 @@ export function ProductBrowser({ slug, initialProducts, categories = [] }: Produ
   const totalPages = isDefaultView ? 1 : Math.max(Math.ceil(total / pageSize), 1);
 
   return (
-    <div className="space-y-4">
-      {categories.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => updateParams({ category: null })}
-            className={
-              "rounded-full border px-3 py-1.5 text-sm transition " +
-              (category
-                ? "border-border text-foreground hover:bg-surface-muted"
-                : "border-brand bg-brand/10 text-brand")
-            }
-          >
-            همه
-          </button>
-          {categories.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() =>
-                updateParams({ category: item.slug === category ? null : item.slug })
-              }
-              className={
-                "rounded-full border px-3 py-1.5 text-sm transition " +
-                (category === item.slug
-                  ? "border-brand bg-brand/10 text-brand"
-                  : "border-border text-foreground hover:bg-surface-muted")
-              }
-            >
-              {item.name}
-            </button>
-          ))}
-        </div>
-      )}
-
-      <div className="rounded-2xl border border-border bg-surface p-3 md:p-4">
-        <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-end">
-          <div className="flex min-w-0 flex-1 items-end gap-2">
+    <div className="space-y-3">
+      <div className="flex flex-col gap-2.5">
+          <div className="flex min-w-0 items-center gap-2">
             <div className="min-w-0 flex-1">
-              <label htmlFor="product-search" className="mb-1 block text-xs font-medium text-foreground-muted">
+              <label htmlFor="product-search" className="sr-only">
                 جستجو در محصولات
               </label>
               <input
@@ -204,7 +170,7 @@ export function ProductBrowser({ slug, initialProducts, categories = [] }: Produ
                 dir="rtl"
                 value={searchText}
                 onChange={(event) => setSearchText(event.target.value)}
-                placeholder="مثلا: کیف چرم"
+                placeholder="جستجو در محصولات…"
                 className={"w-full " + FIELD_CLASSES}
               />
             </div>
@@ -212,28 +178,87 @@ export function ProductBrowser({ slug, initialProducts, categories = [] }: Produ
               type="button"
               onClick={() => setFiltersOpen((open) => !open)}
               aria-expanded={filtersOpen}
-              className={
-                "relative shrink-0 rounded-xl border px-3 py-2 text-sm transition md:hidden " +
-                (filtersOpen || activeFilterCount > 0
-                  ? "border-brand bg-brand/10 text-brand"
-                  : "border-border text-foreground hover:bg-surface-muted")
-              }
+                className={
+                  "relative shrink-0 rounded-lg border px-2.5 py-2 text-xs transition sm:min-w-[4.5rem] " +
+                  (filtersOpen || activeFilterCount > 0
+                    ? "border-brand bg-brand/10 text-brand"
+                    : "border-border text-foreground-muted hover:bg-surface-muted hover:text-foreground")
+                }
             >
-              {filtersOpen ? "بستن" : "فیلترها"}
-              {activeFilterCount > 0 && (
-                <span className="absolute -left-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1 text-[11px] font-medium text-white">
+              {filtersOpen ? "بستن" : "فیلتر"}
+              {activeFilterCount > 0 ? (
+                <span className="absolute -left-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-medium text-white">
                   {activeFilterCount}
                 </span>
-              )}
+              ) : null}
             </button>
           </div>
 
-          <div
-            className={
-              (filtersOpen ? "flex" : "hidden") +
-              " flex-col gap-3 md:contents"
-            }
-          >
+          {categories.length > 0 ? (
+            <div className="flex gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <button
+                type="button"
+                onClick={() => updateParams({ category: null })}
+                className={
+                  "shrink-0 rounded-full px-2.5 py-1 text-xs transition " +
+                  (category
+                    ? "border border-border bg-surface/70 text-foreground hover:bg-surface-muted"
+                    : "bg-brand text-brand-foreground shadow-sm")
+                }
+              >
+                همه
+              </button>
+              {categories
+                .filter((item) => !item.parent_id)
+                .map((item) => {
+                  const childActive = categories.some(
+                    (c) => c.parent_id === item.id && c.slug === category,
+                  );
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() =>
+                        updateParams({ category: item.slug === category ? null : item.slug })
+                      }
+                      className={
+                        "shrink-0 rounded-full px-2.5 py-1 text-xs transition " +
+                        (category === item.slug || childActive
+                          ? "bg-brand text-brand-foreground shadow-sm"
+                          : "border border-border bg-surface/70 text-foreground hover:bg-surface-muted")
+                      }
+                    >
+                      {item.name}
+                    </button>
+                  );
+                })}
+              {categories
+                .filter((item) => {
+                  if (!item.parent_id || !category) return false;
+                  const parent = categories.find((c) => c.id === item.parent_id);
+                  return item.slug === category || parent?.slug === category;
+                })
+                .map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() =>
+                      updateParams({ category: item.slug === category ? null : item.slug })
+                    }
+                    className={
+                      "shrink-0 rounded-full px-2.5 py-1 text-xs transition " +
+                      (category === item.slug
+                        ? "bg-brand text-brand-foreground shadow-sm"
+                        : "border border-dashed border-border bg-surface/70 text-foreground hover:bg-surface-muted")
+                    }
+                  >
+                    {item.name}
+                  </button>
+                ))}
+            </div>
+          ) : null}
+
+          <div className={(filtersOpen ? "flex" : "hidden") + " flex-col gap-2.5 rounded-lg border border-border bg-surface/60 p-2.5 md:flex-row md:flex-wrap md:items-end"}>
             <div className="flex items-end gap-2">
               <div className="min-w-0 flex-1 md:flex-none">
                 <label htmlFor="min-price" className="mb-1 block text-xs font-medium text-foreground-muted">
@@ -305,28 +330,27 @@ export function ProductBrowser({ slug, initialProducts, categories = [] }: Produ
               فقط کالاهای موجود
             </label>
           </div>
-        </div>
       </div>
 
-      {error && <ErrorAlert message={error} />}
+      {error ? <ErrorAlert message={error} /> : null}
 
       {loading ? (
-        <div className="grid grid-cols-2 gap-2 sm:gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <Skeleton key={index} className="h-72 w-full rounded-2xl" />
-          ))}
+        <div className="flex flex-col items-center justify-center gap-4 py-12">
+          <OrbLoader state="searching" size={64} label="در حال جستجوی محصولات..." />
+          <div className="grid w-full grid-cols-2 gap-2 opacity-35 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <Skeleton key={index} className="aspect-square w-full rounded-lg" />
+            ))}
+          </div>
         </div>
       ) : products.length === 0 ? (
-        <EmptyState
-          title="محصولی پیدا نشد"
-          description="عبارت جستجو یا فیلترها را تغییر بده."
-        />
+        <EmptyState title="محصولی پیدا نشد" description="عبارت جستجو یا فیلترها را تغییر بده." />
       ) : (
         <>
-          {!isDefaultView && (
-            <p className="text-sm text-foreground-muted">{total} محصول پیدا شد</p>
-          )}
-          <div className="grid grid-cols-2 gap-2 sm:gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {!isDefaultView ? (
+            <p className="text-xs text-foreground-muted">{total} محصول پیدا شد</p>
+          ) : null}
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-2.5 lg:grid-cols-4 xl:grid-cols-5">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} storeSlug={slug} />
             ))}
@@ -334,13 +358,13 @@ export function ProductBrowser({ slug, initialProducts, categories = [] }: Produ
         </>
       )}
 
-      {!isDefaultView && totalPages > 1 && (
+      {!isDefaultView && totalPages > 1 ? (
         <div className="flex items-center justify-center gap-3 pt-2">
           <button
             type="button"
             disabled={page <= 1 || loading}
             onClick={() => updateParams({ page: page <= 2 ? null : String(page - 1) }, false)}
-            className="rounded-full border border-border px-4 py-2 text-sm text-foreground transition hover:bg-surface-muted disabled:opacity-40"
+            className="rounded-xl border border-border bg-surface/80 px-4 py-2 text-sm text-foreground transition hover:bg-surface-muted disabled:opacity-40"
           >
             قبلی
           </button>
@@ -351,12 +375,12 @@ export function ProductBrowser({ slug, initialProducts, categories = [] }: Produ
             type="button"
             disabled={!result?.has_more || loading}
             onClick={() => updateParams({ page: String(page + 1) }, false)}
-            className="rounded-full border border-border px-4 py-2 text-sm text-foreground transition hover:bg-surface-muted disabled:opacity-40"
+            className="rounded-xl border border-border bg-surface/80 px-4 py-2 text-sm text-foreground transition hover:bg-surface-muted disabled:opacity-40"
           >
             بعدی
           </button>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

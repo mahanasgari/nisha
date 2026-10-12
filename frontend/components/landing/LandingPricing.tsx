@@ -7,20 +7,21 @@ import { SellerPrimaryCta } from "@/components/landing/SellerPrimaryCta";
 import { Reveal } from "@/components/landing/Reveal";
 import { PLAN_CATALOG } from "@/lib/pricing/planCatalog";
 import { paths } from "@/lib/auth/paths";
+import { cn } from "@/lib/cn";
 import type { BillingPeriod } from "@/types/subscription";
 
-export function LandingPricing() {
+export function LandingPricing({ className }: { className?: string }) {
   const [period, setPeriod] = useState<BillingPeriod>("MONTHLY");
 
   return (
-    <section className="space-y-10">
+    <section className={cn("space-y-10", className)}>
       <Reveal>
         <div className="mx-auto max-w-2xl space-y-3 text-center">
-          <p className="text-sm font-medium tracking-[0.26em] text-brand">تعرفه</p>
-          <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl lg:text-5xl">
+          <p className="landing-eyebrow">تعرفه</p>
+          <h2 className="landing-display text-3xl text-white sm:text-4xl lg:text-5xl">
             شروع رایگان، فروش بدون کارمزد
           </h2>
-          <p className="mx-auto max-w-xl text-sm leading-7 text-foreground-muted sm:text-base">
+          <p className="mx-auto max-w-xl text-sm leading-7 text-zinc-400 sm:text-base">
             روی هر سفارش مشتری کارمزد نمی‌گیریم. هزینه فقط برای ابزارهای بیشتر پلتفرم است — وقتی خودت
             آماده‌ای ارتقا بده.
           </p>

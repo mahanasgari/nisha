@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AuthPageFrame } from "@/components/auth/AuthPageFrame";
 import { EmailVerificationPending } from "@/components/auth/EmailVerificationPending";
 import { useCustomerAuth } from "@/contexts/CustomerAuthContext";
 import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { paths } from "@/lib/auth/paths";
 import { ApiError } from "@/lib/api/errors";
@@ -53,24 +55,27 @@ export default function CustomerRegisterPage() {
 
   if (pendingEmail) {
     return (
-      <div className="relative flex min-h-screen items-center justify-center bg-background px-4 py-12">
+      <AuthPageFrame>
         <EmailVerificationPending
           email={pendingEmail}
           kind="customer"
           loginHref={paths.customer.login}
         />
-      </div>
+      </AuthPageFrame>
     );
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-surface p-6 shadow-sm">
-        <h1 className="text-2xl font-bold text-foreground max-md:text-xl">ایجاد حساب مشتری</h1>
-        <p className="mt-1 text-sm text-foreground-muted">
-          اختیاری است - پرداخت مهمان همچنان بدون حساب کار می‌کند
-        </p>
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+    <AuthPageFrame>
+      <Card className="mx-auto w-full max-w-md">
+        <CardHeader>
+          <CardTitle>ایجاد حساب مشتری</CardTitle>
+          <p className="mt-1 text-sm text-foreground-muted">
+            اختیاری است - پرداخت مهمان همچنان بدون حساب کار می‌کند
+          </p>
+        </CardHeader>
+        <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <Input label="نام کامل" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
           <Input
             label="ایمیل"
@@ -100,7 +105,7 @@ export default function CustomerRegisterPage() {
             minLength={8}
           />
           {error && (
-            <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-700 dark:text-red-200" role="alert">
+            <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-200" role="alert">
               {error}
             </p>
           )}
@@ -122,7 +127,8 @@ export default function CustomerRegisterPage() {
             ورود
           </Link>
         </p>
-      </div>
-    </div>
+        </CardContent>
+      </Card>
+    </AuthPageFrame>
   );
 }

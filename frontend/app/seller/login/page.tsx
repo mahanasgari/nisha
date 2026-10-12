@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { AuthPageFrame } from "@/components/auth/AuthPageFrame";
 import { GuestOnly } from "@/components/auth/GuestOnly";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,12 +11,13 @@ import * as onboardingApi from "@/lib/api/seller/onboarding";
 import { paths } from "@/lib/auth/paths";
 
 export default function SellerLoginPage() {
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const router = useRouter();
 
   async function handleLogin(email: string, password: string) {
     const user = await login({ email, password });
     if (user.role !== "SELLER") {
+      logout();
       throw new ApiError(
         403,
         "این ورود فقط برای فروشندگان است. برای مدیران از ورود مدیر استفاده کنید.",
@@ -38,7 +40,7 @@ export default function SellerLoginPage() {
 
   return (
     <GuestOnly role="SELLER">
-      <div className="relative flex min-h-screen items-center justify-center bg-background px-4 py-12">
+      <AuthPageFrame>
         <LoginForm
           title="ورود فروشنده"
           subtitle="برای مدیریت فروشگاهت وارد شو"
@@ -53,7 +55,7 @@ export default function SellerLoginPage() {
             </>
           }
         />
-      </div>
+      </AuthPageFrame>
     </GuestOnly>
   );
 }

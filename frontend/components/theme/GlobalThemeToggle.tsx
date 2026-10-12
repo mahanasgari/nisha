@@ -30,7 +30,7 @@ export function GlobalThemeToggle() {
       onClick={toggleTheme}
       aria-label={`تغییر به حالت ${nextLabel}`}
       title={`حالت ${nextLabel}`}
-      className="fixed bottom-4 start-4 z-50 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-foreground shadow-md transition hover:bg-surface-muted print:hidden"
+      className="fixed bottom-[calc(5.75rem+env(safe-area-inset-bottom))] start-4 z-50 flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-surface/90 text-foreground shadow-md backdrop-blur transition hover:bg-surface-muted print:hidden lg:bottom-4"
     >
       {isDark ? <SunIcon /> : <MoonIcon />}
     </button>

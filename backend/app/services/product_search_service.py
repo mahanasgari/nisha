@@ -19,7 +19,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.models.order import OrderItem
 from app.models.product import Product
-from app.models.product_category import ProductCategory
+from app.services import product_category_service
 
 SortKey = Literal["newest", "cheapest", "most_expensive", "best_selling"]
 
@@ -106,15 +106,11 @@ def search_products(
     if in_stock:
         filters.append(Product.stock_quantity > 0)
     if category_slug:
-        filters.append(
-            Product.category_id.in_(
-                select(ProductCategory.id).where(
-                    ProductCategory.store_id == store_id,
-                    ProductCategory.slug == category_slug,
-                    ProductCategory.is_active.is_(True),
-                )
-            )
-        )
+        category_ids = product_category_service.category_ids_for_slug_filter(db, store_id, category_slug)
+        if not category_ids:
+            filters.append(Product.id == -1)
+        else:
+            filters.append(Product.category_id.in_(category_ids))
 
     total = int(db.scalar(select(func.count(Product.id)).where(*filters)) or 0)
 
