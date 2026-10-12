@@ -8,3 +8,7 @@ __pycache__/
 .ruff_cache/
 .coverage
 htmlcov/
+tests/
+scripts/seed_rich.py
+uploads/
+private_uploads/

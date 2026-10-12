@@ -13,10 +13,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+RUN groupadd --system app && useradd --system --gid app --home-dir /app app
 
-RUN mkdir -p /app/uploads
+COPY --chown=app:app . .
+
+RUN mkdir -p /app/uploads /app/private_uploads \
+    && chown -R app:app /app/uploads /app/private_uploads
+
+USER app
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# The API is only published on 127.0.0.1 behind nginx, so trusting forwarded
+# headers from any peer is safe and makes rate limits key on the real client IP
+# instead of the Docker gateway address.
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*"]

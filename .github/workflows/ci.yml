@@ -74,6 +74,11 @@ jobs:
           POSTGRES_PASSWORD: ci-validation-password
           CORS_ORIGINS: http://localhost:3000
           NEXT_PUBLIC_API_URL: http://localhost:8000
+          NEXT_PUBLIC_SITE_URL: https://nisha.example.com
+          FRONTEND_BASE_URL: https://nisha.example.com
+          EMAIL_PROVIDER: resend
+          EMAIL_FROM: Nisha <noreply@nisha.example.com>
+          RESEND_API_KEY: ci-placeholder
 
   security-audit:
     name: Security — dependency audit
