@@ -18,17 +18,17 @@ function VerifyEmailContent() {
   useEffect(() => {
     if (!token) {
       setStatus("error");
-      setMessage("لینک تأیید نامعتبر است.");
+      setMessage("این لینک تایید معتبر نیست یا منقضی شده است.");
       return;
     }
     verifyEmail(token, kind)
       .then(() => {
         setStatus("success");
-        setMessage("ایمیل شما با موفقیت تأیید شد.");
+        setMessage("ایمیل شما تایید شد. حالا می‌توانید وارد شوید.");
       })
       .catch((err) => {
         setStatus("error");
-        setMessage(err instanceof ApiError ? err.message : "تأیید ایمیل ناموفق بود");
+        setMessage(err instanceof ApiError ? err.message : "ایمیل تایید نشد. دوباره از لینک داخل ایمیل امتحان کنید.");
       });
   }, [token, kind]);
 
@@ -37,11 +37,11 @@ function VerifyEmailContent() {
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-background px-4 py-12">
       <div className="w-full max-w-md rounded-2xl border border-border bg-surface p-6 text-center shadow-sm">
-        {status === "loading" && <p className="text-foreground-muted">در حال تأیید ایمیل...</p>}
+        {status === "loading" && <p className="text-foreground-muted">در حال تایید ایمیل…</p>}
         {status !== "loading" && (
           <>
             <h1 className="text-2xl font-bold text-foreground max-md:text-xl">
-              {status === "success" ? "تأیید شد" : "خطا"}
+              {status === "success" ? "تایید شد" : "تایید نشد"}
             </h1>
             <p className="mt-3 text-sm text-foreground-muted">{message}</p>
             <Link

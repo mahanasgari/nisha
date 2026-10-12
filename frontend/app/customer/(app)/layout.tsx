@@ -13,9 +13,9 @@ export default function CustomerAppLayout({ children }: { children: React.ReactN
     { href: paths.customer.profile, label: "پروفایل" },
     { href: paths.customer.addresses, label: "آدرس‌ها" },
     { href: paths.customer.orders, label: "سفارش‌ها" },
-    { href: paths.customer.complaints, label: "اعتراض‌ها" },
+    { href: paths.customer.complaints, label: "شکایت‌ها" },
     { href: paths.customer.downloads, label: "دانلودها" },
-    { href: paths.customer.reviews, label: "نظرات" },
+    { href: paths.customer.reviews, label: "نظرها" },
     { href: paths.customer.conversations, label: "گفتگوها" },
   ];
 
@@ -24,8 +24,8 @@ export default function CustomerAppLayout({ children }: { children: React.ReactN
       <WorkspaceShell
         variant="tabs"
         brandLabel="Nisha"
-        roleLabel="مرکز مشتری"
-        title="داشبورد مشتری"
+        roleLabel="حساب مشتری"
+        title="حساب من"
         userName={customer?.full_name}
         userMeta={customer?.email ?? customer?.phone ?? undefined}
         identityName={customer?.full_name ?? "حساب من"}

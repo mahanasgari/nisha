@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "رویه رسیدگی به شکایات | Nisha",
+  title: "رویه رسیدگی به شکایات",
   description: "نحوه ثبت شکایت، مراحل رسیدگی و زمان‌بندی پاسخگویی در پلتفرم نیشا",
 };
 
@@ -42,13 +42,13 @@ export default function ComplaintsPolicyPage() {
           <h2 className="mb-3 text-xl font-semibold">۳. مراحل و زمان‌بندی رسیدگی</h2>
           <ul className="list-disc space-y-2 pr-6">
             <li>
-              <strong>باز:</strong> شکایت شما ثبت شده و در صف بررسی تیم پشتیبانی قرار دارد — شروع بررسی حداکثر ظرف ۴۸ ساعت کاری
+              <strong>باز:</strong> شکایت شما ثبت شده و در صف بررسی پشتیبانی است. بررسی حداکثر تا ۴۸ ساعت کاری شروع می‌شود.
             </li>
             <li>
               <strong>در حال بررسی:</strong> کارشناس پشتیبانی موضوع را با فروشنده پیگیری می‌کند
             </li>
             <li>
-              <strong>حل شده:</strong> نتیجهٔ رسیدگی مشخص شده است — حداکثر ظرف ۷ روز کاری از زمان ثبت شکایت
+              <strong>حل شده:</strong> نتیجهٔ رسیدگی مشخص شده است؛ حداکثر ۷ روز کاری بعد از ثبت شکایت.
             </li>
           </ul>
         </section>

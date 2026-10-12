@@ -22,8 +22,8 @@ export function LandingPricing({ className }: { className?: string }) {
             شروع رایگان، فروش بدون کارمزد
           </h2>
           <p className="mx-auto max-w-xl text-sm leading-7 text-zinc-400 sm:text-base">
-            روی هر سفارش مشتری کارمزد نمی‌گیریم. هزینه فقط برای ابزارهای بیشتر پلتفرم است — وقتی خودت
-            آماده‌ای ارتقا بده.
+            از سفارش‌ها کارمزد نمی‌گیریم و فقط برای ابزارهای بیشتر پلن پولی وجود دارد. هر وقت
+            آماده بودید، پلن را ارتقا بدهید.
           </p>
         </div>
       </Reveal>

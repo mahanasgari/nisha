@@ -77,7 +77,7 @@ function SellerLivePreview({
               </div>
             )}
             <div className="min-w-0">
-              <p className="text-xs text-zinc-500">فروشگاه تو</p>
+              <p className="text-xs text-zinc-500">فروشگاه شما</p>
               <p className="truncate text-sm font-semibold text-white">{store.name}</p>
             </div>
           </div>

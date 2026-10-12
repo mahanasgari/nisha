@@ -25,7 +25,7 @@ function invoiceStatusLabel(status: SubscriptionInvoice["status"]) {
     case "PENDING_PAYMENT":
       return "در انتظار پرداخت";
     case "PROOF_UPLOADED":
-      return "در انتظار تایید مدیر";
+      return "در انتظار تایید نیشا";
     case "PAID":
       return "پرداخت‌شده";
     case "REJECTED":
@@ -71,7 +71,7 @@ export default function SellerSubscriptionPage() {
         setCheckout(null);
       }
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "بارگذاری اشتراک ناموفق بود");
+      setError(err instanceof ApiError ? err.message : "اطلاعات پلن باز نشد. صفحه را دوباره بارگذاری کنید.");
     } finally {
       setLoading(false);
     }
@@ -102,13 +102,13 @@ export default function SellerSubscriptionPage() {
       setCheckout(result);
       setCardInstructions(result.card_instructions);
       if (!result.card_instructions.card_number?.trim()) {
-        toast.error("کارت پلتفرم هنوز تنظیم نشده — با پشتیبانی تماس بگیرید");
+        toast.error("شماره کارت نیشا هنوز ثبت نشده است. لطفاً به پشتیبانی پیام بدهید.");
       } else {
-        toast.success("فاکتور ساخته شد. مبلغ را واریز و رسید را بارگذاری کنید.");
+        toast.success("فاکتور ساخته شد. مبلغ را واریز کنید و رسید را بارگذاری کنید.");
       }
       await load();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "ایجاد فاکتور ناموفق بود");
+      toast.error(err instanceof ApiError ? err.message : "فاکتور ساخته نشد. دوباره امتحان کنید.");
     } finally {
       setBusy(false);
       setBusyCode(null);
@@ -120,11 +120,11 @@ export default function SellerSubscriptionPage() {
     setBusy(true);
     try {
       await subscriptionApi.uploadProof(invoiceId, file);
-      toast.success("رسید ارسال شد و در انتظار تایید مدیر است");
+      toast.success("رسید شما ثبت شد. بعد از بررسی، پلن فعال می‌شود.");
       setCheckout(null);
       await load();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "بارگذاری رسید ناموفق بود");
+      toast.error(err instanceof ApiError ? err.message : "رسید ارسال نشد. دوباره امتحان کنید.");
     } finally {
       setBusy(false);
     }
@@ -138,7 +138,7 @@ export default function SellerSubscriptionPage() {
       setCheckout(null);
       await load();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "لغو فاکتور ناموفق بود");
+      toast.error(err instanceof ApiError ? err.message : "فاکتور لغو نشد. دوباره امتحان کنید.");
     } finally {
       setBusy(false);
     }
@@ -151,14 +151,14 @@ export default function SellerSubscriptionPage() {
           پلن مناسب خود را انتخاب کنید
         </h1>
         <p className="text-sm leading-7 text-foreground-muted sm:text-base">
-          بدون کارمزد روی سفارش مشتری. فقط برای ابزارهای پلتفرم پرداخت می‌کنید.
+          از سفارش‌ها کارمزد نمی‌گیریم؛ فقط برای ابزارهای بیشتر هزینه می‌دهید.
         </p>
         {detail && (
           <p className="inline-flex rounded-full border border-border bg-surface px-3 py-1.5 text-sm text-foreground-muted">
             پلن فعلی:{" "}
             <span className="mr-1 font-medium text-foreground">{detail.effective_plan.name_fa}</span>
             {detail.is_expired_fallback && (
-              <span className="mr-2 text-amber-700"> (بازگشت به رایگان پس از انقضا)</span>
+              <span className="mr-2 text-amber-700"> (بعد از پایان مدت، به پلن رایگان برمی‌گردد)</span>
             )}
           </p>
         )}
@@ -167,7 +167,7 @@ export default function SellerSubscriptionPage() {
       {error && <ErrorAlert message={error} />}
 
       {loading ? (
-        <LoadingState message="در حال بارگذاری پلن‌ها..." />
+        <LoadingState message="در حال بارگذاری پلن‌ها…" />
       ) : (
         <>
           <div className="flex justify-center">
@@ -176,7 +176,7 @@ export default function SellerSubscriptionPage() {
 
           {openInvoice && (
             <p className="text-center text-sm text-amber-700">
-              یک فاکتور باز دارید؛ ابتدا آن را تکمیل یا لغو کنید، سپس پلن جدید بخرید.
+              یک فاکتور پرداخت‌نشده دارید. اول آن را پرداخت یا لغو کنید، بعد پلن جدید بگیرید.
             </p>
           )}
 
@@ -195,11 +195,11 @@ export default function SellerSubscriptionPage() {
             <Card className="border-amber-300 bg-amber-50 dark:border-amber-500/40 dark:bg-amber-500/10">
               <CardContent className="space-y-2 py-5">
                 <h3 className="text-base font-semibold text-amber-900 dark:text-amber-200">
-                  در انتظار تایید مدیر
+                  در انتظار تایید نیشا
                 </h3>
                 <p className="text-sm text-amber-800 dark:text-amber-100/90">
                   رسید فاکتور #{openInvoice.id} ({formatToman(openInvoice.amount_toman)}) دریافت شده
-                  است. پس از تایید ادمین، پلن شما فعال می‌شود.
+                  است. بعد از بررسی، پلن شما فعال می‌شود.
                 </p>
               </CardContent>
             </Card>
@@ -212,7 +212,7 @@ export default function SellerSubscriptionPage() {
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 {!cardConfigured && (
-                  <ErrorAlert message="کارت پلتفرم هنوز تنظیم نشده — با پشتیبانی تماس بگیرید" />
+                  <ErrorAlert message="شماره کارت نیشا هنوز ثبت نشده است. لطفاً به پشتیبانی پیام بدهید." />
                 )}
                 <p>{activeCards.message}</p>
                 <p>شماره کارت: {activeCards.card_number || "—"}</p>

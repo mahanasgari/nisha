@@ -13,13 +13,13 @@ import { paths } from "@/lib/auth/paths";
 import { cn } from "@/lib/cn";
 
 const metaDescription =
-  "فروشگاه آنلاینت را رایگان بساز، با کارت‌به‌کارت فروش کن و روی هر سفارش کارمزد نده — ساده و کم‌هزینه برای فروشنده‌های ایرانی.";
+  "فروشگاه آنلاین خود را رایگان بسازید، با کارت‌به‌کارت بفروشید و برای هیچ سفارشی کارمزد ندهید. ساده و کم‌هزینه، برای فروشنده‌های ایرانی.";
 
 export const metadata: Metadata = {
-  title: "نیشا | فروشگاه‌ساز کارت‌به‌کارت",
+  title: { absolute: "نیشا | فروشگاه‌ساز کارت‌به‌کارت" },
   description: metaDescription,
   openGraph: {
-    title: "نیشا | فروشگاه بساز، کارت‌به‌کارت بفروش",
+    title: "نیشا | فروشگاه بسازید، کارت‌به‌کارت بفروشید",
     description: metaDescription,
     type: "website",
   },
@@ -32,43 +32,43 @@ export const metadata: Metadata = {
 
 const stats = [
   { value: "۵ دقیقه", label: "تا ساخت فروشگاه و اولین محصول" },
-  { value: "۰ تومان", label: "شروع رایگان — بدون کارمزد فروش" },
-  { value: "کارت‌به‌کارت", label: "پرداخت آشنا برای مشتری ایرانی" },
-  { value: "۲۴/۷", label: "ویترین آنلاین همیشه در دسترس" },
+  { value: "۰ تومان", label: "شروع رایگان، بدون کارمزد فروش" },
+  { value: "کارت‌به‌کارت", label: "پرداختی که مشتری ایرانی می‌شناسد" },
+  { value: "شبانه‌روزی", label: "ویترینی که همیشه سفارش می‌گیرد" },
 ];
 
 const capabilities = [
   {
-    title: "ویترین خودت",
-    description: "اسم، لوگو و کاور را بگذار تا فروشگاهت جدی و قابل‌اعتماد دیده شود.",
+    title: "ویترین خودتان",
+    description: "اسم، لوگو و کاور فروشگاه را بگذارید تا مشتری با خیال راحت خرید کند.",
   },
   {
     title: "فروش با کارت‌به‌کارت",
     description:
-      "مشتری خرید می‌کند، به کارت تو واریز می‌کند و رسید را همان‌جا می‌فرستد. تو فقط تایید می‌کنی.",
+      "مشتری خرید می‌کند، مبلغ را به کارت شما واریز می‌کند و رسید را همان‌جا می‌فرستد. شما فقط تایید می‌کنید.",
   },
   {
     title: "چت با مشتری",
-    description: "سوال سایز و رنگ؟ همان‌جا داخل فروشگاه جواب بده تا فروش راحت‌تر بسته شود.",
+    description: "مشتری درباره سایز یا رنگ سؤال دارد؟ همان‌جا در فروشگاه جواب بدهید تا خرید زودتر انجام شود.",
   },
   {
     title: "آمار فروش",
-    description: "بازدید و فروش روزانه را از روز اول ببین تا بدانی چه چیزی بهتر می‌فروشد.",
+    description: "بازدید و فروش هر روز را از همان روز اول ببینید و بفهمید کدام محصول بهتر فروش می‌رود.",
   },
 ];
 
 const buyerPoints = [
   {
     title: "پرداخت کارت‌به‌کارت",
-    description: "همان روشی که همه بلدند: واریز به کارت و آپلود رسید — بدون سردرگمی درگاه.",
+    description: "همان روشی که همه بلدند: واریز به کارت و فرستادن رسید، بدون دردسر درگاه پرداخت.",
   },
   {
     title: "خرید سریع",
-    description: "اسم و شماره کافی است؛ نیازی به ساخت حساب طولانی نیست.",
+    description: "اسم و شماره تلفن کافی است. لازم نیست حساب کاربری بسازند.",
   },
   {
     title: "پیگیری سفارش",
-    description: "با کد و رمز فاکتور، وضعیت سفارش را هر وقت بخواهد می‌بیند.",
+    description: "با کد و رمز فاکتور، هر وقت بخواهند وضعیت سفارش را می‌بینند.",
   },
 ];
 
@@ -107,15 +107,15 @@ export default function HomePage() {
 
           <div className="landing-enter mt-4" style={{ animationDelay: "120ms" }}>
             <h1 className="landing-display text-balance text-3xl text-white sm:text-4xl lg:text-5xl">
-              فروشگاه آنلاینت را بساز،{" "}
-              <span className="text-zinc-500">با کارت‌به‌کارت بفروش</span>
+              فروشگاه آنلاین خود را بسازید،{" "}
+              <span className="text-zinc-500">با کارت‌به‌کارت بفروشید</span>
             </h1>
           </div>
 
           <div className="landing-enter mt-5" style={{ animationDelay: "180ms" }}>
             <p className="mx-auto max-w-2xl text-pretty text-base leading-8 text-zinc-400 sm:text-lg">
-              ویترینت را بالا بیاور، محصول بگذار و سفارش بگیر — بدون کارمزد روی هر فروش. فقط وقتی لازم
-              شد، برای ابزارهای بیشتر اشتراک بگیر.
+              ویترین را راه بیندازید، محصول بگذارید و سفارش بگیرید، بدون کارمزد روی فروش. هر وقت
+              ابزار بیشتری لازم داشتید، پلن بگیرید.
             </p>
           </div>
 
@@ -183,7 +183,7 @@ export default function HomePage() {
                 فروش ساده، هزینه کم
               </h2>
               <p className="mx-auto max-w-xl text-sm leading-7 text-zinc-400 sm:text-base">
-                همان چیزهایی که برای فروش روزمره لازم داری — بدون پیچیدگی اضافه.
+                هر چه برای فروش روزانه لازم دارید، بدون پیچیدگی اضافه.
               </p>
             </div>
           </Reveal>
@@ -216,7 +216,7 @@ export default function HomePage() {
                 از صفر تا اولین فروش
               </h2>
               <p className="mx-auto max-w-xl text-sm leading-7 text-zinc-400 sm:text-base">
-                چهار قدم کوتاه — هر کدام را پایین دنبال کن.
+                در چهار قدم کوتاه:
               </p>
             </div>
           </Reveal>
@@ -232,12 +232,12 @@ export default function HomePage() {
         <div className="space-y-10">
           <Reveal>
             <div className="mx-auto max-w-2xl space-y-3 text-center">
-              <p className="landing-eyebrow">برای مشتری‌هایت</p>
+              <p className="landing-eyebrow">برای مشتری‌های شما</p>
               <h2 className="landing-display text-3xl text-white sm:text-4xl lg:text-5xl">
-                خرید آشنا و بی‌دردسر
+                خریدی آشنا و بی‌دردسر
               </h2>
               <p className="mx-auto max-w-xl text-sm leading-7 text-zinc-400 sm:text-base">
-                کارت‌به‌کارت، سفارش سریع و پیگیری شفاف — همان چیزی که مشتری ایرانی راحت است.
+                کارت‌به‌کارت، سفارش سریع و پیگیری روشن؛ همان روشی که مشتری ایرانی با آن راحت است.
               </p>
             </div>
           </Reveal>
@@ -265,12 +265,12 @@ export default function HomePage() {
           <section className="landing-glow-ring relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-violet-600/20 via-[#111113] to-[#09090b] p-8 sm:p-10 lg:p-12">
             <div className="pointer-events-none absolute -end-10 -top-16 h-48 w-48 rounded-full bg-fuchsia-500/20 blur-3xl" />
             <div className="relative mx-auto max-w-2xl space-y-6 text-center">
-              <p className="landing-eyebrow">بیا شروع کنیم</p>
+              <p className="landing-eyebrow">همین حالا شروع کنید</p>
               <h2 className="landing-display text-3xl text-white sm:text-4xl">
-                امروز ویترینت را بساز، فردا بفروش
+                امروز ویترین را بسازید، از فردا بفروشید
               </h2>
               <p className="text-sm leading-7 text-zinc-400 sm:text-base">
-                رایگان شروع کن، لینک فروشگاهت را برای مشتری بفرست و با کارت‌به‌کارت فروش بگیر.
+                رایگان شروع کنید، لینک فروشگاه را برای مشتری‌ها بفرستید و با کارت‌به‌کارت پول بگیرید.
               </p>
               <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <SellerPrimaryCta

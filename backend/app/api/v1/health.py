@@ -14,6 +14,6 @@ def health(db: Session = Depends(get_db)) -> dict[str, str]:
     except Exception as exc:
         raise HTTPException(
             status_code=503,
-            detail="پایگاه داده در دسترس نیست",
+            detail="سرویس موقتاً در دسترس نیست.",
         ) from exc
     return {"status": "ok", "database": "connected"}

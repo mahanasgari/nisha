@@ -39,7 +39,7 @@ export function UserRecoverForm({ title, loginHref, afterVerifyHref }: UserRecov
       setHint(res.delivery_hint);
       setDebugCode(res.debug_code);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "شروع بازیابی ممکن نشد");
+      setError(err instanceof ApiError ? err.message : "کد بازیابی ارسال نشد. دوباره امتحان کنید.");
     } finally {
       setLoading(false);
     }
@@ -57,12 +57,12 @@ export function UserRecoverForm({ title, loginHref, afterVerifyHref }: UserRecov
         new_password: newPassword,
       });
       if (!res.access_token || !res.user) {
-        throw new Error("بازیابی کامل نشد");
+        throw new Error("رمز تغییر نکرد. دوباره امتحان کنید.");
       }
       setSession(res.access_token, res.user, res.refresh_token);
       router.replace(afterVerifyHref);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "بازیابی ناموفق بود");
+      setError(err instanceof ApiError ? err.message : "رمز تغییر نکرد. کد را دوباره بررسی کنید.");
     } finally {
       setLoading(false);
     }
@@ -74,7 +74,7 @@ export function UserRecoverForm({ title, loginHref, afterVerifyHref }: UserRecov
         <div className="text-center">
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
           <p className="mt-1 text-sm text-foreground-muted">
-            کد بازیابی به ایمیلت فرستاده می‌شود.
+            کد بازیابی را به ایمیل شما می‌فرستیم.
           </p>
         </div>
         <Card>
@@ -107,12 +107,12 @@ export function UserRecoverForm({ title, loginHref, afterVerifyHref }: UserRecov
                 </Button>
                 {hint && (
                   <p className="rounded-lg bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
-                    راهنمای تحویل: {hint}
+                    کد فرستاده شد به: {hint}
                   </p>
                 )}
                 {debugCode && process.env.NODE_ENV !== "production" && (
                   <p className="rounded-lg bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
-                    کد توسعه: {debugCode}
+                    کد آزمایشی (فقط محیط توسعه): {debugCode}
                   </p>
                 )}
               </form>

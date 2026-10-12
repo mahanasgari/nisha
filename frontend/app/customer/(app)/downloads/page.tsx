@@ -24,7 +24,7 @@ export default function CustomerDownloadsPage() {
       } catch {
         if (!cancelled) {
           setOrders([]);
-          toast.error("خطا در بارگذاری دانلودها");
+          toast.error("فهرست دانلودها باز نشد. صفحه را دوباره بارگذاری کنید.");
         }
       }
     })();
@@ -43,12 +43,12 @@ export default function CustomerDownloadsPage() {
       a.click();
       window.URL.revokeObjectURL(url);
     } catch {
-      toast.error("دانلود فاکتور ممکن نشد");
+      toast.error("فاکتور دانلود نشد. دوباره امتحان کنید.");
     }
   }
 
   if (orders === null) {
-    return <LoadingState message="در حال بارگذاری دانلودها..." />;
+    return <LoadingState message="در حال بارگذاری…" />;
   }
 
   return (
@@ -58,7 +58,7 @@ export default function CustomerDownloadsPage() {
       </CardHeader>
       <CardContent className="space-y-3">
         {orders.length === 0 ? (
-          <EmptyState title="دانلودی ندارید" description="برای دانلود فاکتور، سفارشی ثبت یا بازیابی کنید." />
+          <EmptyState title="دانلودی ندارید" description="فاکتور سفارش‌هایتان اینجا برای دانلود آماده می‌شود." />
         ) : (
           orders.map((order) => (
             <ListRow key={order.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

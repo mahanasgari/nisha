@@ -34,7 +34,7 @@ export default function EditProductPage({ params }: PageProps) {
 
   async function handleSubmit(body: ProductUpdate) {
     await productsApi.updateProduct(productId, body);
-    toast.success("محصول به‌روزرسانی شد");
+    toast.success("تغییرات ذخیره شد");
     router.push(paths.seller.products);
   }
 
@@ -45,16 +45,16 @@ export default function EditProductPage({ params }: PageProps) {
       toast.success("محصول حذف شد");
       router.push(paths.seller.products);
     } catch {
-      toast.error("حذف محصول ممکن نشد");
+      toast.error("محصول حذف نشد. دوباره امتحان کنید.");
     } finally {
       setDeleting(false);
       setShowDeleteModal(false);
     }
   }
 
-  if (isLoading) return <LoadingState message="در حال بارگذاری محصول..." />;
+  if (isLoading) return <LoadingState message="در حال بارگذاری محصول…" />;
   if (error || !data) {
-    return <EmptyState title="خطا" description={error ?? "محصول پیدا نشد"} />;
+    return <EmptyState title="محصول باز نشد" description={error ?? "این محصول پیدا نشد؛ شاید حذف شده باشد."} />;
   }
 
   return (
@@ -73,7 +73,7 @@ export default function EditProductPage({ params }: PageProps) {
       <ConfirmModal
         open={showDeleteModal}
         title="حذف محصول"
-        message={`آیا از حذف «${data.title}» اطمینان دارید؟`}
+        message={`«${data.title}» حذف شود؟ این کار برگشت‌پذیر نیست.`}
         confirmLabel="حذف"
         loading={deleting}
         onConfirm={handleDelete}

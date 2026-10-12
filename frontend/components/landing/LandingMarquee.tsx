@@ -53,9 +53,9 @@ export function LandingMarquee() {
   }, []);
 
   return (
-    <section className="landing-marquee space-y-5 py-2" aria-label="نمونه‌فروشگاه‌ها">
+    <section className="landing-marquee space-y-5 py-2" aria-label="نمونه ویترین‌ها">
       <p className="text-center text-xs font-medium tracking-[0.2em] text-zinc-500 sm:text-sm">
-        فروشنده‌هایی که روی نیشا ویترین دارند
+        نمونه ویترین‌هایی که با نیشا می‌شود ساخت
       </p>
       <div className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-y-0 start-0 z-10 w-16 bg-gradient-to-l from-transparent to-[#09090b] sm:w-24" />

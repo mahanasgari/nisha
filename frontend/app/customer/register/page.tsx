@@ -47,7 +47,7 @@ export default function CustomerRegisterPage() {
       if (err instanceof ApiError && err.status === 409) {
         setShowLoginHint(true);
       }
-      setError(err instanceof ApiError ? err.message : "ثبت‌نام ناموفق بود");
+      setError(err instanceof ApiError ? err.message : "ثبت‌نام انجام نشد. دوباره امتحان کنید.");
     } finally {
       setSubmitting(false);
     }
@@ -69,9 +69,9 @@ export default function CustomerRegisterPage() {
     <AuthPageFrame>
       <Card className="mx-auto w-full max-w-md">
         <CardHeader>
-          <CardTitle>ایجاد حساب مشتری</CardTitle>
+          <CardTitle>ساخت حساب مشتری</CardTitle>
           <p className="mt-1 text-sm text-foreground-muted">
-            اختیاری است - پرداخت مهمان همچنان بدون حساب کار می‌کند
+            اختیاری است؛ بدون حساب هم می‌توانید خرید کنید
           </p>
         </CardHeader>
         <CardContent>
@@ -82,13 +82,13 @@ export default function CustomerRegisterPage() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="اگر تلفن وارد شده باشد اختیاری است"
+            placeholder="ایمیل یا تلفن؛ یکی کافی است"
           />
           <Input
             label="تلفن"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            placeholder="اگر ایمیل وارد شده باشد اختیاری است"
+            placeholder="ایمیل یا تلفن؛ یکی کافی است"
           />
           <Input
             label="کد پستی"
@@ -111,7 +111,7 @@ export default function CustomerRegisterPage() {
           )}
           {showLoginHint && (
             <p className="text-center text-sm text-foreground-muted">
-              این ایمیل قبلاً تأیید شده است.{" "}
+              این ایمیل قبلاً تایید شده است.{" "}
               <Link href={paths.customer.login} className="font-medium text-brand-deep hover:underline">
                 وارد شوید
               </Link>

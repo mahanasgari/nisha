@@ -34,7 +34,7 @@ export function LandingTicker() {
           <span className="text-white">{event.buyer}</span>
           {" از "}
           <span className="text-white">{event.store}</span>
-          {" سفارش داد — "}
+          {" سفارش داد، "}
           <span className="font-medium text-white">{event.amount}</span>
         </p>
       </div>

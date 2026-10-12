@@ -105,7 +105,7 @@ export default function Image() {
                   و سریع‌تر به فروش برسید
                 </div>
                 <div style={{ fontSize: 26, lineHeight: 1.45, color: "rgba(255,255,255,0.58)", maxWidth: 520 }}>
-                  فروشگاه، محصول، سفارش و گفتگو در یک تجربه ساده، مدرن و سریع.
+                  فروشگاه، محصول، سفارش و گفتگو، همه در یک پنل ساده.
                 </div>
               </div>
             </div>
@@ -219,7 +219,7 @@ export default function Image() {
                 >
                   <div style={{ fontSize: 16, color: "rgba(255,255,255,0.58)" }}>اولین محصول</div>
                   <div style={{ marginTop: 8, fontSize: 24, fontWeight: 700 }}>کیف مینیمال چرمی</div>
-                  <div style={{ marginTop: 12, fontSize: 17, color: "rgba(255,255,255,0.62)" }}>۲,۴۸۰,۰۰۰ تومان</div>
+                  <div style={{ marginTop: 12, fontSize: 17, color: "rgba(255,255,255,0.62)" }}>۲٬۴۸۰٬۰۰۰ تومان</div>
                 </div>
                 <div
                   style={{

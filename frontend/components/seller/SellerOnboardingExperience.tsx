@@ -83,44 +83,44 @@ const STEP_ORDER: StepMeta[] = [
   {
     key: "welcome",
     title: "شروع راه‌اندازی",
-    description: "در چند مرحله کوتاه فروشگاهت را آماده می‌کنیم.",
-    helper: "هر وقت خواستی می‌توانی بعداً ادامه بدهی.",
+    description: "در چند قدم کوتاه، فروشگاه شما را آماده می‌کنیم.",
+    helper: "هر وقت خواستید، می‌توانید بعداً ادامه بدهید.",
   },
   {
     key: "store_identity",
     title: "نام و ظاهر",
     description: "نام فروشگاه، لوگو و تصویر جلد.",
-    helper: "بعداً از تنظیمات قابل تغییر است.",
+    helper: "بعداً هم از تنظیمات قابل تغییر است.",
   },
   {
     key: "store_information",
     title: "معرفی فروشگاه",
     description: "توضیح کوتاه و دسته‌بندی.",
-    helper: "هرچه روشن‌تر، اعتماد بیشتر.",
+    helper: "معرفی روشن، اعتماد مشتری را بیشتر می‌کند.",
   },
   {
     key: "contact_channels",
     title: "راه‌های ارتباطی",
-    description: "اختیاری — اینستاگرام، تلگرام و غیره.",
-    helper: "می‌توانی این مرحله را رد کنی.",
+    description: "اینستاگرام، تلگرام و راه‌های دیگر (اختیاری).",
+    helper: "می‌توانید این مرحله را رد کنید.",
   },
   {
     key: "payment_details",
     title: "روش پرداخت",
-    description: "کارت، رمزارز یا درگاه برای دریافت پول.",
-    helper: "بدون روش پرداخت، سفارش کامل نمی‌شود.",
+    description: "کارت، رمزارز یا درگاه، برای دریافت پول.",
+    helper: "تا روش پرداخت نداشته باشید، مشتری نمی‌تواند خرید را تمام کند.",
   },
   {
     key: "first_product",
     title: "اولین محصول",
     description: "یک محصول با عکس و قیمت.",
-    helper: "بعداً محصولات بیشتری اضافه می‌کنی.",
+    helper: "بقیه محصول‌ها را بعداً اضافه می‌کنید.",
   },
   {
     key: "activation",
     title: "پایان",
-    description: "چک‌لیست را ببین و وارد داشبورد شو.",
-    helper: "موارد ناقص را بعداً از داشبورد کامل کن.",
+    description: "چک‌لیست را ببینید و وارد داشبورد شوید.",
+    helper: "کارهای باقی‌مانده را بعداً از داشبورد تمام کنید.",
   },
 ];
 
@@ -310,7 +310,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
   const [drafts, setDrafts] = useState<DraftState>(() => buildDrafts(data));
   const [draftVersion, setDraftVersion] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [savingNote, setSavingNote] = useState<string | null>("نگران نباش، تغییراتت خودکار ذخیره می‌شود");
+  const [savingNote, setSavingNote] = useState<string | null>("تغییرات شما خودکار ذخیره می‌شود");
   const [error, setError] = useState<string | null>(null);
   const [logoPreview, setLogoPreview] = useBlobPreview();
   const [coverPreview, setCoverPreview] = useBlobPreview();
@@ -343,7 +343,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
       if (activeStep.key === "welcome" || activeStep.key === "activation") return;
       void (async () => {
         try {
-          setSavingNote("در حال ذخیره...");
+          setSavingNote("در حال ذخیره…");
           const response = await onboardingApi.updateOnboarding({
             current_step: activeStep.key,
             store_identity:
@@ -405,7 +405,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
           setServerState(response.state);
           setSavingNote("ذخیره شد");
         } catch {
-          setSavingNote("ذخیره خودکار نشد؛ یک‌بار دیگر امتحان کن");
+          setSavingNote("ذخیره نشد؛ یک بار دیگر امتحان کنید");
         }
       })();
     }, 700);
@@ -512,7 +512,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
     try {
       await saveOnboardingProgress(buildNavigationPayload(targetStep));
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "ذخیره مرحله ناموفق بود";
+      const msg = err instanceof Error ? err.message : "این مرحله ذخیره نشد. دوباره امتحان کنید.";
       setError(msg);
       toast.error(msg);
     } finally {
@@ -527,7 +527,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
     try {
       await saveOnboardingProgress(buildNavigationPayload(targetStep));
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "جابه‌جایی مرحله ناموفق بود";
+      const msg = err instanceof Error ? err.message : "به مرحله بعد نرفت. دوباره امتحان کنید.";
       setError(msg);
       toast.error(msg);
     } finally {
@@ -545,7 +545,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
         status: "IN_PROGRESS",
       });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "شروع راه‌اندازی ممکن نشد";
+      const msg = err instanceof Error ? err.message : "راه‌اندازی شروع نشد. دوباره امتحان کنید.";
       setError(msg);
       toast.error(msg);
     } finally {
@@ -564,7 +564,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
       });
       router.replace(paths.seller.dashboard);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "ذخیره ممکن نشد";
+      const msg = err instanceof Error ? err.message : "ذخیره نشد. دوباره امتحان کنید.";
       setError(msg);
       toast.error(msg);
       setLoading(false);
@@ -595,7 +595,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
         status: "IN_PROGRESS",
       });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "ذخیره هویت فروشگاه ناموفق بود";
+      const msg = err instanceof Error ? err.message : "نام و ظاهر فروشگاه ذخیره نشد. دوباره امتحان کنید.";
       setError(msg);
       toast.error(msg);
     } finally {
@@ -608,13 +608,13 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
     setError(null);
     try {
       if (!drafts.storeInformation.description.trim()) {
-        throw new Error("توضیحات فروشگاه الزامی است.");
+        throw new Error("چند جمله درباره فروشگاه بنویسید.");
       }
       if (!drafts.storeInformation.categorySlug.trim()) {
         throw new Error("دسته‌بندی فروشگاه را انتخاب کنید.");
       }
       if (drafts.storeInformation.categorySlug === "other" && !drafts.storeInformation.categoryName.trim()) {
-        throw new Error("برای دسته‌بندی دیگر، یک عنوان سفارشی وارد کنید.");
+        throw new Error("نام دسته‌بندی دلخواه را بنویسید.");
       }
 
       await storeApi.updateStore({
@@ -642,7 +642,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
         status: "IN_PROGRESS",
       });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "ذخیره اطلاعات فروشگاه ناموفق بود";
+      const msg = err instanceof Error ? err.message : "معرفی فروشگاه ذخیره نشد. دوباره امتحان کنید.";
       setError(msg);
       toast.error(msg);
     } finally {
@@ -656,7 +656,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
     try {
       const activeLinks = drafts.contactChannels.filter((link) => link.url.trim());
       if (activeLinks.some((link) => link.platform === "other" && !link.customLabel.trim())) {
-        throw new Error("برای لینک‌های با برچسب سفارشی، یک عنوان وارد کنید.");
+        throw new Error("برای لینکی که برچسب دلخواه دارد، یک عنوان بنویسید.");
       }
 
       const social_links = activeLinks.map((link, index) => ({
@@ -680,7 +680,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
         status: "IN_PROGRESS",
       });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "ذخیره راه‌های ارتباطی ناموفق بود";
+      const msg = err instanceof Error ? err.message : "راه‌های ارتباطی ذخیره نشد. دوباره امتحان کنید.";
       setError(msg);
       toast.error(msg);
     } finally {
@@ -698,7 +698,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
         status: "IN_PROGRESS",
       });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "ذخیره ممکن نشد";
+      const msg = err instanceof Error ? err.message : "ذخیره نشد. دوباره امتحان کنید.";
       setError(msg);
       toast.error(msg);
     } finally {
@@ -745,7 +745,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
 
   function validatePaymentDetails() {
     if (!drafts.paymentDetails.displayName.trim()) {
-      throw new Error("نام نمایشی روش پرداخت الزامی است.");
+      throw new Error("برای روش پرداخت یک نام بنویسید؛ مثلاً «کارت ملت».");
     }
     if (drafts.paymentDetails.type === "CARD_TO_CARD") {
       if (!drafts.paymentDetails.cardNumber.trim()) {
@@ -795,7 +795,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
         status: "IN_PROGRESS",
       });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "ذخیره جزئیات پرداخت ناموفق بود";
+      const msg = err instanceof Error ? err.message : "اطلاعات پرداخت ذخیره نشد. دوباره امتحان کنید.";
       setError(msg);
       toast.error(msg);
     } finally {
@@ -809,13 +809,13 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
     try {
       if (serverState.first_product_id) {
         if (!drafts.firstProduct.title.trim()) {
-          throw new Error("نام محصول را وارد کن.");
+          throw new Error("نام محصول را وارد کنید.");
         }
         if (!isValidMoney(drafts.firstProduct.price)) {
-          throw new Error("قیمت معتبر وارد کن.");
+          throw new Error("قیمت را درست وارد کنید.");
         }
         if (!drafts.firstProduct.imageUrl.trim()) {
-          throw new Error("تصویر محصول لازم است.");
+          throw new Error("یک عکس از محصول بگذارید.");
         }
 
         await productsApi.updateProduct(serverState.first_product_id, {
@@ -857,10 +857,10 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
         throw new Error("نام محصول را وارد کنید.");
       }
       if (!isValidMoney(drafts.firstProduct.price)) {
-        throw new Error("قیمت معتبر وارد کنید.");
+        throw new Error("قیمت را درست وارد کنید.");
       }
       if (!drafts.firstProduct.imageUrl.trim()) {
-        throw new Error("تصویر محصول لازم است.");
+        throw new Error("یک عکس از محصول بگذارید.");
       }
 
       const created = await productsApi.createProduct({
@@ -896,7 +896,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
         status: "IN_PROGRESS",
       });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "ایجاد اولین محصول ناموفق بود";
+      const msg = err instanceof Error ? err.message : "محصول ساخته نشد. دوباره امتحان کنید.";
       setError(msg);
       toast.error(msg);
     } finally {
@@ -930,14 +930,14 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
         status: canComplete ? "COMPLETED" : "IN_PROGRESS",
       });
       if (!canComplete) {
-        toast.success("پیشرفتت ذخیره شد؛ هر وقت خواستی از داشبورد ادامه بده");
+        toast.success("کارهایتان ذخیره شد؛ هر وقت خواستید، از داشبورد ادامه بدهید");
         router.replace(paths.seller.dashboard);
         return;
       }
-      toast.success("عالی! فروشگاهت آماده‌ست");
+      toast.success("فروشگاه شما آماده است!");
       router.replace(paths.seller.dashboard);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "پایان راه‌اندازی ناموفق بود";
+      const msg = err instanceof Error ? err.message : "راه‌اندازی تمام نشد. دوباره امتحان کنید.";
       setError(msg);
       toast.error(msg);
     } finally {
@@ -949,7 +949,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
     () => [
       { label: "نام فروشگاه ثبت شد", done: Boolean(drafts.storeIdentity.name.trim()) },
       {
-        label: "پروفایل تکمیل شد",
+        label: "معرفی فروشگاه کامل شد",
         done:
           Boolean(drafts.storeInformation.description.trim()) &&
           Boolean(drafts.storeInformation.categorySlug.trim()),
@@ -959,7 +959,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
         done: drafts.contactChannels.some((link) => link.url.trim()),
       },
       {
-        label: "جزئیات پرداخت ثبت شد",
+        label: "روش پرداخت ثبت شد",
         done: Boolean(serverState.payment_method_id),
       },
       { label: "اولین محصول اضافه شد", done: Boolean(serverState.first_product_id) },
@@ -979,7 +979,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
         return (
           <div className="space-y-5 rounded-2xl border border-border bg-surface p-6 sm:p-8">
             <p className="max-w-lg text-sm leading-6 text-foreground-muted">
-              حدود چند دقیقه طول می‌کشد. هر مرحله که تمام شود ذخیره می‌شود.
+              چند دقیقه بیشتر طول نمی‌کشد و هر مرحله همان لحظه ذخیره می‌شود.
             </p>
             <ul className="space-y-2 text-sm text-foreground">
               {STEP_ORDER.slice(1, -1).map((step, i) => (
@@ -999,7 +999,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
                 شروع راه‌اندازی
               </Button>
               <Button type="button" variant="ghost" onClick={() => void skipWelcome()} loading={loading}>
-                فعلاً رد کن
+                فعلاً نه
               </Button>
             </div>
           </div>
@@ -1034,7 +1034,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
                         },
                       }));
                     } catch (err) {
-                      const msg = err instanceof Error ? err.message : "بارگذاری لوگو ناموفق بود";
+                      const msg = err instanceof Error ? err.message : "لوگو بارگذاری نشد. دوباره امتحان کنید.";
                       setError(msg);
                       toast.error(msg);
                     } finally {
@@ -1072,7 +1072,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
                         },
                       }));
                     } catch (err) {
-                      const msg = err instanceof Error ? err.message : "بارگذاری تصویر جلد ناموفق بود";
+                      const msg = err instanceof Error ? err.message : "تصویر جلد بارگذاری نشد. دوباره امتحان کنید.";
                       setError(msg);
                       toast.error(msg);
                     } finally {
@@ -1089,7 +1089,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
                       />
                     ) : (
                       <div className="flex h-44 items-center justify-center text-sm text-foreground-muted">
-                        تصویر جلد اختیاری است و در پروفایل فروشگاه نمایش داده می‌شود
+                        تصویر جلد اختیاری است و بالای صفحه فروشگاه نمایش داده می‌شود
                       </div>
                     )}
                   </div>
@@ -1123,7 +1123,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
                   }))
                 }
                 rows={5}
-                hint="چند جمله کوتاه و روشن، اعتماد مشتری را بیشتر می‌کند."
+                hint="چند جمله کوتاه بنویسید: چه می‌فروشید و چرا از شما بخرند."
               />
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-3 md:col-span-2">
@@ -1168,7 +1168,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
                         storeInformation: { ...current.storeInformation, categoryName: e.target.value },
                       }))
                     }
-                    hint="اگر دسته‌بندی شما در فهرست نیست، یک عنوان کوتاه بنویسید."
+                    hint="اگر دسته‌بندی شما در فهرست نیست، اسمش را کوتاه بنویسید."
                     className="md:col-span-2"
                   />
                 )}
@@ -1181,7 +1181,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
                       storeInformation: { ...current.storeInformation, location: e.target.value },
                     }))
                   }
-                  hint="اختیاری است، اما به اعتماد و شفافیت کمک می‌کند."
+                  hint="اختیاری است، ولی مشتری‌ها به فروشگاهی که شهرش معلوم است بیشتر اعتماد می‌کنند."
                   className="md:col-span-2"
                 />
               </div>
@@ -1201,7 +1201,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
           <Card className="border-border bg-surface shadow-sm">
             <CardContent className="space-y-5 py-5 sm:py-6">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-sm text-foreground-muted">اختیاری — می‌توانی رد کنی.</p>
+                <p className="text-sm text-foreground-muted">اختیاری است؛ می‌توانید رد کنید.</p>
                 <Button
                   type="button"
                   variant="secondary"
@@ -1220,8 +1220,8 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
               <div className="space-y-3">
                 {drafts.contactChannels.length === 0 ? (
                   <EmptyState
-                    title="هنوز کانالی اضافه نشده"
-                    description="می‌توانید این مرحله را رد کنید و بعداً از داشبورد تکمیلش کنید."
+                    title="هنوز راه ارتباطی اضافه نکرده‌اید"
+                    description="می‌توانید این مرحله را رد کنید و بعداً از داشبورد اضافه کنید."
                     action={
                       <Button
                         type="button"
@@ -1273,7 +1273,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
                                   ),
                                 }))
                               }
-                              hint="مثلاً پشتیبانی، فروش یا پاسخ‌گویی"
+                              hint="مثلاً پشتیبانی یا سفارش"
                             />
                           )}
                           <Input
@@ -1365,7 +1365,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
                   >
                     <option value="CARD_TO_CARD">کارت‌به‌کارت</option>
                     <option value="CRYPTO">رمزارز</option>
-                    <option value="EXTERNAL_GATEWAY">درگاه خارجی</option>
+                    <option value="EXTERNAL_GATEWAY">درگاه پرداخت</option>
                   </select>
                 </div>
                 <Input
@@ -1442,7 +1442,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
                   }
                   rows={3}
                   className="md:col-span-2"
-                  hint="مثلاً بعد از واریز، رسید را در سفارش بارگذاری کنید."
+                  hint="مثلاً: بعد از واریز، عکس رسید را در صفحه سفارش بارگذاری کنید."
                 />
               </div>
               <div className="flex flex-wrap gap-3 border-t border-border pt-4">
@@ -1450,7 +1450,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
                   بازگشت
                 </Button>
                 <Button type="button" onClick={() => void continuePaymentDetails()} loading={loading}>
-                  {serverState.payment_method_id ? "به‌روزرسانی و ادامه" : "ذخیره و ادامه"}
+                  {serverState.payment_method_id ? "ذخیره تغییرات و ادامه" : "ذخیره و ادامه"}
                 </Button>
               </div>
             </CardContent>
@@ -1480,7 +1480,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
                       firstProduct: { ...current.firstProduct, price: next },
                     }))
                   }
-                  hint="فروشگاه‌ها وقتی محصول اول سریع منتشر می‌شود، زودتر فعال می‌شوند."
+                  hint="همین یک محصول کافی است تا فروشگاه برای مشتری‌ها قابل خرید شود."
                 />
                 <Textarea
                   label="توضیحات محصول"
@@ -1510,7 +1510,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
                         },
                       }));
                     } catch (err) {
-                      const msg = err instanceof Error ? err.message : "بارگذاری تصویر محصول ناموفق بود";
+                      const msg = err instanceof Error ? err.message : "عکس محصول بارگذاری نشد. دوباره امتحان کنید.";
                       setError(msg);
                       toast.error(msg);
                     } finally {
@@ -1527,7 +1527,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
                       />
                     ) : (
                       <div className="flex h-52 items-center justify-center text-sm text-foreground-muted">
-                        تصویر محصول برای انتشار محصول لازم است
+                        برای نمایش محصول، یک عکس لازم است
                       </div>
                     )}
                   </div>
@@ -1593,9 +1593,9 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
       <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
         <Card className="max-w-md border-border bg-surface shadow-sm">
           <CardContent className="space-y-4 py-8">
-            <h1 className="text-2xl font-semibold text-foreground">فروشگاهت آماده است</h1>
+            <h1 className="text-2xl font-semibold text-foreground">فروشگاه شما آماده است</h1>
             <p className="text-sm leading-6 text-foreground-muted">
-              برو داشبورد و سفارش‌ها، محصولات و گفتگوها را از آنجا مدیریت کن.
+              سفارش‌ها، محصول‌ها و گفتگوها را از داشبورد مدیریت کنید. لینک فروشگاه را هم برای مشتری‌ها بفرستید.
             </p>
             <Button type="button" onClick={() => router.replace(paths.seller.dashboard)}>
               رفتن به داشبورد
@@ -1641,7 +1641,7 @@ export function SellerOnboardingExperience({ data }: { data: SellerOnboardingRes
               className="px-3 text-xs text-foreground-muted underline-offset-2 hover:text-foreground hover:underline"
               onClick={() => void skipWelcome()}
             >
-              فعلاً برو داشبورد
+              رفتن به داشبورد
             </button>
           </div>
         </aside>

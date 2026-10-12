@@ -65,7 +65,7 @@ def _calculate_store_readiness(
     if store.description:
         score += 20
     else:
-        missing_tasks.append("توضیحات فروشگاه را اضافه کنید")
+        missing_tasks.append("چند جمله درباره فروشگاه بنویسید")
 
     category_complete = bool(store.category_slug and (store.category_slug != "other" or store.category_name))
     if category_complete:
@@ -76,7 +76,7 @@ def _calculate_store_readiness(
     if store.logo_url:
         score += 15
     else:
-        missing_tasks.append("لوگو اضافه کنید")
+        missing_tasks.append("لوگو بگذارید")
 
     if contact_count > 0:
         score += 15
@@ -86,19 +86,19 @@ def _calculate_store_readiness(
     if product_count > 0:
         score += 20
     else:
-        missing_tasks.append("اولین محصول را منتشر کنید")
+        missing_tasks.append("اولین محصول را اضافه کنید")
 
     if payment_method_count > 0:
         score += 10
     else:
-        missing_tasks.append("جزئیات پرداخت را اضافه کنید")
+        missing_tasks.append("روش پرداخت را اضافه کنید")
 
     if not store.cover_image_url:
-        missing_tasks.append("تصویر جلد اضافه کنید")
+        missing_tasks.append("تصویر جلد بگذارید")
     if not store.location:
         missing_tasks.append("موقعیت فروشگاه را اضافه کنید")
     if product_count == 1:
-        missing_tasks.append("محصولات بیشتری اضافه کنید")
+        missing_tasks.append("چند محصول دیگر اضافه کنید")
 
     return min(score, 100), missing_tasks
 

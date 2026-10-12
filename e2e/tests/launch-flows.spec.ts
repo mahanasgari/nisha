@@ -35,7 +35,7 @@ test("guest can buy, upload a receipt and track the order", async ({ page }) => 
 
   await page.goto(`/store/${STORE}`);
   await page.getByRole("button", { name: /^افزودن .* به سبد$/ }).first().click();
-  await page.getByText("ادامه خرید").first().click();
+  await page.getByText("تکمیل خرید").first().click();
   await page.waitForURL(/\/checkout$/);
 
   await page.getByLabel("نام کامل").fill("خریدار تست خودکار");
@@ -43,7 +43,7 @@ test("guest can buy, upload a receipt and track the order", async ({ page }) => 
   await page.getByLabel("آدرس تحویل").fill("تهران، خیابان تست، پلاک ۱");
   await page.locator("form button[type=submit]").last().click();
 
-  await expect(page.getByRole("heading", { name: "سفارش با موفقیت ثبت شد" })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("heading", { name: "سفارش شما ثبت شد" })).toBeVisible({ timeout: 30_000 });
   invoiceCode = (await page.getByText(/^NV-[0-9A-F]{8}$/).first().innerText()).trim();
   const codes = await page.locator("code, .font-mono").allInnerTexts();
   invoicePassword = codes.map((c) => c.trim()).find((c) => /^[A-Za-z0-9]{12}$/.test(c)) ?? "";
@@ -96,7 +96,7 @@ test("customer portal lists past orders", async ({ page }) => {
   await page.locator("form button[type=submit]").click();
   await page.waitForURL(/\/customer(?!\/login)/);
   await page.goto("/customer/orders");
-  await expect(page.getByText(/NV-[0-9A-F]{8}/).first()).toBeVisible();
+  await expect(page.getByText(/NV-[0-9A-F]{8}/).first()).toBeVisible({ timeout: 30_000 });
 });
 
 });

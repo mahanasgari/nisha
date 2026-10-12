@@ -45,7 +45,7 @@ export default function CustomerLoginForm() {
       if (err instanceof ApiError && err.status === 403 && loginId.includes("@")) {
         setResendEmail(loginId);
       }
-      setError(err instanceof ApiError ? err.message : "ورود ناموفق بود");
+      setError(err instanceof ApiError ? err.message : "ورود انجام نشد. ایمیل یا رمز را بررسی کنید.");
     } finally {
       setSubmitting(false);
     }
@@ -57,7 +57,7 @@ export default function CustomerLoginForm() {
         <CardHeader>
           <CardTitle>ورود مشتری</CardTitle>
           <p className="mt-1 text-sm text-foreground-muted">
-            برای ارسال پیام به فروشندگان و حفظ تاریخچه گفتگو وارد شوید
+            برای دیدن سفارش‌ها و پیام دادن به فروشنده‌ها وارد شوید
           </p>
         </CardHeader>
         <CardContent>
@@ -87,13 +87,13 @@ export default function CustomerLoginForm() {
                 onClick={async () => {
                   try {
                     await resendVerificationEmail(resendEmail, "customer");
-                    setError("ایمیل تأیید دوباره ارسال شد.");
+                    setError("ایمیل تایید دوباره ارسال شد.");
                   } catch {
-                    setError("ارسال دوباره ایمیل ممکن نشد");
+                    setError("ایمیل دوباره ارسال نشد. کمی بعد امتحان کنید.");
                   }
                 }}
               >
-                ارسال دوباره ایمیل تأیید
+                ارسال دوباره ایمیل تایید
               </button>
             )}
             <Button type="submit" className="w-full" loading={submitting}>
@@ -107,7 +107,7 @@ export default function CustomerLoginForm() {
             </p>
             <p className="text-center text-sm">
               <Link href={paths.customer.recover} className="font-medium text-brand-deep hover:underline">
-                رمز عبور را فراموش کردی؟
+                رمز را فراموش کرده‌اید؟
               </Link>
             </p>
           </form>

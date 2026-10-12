@@ -133,7 +133,7 @@ export function OrderItemsPanel({
       {(subtotalAmount || shippingAmount || discountAmount || totalAmount) && (
         <div className="mt-4 flex flex-col items-end gap-1 text-sm">
           {subtotalAmount && (
-            <span className="text-foreground-muted">جمع جزء: {formatMoney(subtotalAmount)}</span>
+            <span className="text-foreground-muted">جمع کالاها: {formatMoney(subtotalAmount)}</span>
           )}
           {discountAmount !== undefined && Number(discountAmount) > 0 && (
             <span className="text-emerald-600">
@@ -143,7 +143,7 @@ export function OrderItemsPanel({
           {shippingAmount !== undefined && Number(shippingAmount) > 0 && (
             <span className="text-foreground-muted">هزینه ارسال: {formatMoney(shippingAmount)}</span>
           )}
-          {totalAmount && <span className="font-semibold">مجموع: {formatMoney(totalAmount)}</span>}
+          {totalAmount && <span className="font-semibold">مبلغ کل: {formatMoney(totalAmount)}</span>}
         </div>
       )}
     </div>

@@ -35,13 +35,13 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         this.props.fallback ?? (
           <div className="flex flex-col items-center justify-center p-8 text-center">
-            <h2 className="text-xl font-semibold">خطایی رخ داد</h2>
-            <p className="mt-2 text-muted-foreground">مشکلی پیش آمده است. لطفا صفحه را مجددا بارگذاری کنید.</p>
+            <h2 className="text-xl font-semibold">مشکلی پیش آمد</h2>
+            <p className="mt-2 text-muted-foreground">این بخش درست نمایش داده نشد. صفحه را دوباره بارگذاری کنید.</p>
             <button
               className="mt-4 rounded-md bg-brand px-4 py-2 text-white"
               onClick={this.handleRetry}
             >
-              تلاش مجدد
+              دوباره امتحان کنید
             </button>
           </div>
         )

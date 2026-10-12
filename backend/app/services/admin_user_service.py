@@ -105,11 +105,11 @@ def update_user(
 
     if user.role == UserRole.ADMIN and update_data.get("is_active") is False:
         if _count_active_admins(db, exclude_user_id=user.id) == 0:
-            raise ServiceError("حداقل یک ادمین فعال باید باقی بماند", status_code=422)
+            raise ServiceError("دست‌کم یک مدیر فعال باید باقی بماند.", status_code=422)
 
     if update_data.get("role") is not None and user.role == UserRole.ADMIN and update_data["role"] != UserRole.ADMIN:
         if _count_active_admins(db, exclude_user_id=user.id) == 0 and user.is_active:
-            raise ServiceError("حداقل یک ادمین فعال باید باقی بماند", status_code=422)
+            raise ServiceError("دست‌کم یک مدیر فعال باید باقی بماند.", status_code=422)
 
     for field, value in update_data.items():
         setattr(user, field, value)

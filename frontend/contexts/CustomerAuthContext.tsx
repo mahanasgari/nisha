@@ -83,7 +83,7 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
     async (payload: CustomerLoginRequest) => {
       const data = await customerAuthApi.login(payload);
       if (!data.access_token || !data.customer) {
-        throw new ApiError(403, "ایمیل تأیید نشده است");
+        throw new ApiError(403, "ایمیل تایید نشده است");
       }
       setSession(data.access_token, data.customer);
       return data.customer;

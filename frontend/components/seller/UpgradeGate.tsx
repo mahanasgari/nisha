@@ -12,7 +12,7 @@ type UpgradeGateProps = {
 };
 
 export function UpgradeGate({
-  title = "این قابلیت با ارتقای پلن باز می‌شود",
+  title = "این امکان در پلن بالاتر فعال است",
   description,
   className,
 }: UpgradeGateProps) {
@@ -22,7 +22,7 @@ export function UpgradeGate({
         <h3 className="text-base font-semibold text-foreground">{title}</h3>
         <p className="text-sm text-foreground-muted">{description}</p>
         <Link href={paths.seller.subscription} className={buttonClassName()}>
-          دیدن پلن‌ها و ارتقا
+          دیدن پلن‌ها
         </Link>
       </CardContent>
     </Card>

@@ -95,7 +95,7 @@ export function MessageSellerButton({
     return (
       <Link href={loginHref} className={className}>
         <Button variant="secondary" size="sm" className="rounded-xl">
-          ورود برای چت
+          ورود برای گفتگو
         </Button>
       </Link>
     );

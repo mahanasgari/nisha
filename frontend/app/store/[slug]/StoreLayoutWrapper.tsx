@@ -44,7 +44,7 @@ function StoreCartButton({ onClick }: { onClick: () => void }) {
         "relative sm:w-auto sm:gap-2 sm:px-3",
         itemCount > 0 && "border-brand/30",
       )}
-      aria-label={`سبد خرید${itemCount > 0 ? `، ${itemCount} قلم` : ""}`}
+      aria-label={`سبد خرید${itemCount > 0 ? `، ${itemCount} کالا` : ""}`}
     >
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
         <path d="M6 6h15l-1.5 9h-12L6 6Z" strokeLinejoin="round" />

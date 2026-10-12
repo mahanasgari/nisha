@@ -75,7 +75,7 @@ export default function CustomerAddressesPage() {
         const data = await listAddresses();
         if (!cancelled) setAddresses(data);
       } catch {
-        if (!cancelled) setError("بارگذاری آدرس‌ها ممکن نشد");
+        if (!cancelled) setError("آدرس‌ها باز نشد. صفحه را دوباره بارگذاری کنید.");
       }
     })();
     return () => {
@@ -119,7 +119,7 @@ export default function CustomerAddressesPage() {
       }
       startCreate();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "ذخیره ناموفق بود");
+      setError(err instanceof ApiError ? err.message : "آدرس ذخیره نشد. دوباره امتحان کنید.");
     } finally {
       setSaving(false);
     }
@@ -132,13 +132,13 @@ export default function CustomerAddressesPage() {
       setDeleteTarget(null);
       toast.success("آدرس حذف شد");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "حذف ناموفق بود");
+      setError(err instanceof ApiError ? err.message : "آدرس حذف نشد. دوباره امتحان کنید.");
       setDeleteTarget(null);
     }
   }
 
   if (addresses === null) {
-    return <LoadingState message="در حال بارگذاری آدرس‌ها..." />;
+    return <LoadingState message="در حال بارگذاری آدرس‌ها…" />;
   }
 
   return (
@@ -147,12 +147,12 @@ export default function CustomerAddressesPage() {
         <CardHeader className="flex items-center justify-between">
           <CardTitle>آدرس‌های ذخیره‌شده</CardTitle>
           <Button variant="ghost" size="sm" onClick={startCreate}>
-            جدید
+            آدرس جدید
           </Button>
         </CardHeader>
         <CardContent className="space-y-3">
           {addresses.length === 0 ? (
-            <EmptyState title="آدرسی ذخیره نشده" description="یک آدرس اضافه کنید تا پرداخت سریع‌تر شود." />
+            <EmptyState title="آدرسی ذخیره نشده" description="آدرس را یک بار ذخیره کنید تا در خریدهای بعدی دوباره ننویسید." />
           ) : (
             addresses.map((address) => (
               <ListRow key={address.id}>
@@ -199,7 +199,7 @@ export default function CustomerAddressesPage() {
               required
               pattern="09[0-9]{9}"
               placeholder="09123456789"
-              title="شماره موبایل باید با 09 شروع شود و 11 رقم باشد"
+              title="شماره موبایل ۱۱ رقمی که با ۰۹ شروع می‌شود"
             />
             <Input
               label="کد پستی"
@@ -208,7 +208,7 @@ export default function CustomerAddressesPage() {
             />
             <div className="sm:col-span-2">
               <Input
-                label="خط آدرس ۱"
+                label="آدرس"
                 value={form.address_line1}
                 onChange={(e) => setForm({ ...form, address_line1: e.target.value })}
                 required
@@ -216,7 +216,7 @@ export default function CustomerAddressesPage() {
             </div>
             <div className="sm:col-span-2">
               <Input
-                label="خط آدرس ۲"
+                label="ادامه آدرس (اختیاری)"
                 value={form.address_line2}
                 onChange={(e) => setForm({ ...form, address_line2: e.target.value })}
               />
@@ -240,7 +240,7 @@ export default function CustomerAddressesPage() {
                 onChange={(e) => setForm({ ...form, is_default: e.target.checked })}
                 className="rounded border-border"
               />
-              به‌عنوان پیش‌فرض تنظیم شود
+              آدرس پیش‌فرض من باشد
             </label>
             {error && (
               <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 sm:col-span-2" role="alert">
@@ -249,11 +249,11 @@ export default function CustomerAddressesPage() {
             )}
             <div className="flex gap-2 sm:col-span-2">
               <Button type="submit" loading={saving}>
-                {editing ? "به‌روزرسانی" : "ذخیره"}
+                {editing ? "ذخیره تغییرات" : "ذخیره"}
               </Button>
               {editing && (
                 <Button type="button" variant="secondary" onClick={startCreate}>
-                  لغو
+                  انصراف
                 </Button>
               )}
             </div>
@@ -263,7 +263,7 @@ export default function CustomerAddressesPage() {
       <ConfirmModal
         open={deleteTarget !== null}
         title="حذف آدرس"
-        message="آیا از حذف این آدرس اطمینان دارید؟"
+        message="این آدرس حذف شود؟"
         confirmLabel="حذف"
         onConfirm={() => deleteTarget !== null && handleDelete(deleteTarget)}
         onClose={() => setDeleteTarget(null)}

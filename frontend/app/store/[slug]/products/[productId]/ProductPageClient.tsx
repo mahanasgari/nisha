@@ -68,7 +68,7 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
   if (loading) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center py-16">
-        <OrbLoader state="searching" size={64} label="در حال بارگذاری محصول..." />
+        <OrbLoader state="searching" size={64} label="در حال باز کردن محصول…" />
       </div>
     );
   }
@@ -79,7 +79,7 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
 
   if (!data) {
     return (
-      <EmptyState title="محصول در دسترس نیست" description="این محصول وجود ندارد یا فعال نیست." />
+      <EmptyState title="محصول در دسترس نیست" description="این محصول حذف شده یا فعلاً فروخته نمی‌شود." />
     );
   }
 
@@ -136,13 +136,13 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
       return;
     }
     if (variants.length > 0 && !selectedVariant) {
-      toast.error("یک گزینه انتخاب کن");
+      toast.error("اول یکی از گزینه‌ها را انتخاب کنید");
       return;
     }
     addItem(product, quantity, selectedVariant);
     toast.success(
       selectedVariant
-        ? `«${product.title} — ${selectedVariant.name}» به سبد اضافه شد`
+        ? `«${product.title}، ${selectedVariant.name}» به سبد اضافه شد`
         : "به سبد خرید اضافه شد",
     );
   }
@@ -362,7 +362,7 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
 
           {product.form_fields.length > 0 ? (
             <p className="text-xs text-foreground-muted">
-              هنگام پرداخت، {product.form_fields.length} فیلد اضافی ازت پرسیده می‌شود.
+              موقع تکمیل خرید، {product.form_fields.length} سؤال کوتاه درباره سفارش از شما پرسیده می‌شود.
             </p>
           ) : null}
 
@@ -375,7 +375,7 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
       {/* Reviews */}
       <section className="mt-10 space-y-4 border-t border-border pt-8">
         <div className="flex items-baseline justify-between gap-3">
-          <h2 className="text-base font-semibold text-foreground">نظرات</h2>
+          <h2 className="text-base font-semibold text-foreground">نظرها</h2>
           {review_summary.review_count > 0 ? (
             <p className="text-sm text-foreground-muted">
               ★ {review_summary.average_rating.toFixed(1)} · {review_summary.review_count} نظر
@@ -384,7 +384,7 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
         </div>
 
         {public_reviews.length === 0 ? (
-          <p className="text-sm text-foreground-muted">هنوز نظری ثبت نشده است.</p>
+          <p className="text-sm text-foreground-muted">هنوز کسی درباره این محصول نظر نداده است.</p>
         ) : (
           <ul className="space-y-4">
             {public_reviews.map((review) => (

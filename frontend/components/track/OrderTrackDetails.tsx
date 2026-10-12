@@ -62,9 +62,9 @@ export function OrderTrackDetails({ order, password, onUpdated }: OrderTrackDeta
       });
       onUpdated(refreshed);
       setEditing(false);
-      toast.success("جزئیات سفارش به‌روزرسانی شد");
+      toast.success("تغییرات ذخیره شد");
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "به‌روزرسانی ناموفق بود");
+      toast.error(err instanceof ApiError ? err.message : "تغییرات ذخیره نشد. دوباره امتحان کنید.");
     } finally {
       setSaving(false);
     }
@@ -78,7 +78,7 @@ export function OrderTrackDetails({ order, password, onUpdated }: OrderTrackDeta
       });
       onUpdated(refreshed);
     } catch {
-      toast.error("به‌روزرسانی سفارش ناموفق بود");
+      toast.error("اطلاعات سفارش به‌روز نشد. صفحه را دوباره باز کنید.");
     }
   }
 
@@ -103,7 +103,7 @@ export function OrderTrackDetails({ order, password, onUpdated }: OrderTrackDeta
 
       <Card>
         <CardHeader>
-          <CardTitle>آیتم‌ها</CardTitle>
+          <CardTitle>کالاها</CardTitle>
         </CardHeader>
         <CardContent>
           <OrderItemsPanel
@@ -120,7 +120,7 @@ export function OrderTrackDetails({ order, password, onUpdated }: OrderTrackDeta
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>جزئیات خریدار</CardTitle>
+          <CardTitle>مشخصات خریدار</CardTitle>
           {canEdit && !editing && (
             <Button variant="ghost" size="sm" onClick={() => setEditing(true)}>
               ویرایش
@@ -139,7 +139,7 @@ export function OrderTrackDetails({ order, password, onUpdated }: OrderTrackDeta
                   ذخیره
                 </Button>
                 <Button type="button" variant="secondary" onClick={() => setEditing(false)}>
-                  لغو
+                  انصراف
                 </Button>
               </div>
             </form>

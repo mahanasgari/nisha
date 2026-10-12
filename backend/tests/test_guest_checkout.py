@@ -33,7 +33,8 @@ def test_guest_order_blocked_when_store_disabled(client, public_store):
         json=_order_payload(public_store),
     )
     assert response.status_code == 403
-    assert "خرید مهمان" in response.json()["detail"]
+    detail = response.json()["detail"]
+    assert "خرید مهمان" in detail or "بدون حساب" in detail
 
 
 def test_guest_order_blocked_when_platform_disabled(client, public_store, admin_headers, db):
@@ -224,4 +225,5 @@ def test_guest_order_blocked_on_free_plan(client, seller_headers, db):
         },
     )
     assert order.status_code == 403
-    assert "خرید مهمان" in order.json()["detail"]
+    detail = order.json()["detail"]
+    assert "خرید مهمان" in detail or "بدون حساب" in detail

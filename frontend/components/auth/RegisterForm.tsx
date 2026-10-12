@@ -37,7 +37,7 @@ export function RegisterForm({ onSubmit, footer, loginHref }: RegisterFormProps)
       if (err instanceof ApiError && err.status === 409) {
         setShowLoginHint(true);
       }
-      setError(err instanceof ApiError ? err.message : "ثبت‌نام ناموفق بود");
+      setError(err instanceof ApiError ? err.message : "ثبت‌نام انجام نشد. دوباره امتحان کنید.");
     } finally {
       setLoading(false);
     }
@@ -48,7 +48,7 @@ export function RegisterForm({ onSubmit, footer, loginHref }: RegisterFormProps)
       <CardHeader>
         <CardTitle>ساخت حساب فروشنده</CardTitle>
         <p className="mt-1 text-sm text-foreground-muted">
-          رایگان شروع کن؛ فروشگاهت را بساز و با کارت‌به‌کارت بفروش.
+          رایگان شروع کنید؛ فروشگاه را بسازید و با کارت‌به‌کارت بفروشید.
         </p>
       </CardHeader>
       <CardContent>
@@ -56,7 +56,7 @@ export function RegisterForm({ onSubmit, footer, loginHref }: RegisterFormProps)
           <ErrorAlert message={error ?? ""} />
           {showLoginHint && loginHref && (
             <p className="text-center text-sm text-foreground-muted">
-              این ایمیل قبلاً تأیید شده است.{" "}
+              این ایمیل قبلاً تایید شده است.{" "}
               <Link href={loginHref} className="font-medium text-brand hover:underline">
                 وارد شوید
               </Link>
@@ -85,12 +85,12 @@ export function RegisterForm({ onSubmit, footer, loginHref }: RegisterFormProps)
             autoComplete="new-password"
             required
             minLength={8}
-            hint="حداقل ۸ کاراکتر"
+            hint="دست‌کم ۸ حرف یا عدد"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
           <Button type="submit" className="w-full" loading={loading}>
-            ایجاد حساب
+            ساخت حساب
           </Button>
         </form>
         {footer && <div className="mt-6 text-center text-sm text-foreground-muted">{footer}</div>}

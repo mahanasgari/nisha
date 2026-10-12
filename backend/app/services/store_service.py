@@ -87,7 +87,7 @@ def update_store(db: Session, store: Store, data: StoreUpdate) -> Store:
         and not is_platform_guest_checkout_enabled(db)
     ):
         raise ServiceError(
-            "خرید مهمان در سطح پلتفرم غیرفعال است و امکان فعال‌سازی آن وجود ندارد.",
+            "خرید مهمان فعلاً در کل نیشا خاموش است و فعال نمی‌شود.",
             status_code=422,
         )
 

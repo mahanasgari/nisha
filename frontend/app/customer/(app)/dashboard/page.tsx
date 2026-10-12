@@ -24,7 +24,7 @@ export default function CustomerDashboardPage() {
         const summary = await getDashboard();
         if (!cancelled) setData(summary);
       } catch {
-        if (!cancelled) setError("بارگذاری داشبورد ممکن نشد.");
+        if (!cancelled) setError("اطلاعات حساب باز نشد. صفحه را دوباره بارگذاری کنید.");
       }
     })();
     return () => {
@@ -33,22 +33,22 @@ export default function CustomerDashboardPage() {
   }, []);
 
   if (error) {
-    return <EmptyState title="داشبورد در دسترس نیست" description={error} />;
+    return <EmptyState title="اطلاعات باز نشد" description={error} />;
   }
 
   if (!data) {
-    return <LoadingState message="در حال بارگذاری داشبورد..." />;
+    return <LoadingState message="در حال بارگذاری…" />;
   }
 
   return (
     <div className="page-stack">
       <section className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-6">
         <StatTile label="سفارش‌ها" value={data.total_orders} />
-        <StatTile label="فعال" value={data.active_orders} />
-        <StatTile label="اعتراض‌ها" value={data.complaints} />
+        <StatTile label="سفارش‌های در جریان" value={data.active_orders} />
+        <StatTile label="شکایت‌ها" value={data.complaints} />
         <StatTile label="دانلودها" value={data.downloads} />
         <StatTile label="گفتگوها" value={data.chats} />
-        <StatTile label="نظرات" value={data.reviews} />
+        <StatTile label="نظرها" value={data.reviews} />
       </section>
 
       <div className="grid gap-6 xl:grid-cols-[2fr_1fr]">
@@ -62,8 +62,8 @@ export default function CustomerDashboardPage() {
           <CardContent className="space-y-4">
             {data.recent_orders.length === 0 ? (
               <EmptyState
-                title="هنوز سفارشی ثبت نشده"
-                description="تاریخچه سفارش شما پس از پرداخت یا ثبت فاکتور قدیمی اینجا نمایش داده می‌شود."
+                title="هنوز سفارشی ندارید"
+                description="سفارش‌هایی که با این حساب ثبت کنید، اینجا می‌آیند. سفارش قدیمی را هم می‌توانید با کد فاکتور اضافه کنید."
               />
             ) : (
               data.recent_orders.map((order) => (
@@ -84,7 +84,7 @@ export default function CustomerDashboardPage() {
                   <div className="text-sm text-foreground">
                     <p>{formatMoney(order.total_amount)}</p>
                     <p className="text-xs text-foreground-muted">
-                      تحویل: {deliveryReceiptLabel(order.receipt_status)} | اعتراض‌ها: {order.complaint_count}
+                      تحویل: {deliveryReceiptLabel(order.receipt_status)} | شکایت‌ها: {order.complaint_count}
                     </p>
                   </div>
                 </ListRow>
@@ -137,9 +137,9 @@ export default function CustomerDashboardPage() {
               <CardTitle>پیام‌ها</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm text-foreground">
-              <p>{data.chats} رشته گفتگو با فروشندگان و پشتیبانی سفارش دارید.</p>
+              <p>{data.chats} گفتگو با فروشنده‌ها دارید.</p>
               <Link href={paths.customer.conversations} className="inline-block text-brand hover:underline">
-                باز کردن صندوق پیام
+                دیدن پیام‌ها
               </Link>
             </CardContent>
           </Card>

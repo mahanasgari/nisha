@@ -51,7 +51,7 @@ export default function SellerCustomersPage() {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <PageHeader description="مشتری‌ها و خریدارانی که از فروشگاهت سفارش داده‌اند یا پیام گذاشته‌اند" />
+      <PageHeader description="کسانی که از فروشگاه شما خرید کرده‌اند یا پیام داده‌اند" />
 
       <div className="max-w-md">
         <Input
@@ -67,8 +67,8 @@ export default function SellerCustomersPage() {
         <TableSkeleton rows={6} columns={5} />
       ) : items.length === 0 ? (
         <EmptyState
-          title="هنوز مشتری‌ای ثبت نشده"
-          description="با اولین سفارش یا گفتگو، مشتری‌ها اینجا دیده می‌شوند."
+          title="هنوز مشتری‌ای ندارید"
+          description="با اولین سفارش یا پیام، مشتری‌ها اینجا اضافه می‌شوند."
         />
       ) : (
         <>

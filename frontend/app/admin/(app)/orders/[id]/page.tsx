@@ -97,7 +97,7 @@ export default function AdminOrderDetailPage({ params }: PageProps) {
       { id: "overview" as const, label: "نمای کلی" },
       { id: "submissions" as const, label: "ارسال‌ها" },
       { id: "chat" as const, label: `گفتگو${data?.conversation ? "" : " (بدون گفتگو)"}` },
-      { id: "complaints" as const, label: `اعتراض‌ها (${data?.complaints.length ?? 0})` },
+      { id: "complaints" as const, label: `شکایت‌ها (${data?.complaints.length ?? 0})` },
       { id: "audit" as const, label: `لاگ‌های نظارتی (${data?.audit_logs.length ?? 0})` },
     ],
     [data],
@@ -119,13 +119,13 @@ export default function AdminOrderDetailPage({ params }: PageProps) {
       toast.success("سفارش به‌روزرسانی شد");
       await refetch();
     } catch {
-      toast.error("به‌روزرسانی سفارش ناموفق بود");
+      toast.error("به‌روزرسانی سفارش انجام نشد. دوباره امتحان کنید.");
     } finally {
       setSaving(false);
     }
   }
 
-  if (isLoading) return <LoadingState message="در حال بارگذاری سفارش..." />;
+  if (isLoading) return <LoadingState message="در حال بارگذاری سفارشâ¦" />;
 
   if (error || !data || !draft) {
     return (
@@ -174,7 +174,7 @@ export default function AdminOrderDetailPage({ params }: PageProps) {
         </Card>
         <Card>
           <CardContent className="space-y-3">
-            <p className="text-xs uppercase tracking-[0.2em] text-foreground-muted">تعداد اعتراض</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-foreground-muted">تعداد شکایت</p>
             <p className="text-2xl font-bold text-foreground">{data.complaint_count}</p>
           </CardContent>
         </Card>
@@ -420,7 +420,7 @@ export default function AdminOrderDetailPage({ params }: PageProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             {!conversation ? (
-              <EmptyState title="گفتگویی وجود ندارد" description="برای این سفارش هنوز اتاق گفتگویی ایجاد نشده است." />
+              <EmptyState title="گفتگویی وجود ندارد" description="خریدار و فروشنده هنوز درباره این سفارش گفتگو نکرده‌اند." />
             ) : (
               <div className="space-y-3">
                 {conversation.messages.length === 0 ? (
@@ -473,13 +473,13 @@ export default function AdminOrderDetailPage({ params }: PageProps) {
       {activeTab === "complaints" && (
         <Card>
           <CardHeader>
-            <CardTitle>اعتراض‌ها</CardTitle>
+            <CardTitle>شکایت‌ها</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {data.complaints.length === 0 ? (
               <EmptyState
-                title="اعتراضی ثبت نشده"
-                description="مشتریان برای این سفارش اعتراضی درباره عدم تحویل ثبت نکرده‌اند."
+                title="شکایتی ثبت نشده"
+                description="برای این سفارش شکایتی ثبت نشده است."
               />
             ) : (
               data.complaints.map((complaint) => (

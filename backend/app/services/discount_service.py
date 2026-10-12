@@ -19,9 +19,9 @@ from app.services.exceptions import ServiceError
 INVALID_CODE_MESSAGE = "کد تخفیف معتبر نیست"
 NOT_STARTED_MESSAGE = "کد تخفیف هنوز فعال نشده است"
 EXPIRED_MESSAGE = "کد تخفیف منقضی شده است"
-MAX_USES_MESSAGE = "سقف استفاده از این کد تخفیف تکمیل شده است"
-MIN_ORDER_MESSAGE = "مبلغ سفارش به حداقل لازم برای این کد تخفیف نمی‌رسد"
-DUPLICATE_CODE_MESSAGE = "کد تخفیفی با این نام قبلا ثبت شده است"
+MAX_USES_MESSAGE = "ظرفیت استفاده از این کد تخفیف تمام شده است."
+MIN_ORDER_MESSAGE = "مبلغ سفارش به حداقل لازم برای این کد تخفیف نمی‌رسد."
+DUPLICATE_CODE_MESSAGE = "کد تخفیفی با همین نام دارید؛ نام دیگری انتخاب کنید."
 NOT_FOUND_MESSAGE = "کد تخفیف پیدا نشد"
 
 
@@ -56,9 +56,9 @@ def list_discounts(db: Session, store_id: int) -> list[DiscountCode]:
 
 def _validate_type_fields(discount_type: str, percent_off, amount_off) -> None:
     if discount_type == DISCOUNT_TYPE_PERCENT and percent_off is None:
-        raise ServiceError("برای تخفیف درصدی مقدار درصد الزامی است", status_code=422)
+        raise ServiceError("درصد تخفیف را وارد کنید.", status_code=422)
     if discount_type == DISCOUNT_TYPE_FIXED and amount_off is None:
-        raise ServiceError("برای تخفیف مبلغی مقدار مبلغ الزامی است", status_code=422)
+        raise ServiceError("مبلغ تخفیف را وارد کنید.", status_code=422)
 
 
 def create_discount(db: Session, store_id: int, payload: DiscountCodeCreate) -> DiscountCode:

@@ -82,7 +82,7 @@ export default function AdminComplaintsPage() {
       });
       await refetch();
     } catch {
-      toast.error("به‌روزرسانی شکایت ناموفق بود");
+      toast.error("به‌روزرسانی شکایت انجام نشد. دوباره امتحان کنید.");
     } finally {
       setActionId(null);
     }

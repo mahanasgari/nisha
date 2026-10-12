@@ -120,7 +120,7 @@ def test_checkout_requires_variant_for_variant_products(client, public_store):
         json=_order_payload(product["id"], None, public_store["payment_method_id"]),
     )
     assert resp.status_code == 422
-    assert "واریانت" in resp.json()["detail"]
+    assert "تنوع" in resp.json()["detail"]
 
 
 def test_checkout_rejects_unknown_variant(client, public_store):

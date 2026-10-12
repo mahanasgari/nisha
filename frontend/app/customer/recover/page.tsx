@@ -35,7 +35,7 @@ export default function CustomerRecoverPage() {
       setHint(res.delivery_hint);
       setDebugCode(res.debug_code);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "شروع بازیابی ممکن نشد");
+      setError(err instanceof ApiError ? err.message : "کد بازیابی ارسال نشد. دوباره امتحان کنید.");
     } finally {
       setLoading(false);
     }
@@ -55,7 +55,7 @@ export default function CustomerRecoverPage() {
       setSession(res.access_token, res.customer);
       router.replace(paths.customer.dashboard);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "بازیابی ناموفق بود");
+      setError(err instanceof ApiError ? err.message : "رمز تغییر نکرد. کد را دوباره بررسی کنید.");
     } finally {
       setLoading(false);
     }
@@ -67,7 +67,7 @@ export default function CustomerRecoverPage() {
         <div className="text-center">
           <h1 className="text-2xl font-semibold tracking-tight text-foreground max-md:text-xl">بازیابی رمز عبور</h1>
           <p className="mt-1 text-sm text-foreground-muted">
-            کد را با ایمیل یا پیامک دریافت کنید و سپس رمز جدید تعیین کنید.
+            یک کد برایتان می‌فرستیم؛ با آن رمز تازه بگذارید.
           </p>
         </div>
 
@@ -112,12 +112,12 @@ export default function CustomerRecoverPage() {
                 </Button>
                 {hint && (
                   <div className="rounded-lg bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
-                    <p>راهنمای تحویل: {hint}</p>
+                    <p>کد فرستاده شد به: {hint}</p>
                   </div>
                 )}
                 {debugCode && process.env.NODE_ENV !== "production" && (
                   <div className="rounded-lg bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
-                    <p>کد توسعه: {debugCode}</p>
+                    <p>کد آزمایشی (فقط محیط توسعه): {debugCode}</p>
                   </div>
                 )}
               </form>

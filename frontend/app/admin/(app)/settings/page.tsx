@@ -42,13 +42,13 @@ export default function AdminSettingsPage() {
       toast.success("تنظیمات پلتفرم ذخیره شد");
       await refetch();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "ذخیره تنظیمات ناموفق بود");
+      toast.error(err instanceof ApiError ? err.message : "ذخیره تنظیمات انجام نشد. دوباره امتحان کنید.");
     } finally {
       setSaving(false);
     }
   }
 
-  if (isLoading) return <LoadingState message="در حال بارگذاری تنظیمات..." />;
+  if (isLoading) return <LoadingState message="در حال بارگذاری تنظیماتâ¦" />;
 
   return (
     <div className="space-y-6">
@@ -82,11 +82,11 @@ export default function AdminSettingsPage() {
         </CardHeader>
         <CardContent className="space-y-3">
           <p className="text-sm text-foreground-muted">
-            فروشندگان برای خرید پلن، مبلغ را به این کارت واریز می‌کنند. فروشنده این کارت را بعد از
-            ایجاد فاکتور در صفحه اشتراک می‌بیند.
+            فروشنده‌ها برای خرید پلن، مبلغ را به این کارت واریز می‌کنند. فروشنده بعد از ساختن فاکتور،
+            این کارت را در صفحه اشتراک می‌بیند.
           </p>
           {!cardNumber.trim() && (
-            <ErrorAlert message="شماره کارت اشتراک خالی است — تا وقتی پر نشود، soft launch اشتراک فروشنده بلاک می‌شود." />
+            <ErrorAlert message="شماره کارت اشتراک خالی است. تا پرش نکنید، فروشنده‌ها نمی‌توانند پلن بخرند." />
           )}
           <Input label="شماره کارت" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
           <Input label="نام صاحب کارت" value={cardOwner} onChange={(e) => setCardOwner(e.target.value)} />

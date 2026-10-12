@@ -96,7 +96,7 @@ export default function SellerOrdersPage() {
       await downloadOrderInvoice(() => ordersApi.downloadInvoice(orderId), invoiceCode);
       toast.success("فاکتور دانلود شد");
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "دانلود فاکتور ناموفق بود");
+      toast.error(err instanceof ApiError ? err.message : "فاکتور دانلود نشد. دوباره امتحان کنید.");
     } finally {
       setDownloadingId(null);
     }
@@ -106,9 +106,9 @@ export default function SellerOrdersPage() {
     setExporting(true);
     try {
       await exportsApi.downloadCsv(() => exportsApi.exportOrdersCsv(), "orders.csv");
-      toast.success("خروجی سفارش‌ها دانلود شد");
+      toast.success("فایل اکسل سفارش‌ها دانلود شد");
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "خروجی‌گیری ناموفق بود");
+      toast.error(err instanceof ApiError ? err.message : "فایل خروجی ساخته نشد. دوباره امتحان کنید.");
     } finally {
       setExporting(false);
     }
@@ -117,7 +117,7 @@ export default function SellerOrdersPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        description="بین بررسی پرداخت و پردازش سفارش تقسیم شده است"
+        description="اول پرداخت‌ها را بررسی کنید، بعد سفارش‌ها را آماده و ارسال کنید"
         action={
           canExport ? (
             <Button type="button" variant="secondary" loading={exporting} onClick={() => void handleExport()}>
@@ -131,7 +131,7 @@ export default function SellerOrdersPage() {
         <div className="flex-1">
           <Input
             label="جستجو"
-            placeholder="فاکتور، نام خریدار یا تلفن"
+            placeholder="کد فاکتور، نام خریدار یا تلفن"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -140,8 +140,8 @@ export default function SellerOrdersPage() {
 
       <Tabs
         items={[
-          { key: "payment", label: `تأیید پرداخت (${paymentOrders.length})` },
-          { key: "processing", label: `پردازش سفارش (${processingOrders.length})` },
+          { key: "payment", label: `بررسی پرداخت (${paymentOrders.length})` },
+          { key: "processing", label: `آماده‌سازی و ارسال (${processingOrders.length})` },
         ]}
         activeKey={activeTab}
         onChange={(key) => setActiveTab(key as TabKey)}
@@ -151,13 +151,13 @@ export default function SellerOrdersPage() {
         <ErrorAlert message={!isLoading && error ? error : ""} />
 
         {!isLoading && !error && data && data.total === 0 && (
-          <EmptyState title="سفارشی پیدا نشد" description="جستجوی خود را تغییر دهید." />
+          <EmptyState title="سفارشی پیدا نشد" description="عبارت دیگری جستجو کنید." />
         )}
 
         {!isLoading && visibleItems.length === 0 && data && data.total > 0 && (
           <EmptyState
-            title="در این بخش سفارشی نیست"
-            description="در این صفحه سفارش منطبق با این تب وجود ندارد."
+            title="فعلاً سفارشی در این بخش نیست"
+            description="سفارش‌های جدید که برسند، اینجا نمایش داده می‌شوند."
           />
         )}
 
@@ -170,7 +170,7 @@ export default function SellerOrdersPage() {
                   <TableHeaderCell>تلفن</TableHeaderCell>
                   <TableHeaderCell>مجموع</TableHeaderCell>
                   <TableHeaderCell>وضعیت</TableHeaderCell>
-                  <TableHeaderCell>ایجاد شده</TableHeaderCell>
+                  <TableHeaderCell>تاریخ ثبت</TableHeaderCell>
                   <TableHeaderCell>عملیات</TableHeaderCell>
               </TableRow>
             </TableHead>

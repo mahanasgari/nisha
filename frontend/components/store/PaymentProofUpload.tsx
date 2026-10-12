@@ -29,22 +29,22 @@ export function PaymentProofUpload({
     e.preventDefault();
     setError(null);
     if (!file) {
-      setError("لطفا یک فایل تصویر انتخاب کنید.");
+      setError("عکس رسید را انتخاب کنید.");
       return;
     }
     if (!password.trim()) {
-      setError("رمز فاکتور الزامی است.");
+      setError("رمز فاکتور را وارد کنید.");
       return;
     }
     setLoading(true);
     try {
       await ordersApi.uploadPaymentProof(invoiceCode, password.trim(), file);
-      toast.success("رسید پرداخت ثبت شد. فروشنده پس از بررسی، پرداخت را تایید می‌کند.");
+      toast.success("رسید پرداخت ثبت شد. فروشنده بعد از بررسی، پرداخت را تایید می‌کند.");
       setFile(null);
       if (fileRef.current) fileRef.current.value = "";
       onSuccess?.();
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : "بارگذاری ناموفق بود";
+      const msg = err instanceof ApiError ? err.message : "رسید ارسال نشد. دوباره امتحان کنید.";
       setError(msg);
       toast.error(msg);
     } finally {
@@ -56,7 +56,7 @@ export function PaymentProofUpload({
     <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-border bg-surface p-4">
       <h3 className="font-semibold text-foreground">بارگذاری رسید پرداخت</h3>
       <p className="text-sm text-foreground-muted">
-        از پرداخت خود یک اسکرین‌شات یا عکس بارگذاری کنید. فروشنده پس از بررسی آن را تایید می‌کند.
+        از رسید کارت‌به‌کارت عکس یا اسکرین‌شات بگیرید و اینجا بارگذاری کنید. فروشنده بعد از بررسی، پرداخت را تایید می‌کند.
       </p>
       {error && (
         <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-700 dark:text-red-200" role="alert">
@@ -71,7 +71,7 @@ export function PaymentProofUpload({
         required
       />
       <div className="space-y-1.5">
-        <label className="block text-sm font-medium text-foreground">فایل تصویر</label>
+        <label className="block text-sm font-medium text-foreground">عکس رسید</label>
         <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-surface-muted px-4 py-2 text-sm text-foreground hover:bg-surface">
           <input
             ref={fileRef}
@@ -80,7 +80,7 @@ export function PaymentProofUpload({
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             className="hidden"
           />
-          {file ? file.name : "انتخاب فایل"}
+          {file ? file.name : "انتخاب عکس"}
         </label>
       </div>
       <Button type="submit" loading={loading} disabled={!file}>

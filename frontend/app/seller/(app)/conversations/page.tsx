@@ -17,7 +17,7 @@ export default function SellerConversationsPage() {
 
   return (
     <div className="page-stack">
-      <PageHeader description="با مشتریان خود گفتگو کنید" />
+      <PageHeader description="پیام‌های مشتری‌ها" />
 
       {isLoading && <TableSkeleton rows={5} columns={1} />}
 
@@ -26,7 +26,7 @@ export default function SellerConversationsPage() {
       {!isLoading && data?.length === 0 && (
         <EmptyState
           title="هنوز پیامی ندارید"
-          description="وقتی مشتریان به فروشگاه شما پیام دهند، گفتگوها اینجا نمایش داده می‌شوند."
+          description="وقتی مشتری‌ای از فروشگاه پیام بدهد، اینجا می‌بینید."
         />
       )}
 

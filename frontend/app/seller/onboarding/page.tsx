@@ -26,7 +26,7 @@ export default function SellerOnboardingPage() {
   }, [authLoading, user, router]);
 
   if (authLoading || (!user && !error)) {
-    return <LoadingState message="چند لحظه صبر کن، داریم فروشگاهت را آماده می‌کنیم…" />;
+    return <LoadingState message="چند لحظه صبر کنید؛ در حال آماده‌کردن فروشگاه شما هستیم…" />;
   }
 
   if (!user || user.role !== "SELLER") {
@@ -34,11 +34,11 @@ export default function SellerOnboardingPage() {
   }
 
   if (isLoading) {
-    return <LoadingState message="چند لحظه صبر کن، داریم فروشگاهت را آماده می‌کنیم…" />;
+    return <LoadingState message="چند لحظه صبر کنید؛ در حال آماده‌کردن فروشگاه شما هستیم…" />;
   }
 
   if (error || !data) {
-    return <ErrorAlert message={error ?? "بارگذاری مراحل شروع ممکن نشد"} />;
+    return <ErrorAlert message={error ?? "مراحل راه‌اندازی باز نشد. صفحه را دوباره بارگذاری کنید."} />;
   }
 
   return <SellerOnboardingExperience data={data} />;

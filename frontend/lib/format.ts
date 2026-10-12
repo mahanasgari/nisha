@@ -31,12 +31,12 @@ export function formatDate(iso: string): string {
 export function paymentMethodTypeLabel(type: string): string {
   if (type === "CARD_TO_CARD") return "کارت‌به‌کارت";
   if (type === "CRYPTO") return "رمزارز";
-  if (type === "EXTERNAL_GATEWAY") return "درگاه خارجی";
+  if (type === "EXTERNAL_GATEWAY") return "درگاه پرداخت";
   return type;
 }
 
 const COMPLAINT_REASON_LABELS: Record<string, string> = {
-  NON_DELIVERY: "عدم تحویل",
+  NON_DELIVERY: "سفارش نرسید",
   DAMAGED: "آسیب‌دیده",
   WRONG_ITEM: "کالای اشتباه",
   OTHER: "سایر",

@@ -39,7 +39,7 @@ export default function SellerDashboardPage() {
   if (isLoading) {
     return (
       <div className="space-y-4 md:space-y-6">
-        <PageHeader description="نمای کلی عملکرد فروشگاه شما" />
+        <PageHeader description="وضعیت فروشگاه شما در یک نگاه" />
         <StatCardSkeleton count={6} />
         <TableSkeleton rows={3} columns={4} />
       </div>
@@ -49,8 +49,8 @@ export default function SellerDashboardPage() {
   if (error || !data) {
     return (
       <div className="space-y-4 md:space-y-6">
-        <PageHeader description="نمای کلی عملکرد فروشگاه شما" />
-        <ErrorAlert message={error ?? "بارگذاری داشبورد ممکن نشد"} />
+        <PageHeader description="وضعیت فروشگاه شما در یک نگاه" />
+        <ErrorAlert message={error ?? "داشبورد باز نشد. صفحه را دوباره بارگذاری کنید."} />
       </div>
     );
   }
@@ -66,9 +66,9 @@ export default function SellerDashboardPage() {
       setData((current) =>
         current ? { ...current, onboarding_status: "SKIPPED" } : current,
       );
-      toast.success("راه‌اندازی رد شد؛ هر وقت خواستی از تنظیمات ادامه بده.");
+      toast.success("باشد؛ هر وقت خواستید، از تنظیمات ادامه بدهید.");
     } catch {
-      toast.error("رد کردن راه‌اندازی ممکن نشد. دوباره امتحان کن.");
+      toast.error("انجام نشد. دوباره امتحان کنید.");
     } finally {
       setSkipping(false);
     }
@@ -77,7 +77,7 @@ export default function SellerDashboardPage() {
   return (
     <div className="space-y-4 md:space-y-6">
       <PageHeader
-        description="نمای کلی فروشگاهت؛ سفارش‌ها و درآمد را یک‌جا ببین"
+        description="سفارش‌ها و درآمد فروشگاه، یک‌جا"
         action={
           <div className="flex flex-wrap items-center gap-2">
             {plan && (
@@ -103,7 +103,7 @@ export default function SellerDashboardPage() {
         <Card className="border-brand/20 bg-brand/5 shadow-sm">
           <CardContent className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0 space-y-1">
-              <p className="text-sm font-semibold text-foreground">راه‌اندازی فروشگاه ناتمام است</p>
+              <p className="text-sm font-semibold text-foreground">راه‌اندازی فروشگاه هنوز تمام نشده</p>
               <p className="text-xs text-foreground-muted">
                 {readinessPercent}% تکمیل
                 {data.store_readiness_missing_tasks.length > 0
@@ -122,7 +122,7 @@ export default function SellerDashboardPage() {
                 ادامه
               </Link>
               <Button type="button" variant="ghost" size="sm" loading={skipping} onClick={() => void skipOnboarding()}>
-                فعلاً رد کن
+                فعلاً نه
               </Button>
             </div>
           </CardContent>
@@ -135,7 +135,7 @@ export default function SellerDashboardPage() {
         <StatCard label="درآمد تاییدشده" value={formatMoney(data.confirmed_revenue)} />
         <StatCard label="درآمد در انتظار" value={formatMoney(data.pending_revenue)} />
         <StatCard label="درآمد امروز" value={formatMoney(data.today_revenue)} />
-        <StatCard label="پرداخت بارگذاری‌شده" value={data.payment_uploaded_orders} />
+        <StatCard label="رسیدهای منتظر بررسی" value={data.payment_uploaded_orders} />
       </div>
 
       {/* Recent orders has four columns; give it the wider track so totals are not clipped. */}
@@ -146,7 +146,7 @@ export default function SellerDashboardPage() {
           </CardHeader>
           <CardContent>
             {data.low_stock_products.length === 0 ? (
-              <EmptyState title="مورد کم‌موجودی ندارید" description="همه محصولات موجودی کافی دارند." />
+              <EmptyState title="موجودی همه محصول‌ها کافی است" description="وقتی موجودی محصولی کم شود، اینجا خبر می‌دهیم." />
             ) : (
               <Table embedded>
                 <TableHead>
@@ -176,7 +176,7 @@ export default function SellerDashboardPage() {
           </CardHeader>
           <CardContent>
             {data.recent_orders.length === 0 ? (
-              <EmptyState title="هنوز سفارشی ثبت نشده" description="سفارش‌ها اینجا نمایش داده می‌شوند." />
+              <EmptyState title="هنوز سفارشی ندارید" description="لینک فروشگاه را برای مشتری‌ها بفرستید؛ سفارش‌ها اینجا می‌آیند." />
             ) : (
               <Table embedded>
                 <TableHead>

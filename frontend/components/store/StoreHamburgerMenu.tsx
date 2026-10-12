@@ -9,7 +9,7 @@ import { cn } from "@/lib/cn";
 import type { PublicProductCategory } from "@/types/public/store";
 
 const MORE_LINKS = [
-  { href: paths.trackOrder, label: "پیگیری سفارش", hint: "وضعیت سفارش با کد فاکتور" },
+  { href: paths.trackOrder, label: "پیگیری سفارش", hint: "با کد و رمز فاکتور" },
   { href: paths.terms, label: "قوانین" },
   { href: paths.privacy, label: "حریم خصوصی" },
   { href: paths.complaintsPolicy, label: "ثبت شکایت" },
@@ -68,7 +68,7 @@ export function StoreHamburgerMenu({ open, onClose, storeName }: StoreHamburgerM
       },
       {
         state: slug ? "searching" : "breathing",
-        label: slug ? "در حال رفتن به دسته..." : "نمایش همه محصولات...",
+        label: slug ? "در حال باز کردن دسته…" : "نمایش همه محصول‌ها…",
       },
     );
   }
@@ -130,7 +130,7 @@ export function StoreHamburgerMenu({ open, onClose, storeName }: StoreHamburgerM
               </button>
             </li>
             {tree.length === 0 ? (
-              <li className="px-3 py-2 text-xs text-foreground-muted">هنوز دسته‌ای تعریف نشده است.</li>
+              <li className="px-3 py-2 text-xs text-foreground-muted">این فروشگاه هنوز دسته‌بندی ندارد.</li>
             ) : (
               tree.map((node) => {
                 const hasChildren = node.children.length > 0;

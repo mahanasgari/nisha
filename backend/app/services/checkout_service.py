@@ -107,13 +107,13 @@ def _build_line_items(
         if active_variants:
             if item.variant_id is None:
                 raise ServiceError(
-                    f"انتخاب واریانت برای «{product.title}» الزامی است",
+                    f"برای «{product.title}» یکی از تنوع‌ها (مثل سایز یا رنگ) را انتخاب کنید",
                     status_code=422,
                 )
             variant = next((v for v in active_variants if v.id == item.variant_id), None)
             if variant is None:
                 raise ServiceError(
-                    f"واریانت انتخاب‌شده برای «{product.title}» معتبر نیست",
+                    f"تنوع انتخاب‌شده برای «{product.title}» دیگر موجود نیست",
                     status_code=422,
                 )
             if item.quantity > variant.stock_quantity:
@@ -129,7 +129,7 @@ def _build_line_items(
         else:
             if item.variant_id is not None:
                 raise ServiceError(
-                    f"محصول «{product.title}» واریانت ندارد",
+                    f"محصول «{product.title}» تنوعی ندارد",
                     status_code=422,
                 )
             if item.quantity > product.stock_quantity:
@@ -293,7 +293,7 @@ def create_guest_order(
 
     if customer_id is None and not is_guest_checkout_enabled(db, store):
         raise ServiceError(
-            "خرید مهمان برای این فروشگاه غیرفعال است. لطفاً وارد حساب کاربری شوید.",
+            "این فروشگاه خرید بدون حساب را نمی‌پذیرد. لطفاً وارد حساب کاربری شوید.",
             status_code=403,
         )
 
@@ -301,22 +301,22 @@ def create_guest_order(
         entitlements = get_seller_entitlements(db, store.owner_id)
         if not entitlements.get("guest_checkout"):
             raise ServiceError(
-                "خرید مهمان برای این فروشگاه در دسترس نیست.",
+                "خرید بدون حساب در این فروشگاه فعال نیست.",
                 status_code=403,
             )
 
     if not data.items:
-        raise ServiceError("سبد خرید نمی‌تواند خالی باشد", status_code=422)
+        raise ServiceError("سبد خرید خالی است.", status_code=422)
 
     if not data.buyer_name.strip():
-        raise ServiceError("نام گیرنده الزامی است", status_code=422)
+        raise ServiceError("نام گیرنده را وارد کنید.", status_code=422)
 
     if not data.buyer_address.strip():
-        raise ServiceError("آدرس الزامی است", status_code=422)
+        raise ServiceError("آدرس تحویل را وارد کنید.", status_code=422)
 
     phone = data.buyer_phone.strip()
     if not re.match(r"^\+?[\d\s\-()]{7,20}$", phone):
-        raise ServiceError("شماره تماس نامعتبر است", status_code=422)
+        raise ServiceError("شماره تماس درست نیست؛ شماره موبایل ۱۱ رقمی وارد کنید.", status_code=422)
 
     try:
         products_by_id = _load_products_for_update(db, store.id, data.items)

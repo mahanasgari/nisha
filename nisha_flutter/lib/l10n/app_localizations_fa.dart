@@ -12,7 +12,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get appTitle => 'نیشا';
 
   @override
-  String get appSubtitle => 'پلتفرم تجاری با تم بنفش و مشکی';
+  String get appSubtitle => 'فروشگاه‌ساز کارت‌به‌کارت';
 
   @override
   String get language => 'زبان';
@@ -27,7 +27,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get themeLight => 'روشن';
 
   @override
-  String get themeDark => 'تاریک';
+  String get themeDark => 'تیره';
 
   @override
   String get languagePersian => 'فارسی';
@@ -42,8 +42,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get trackOrder => 'پیگیری سفارش';
 
   @override
-  String get trackOrderSubtitle =>
-      'سفارش مهمان را با کد فاکتور و رمز مشاهده کنید.';
+  String get trackOrderSubtitle => 'با کد و رمز فاکتور، وضعیت سفارش را ببینید.';
 
   @override
   String get loginSeller => 'ورود فروشنده';
@@ -70,7 +69,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get signIn => 'ورود';
 
   @override
-  String get signUp => 'ایجاد حساب';
+  String get signUp => 'ساخت حساب';
 
   @override
   String get email => 'ایمیل';
@@ -91,7 +90,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get invoiceCode => 'کد فاکتور';
 
   @override
-  String get storeSlug => 'شناسه فروشگاه';
+  String get storeSlug => 'آدرس فروشگاه';
 
   @override
   String get buyerName => 'نام خریدار';
@@ -100,23 +99,23 @@ class AppLocalizationsFa extends AppLocalizations {
   String get buyerPhone => 'تلفن خریدار';
 
   @override
-  String get buyerAddress => 'آدرس خریدار';
+  String get buyerAddress => 'آدرس تحویل';
 
   @override
-  String get heroTitle => 'ویترین یکپارچه برای همه نقش‌ها';
+  String get heroTitle => 'فروشگاه آنلاین بسازید، کارت‌به‌کارت بفروشید';
 
   @override
   String get heroSubtitle =>
-      'خرید، فروش، مدیریت و پشتیبانی را در یک تجربه فارسی‌محور انجام دهید.';
+      'بدون کارمزد روی سفارش‌ها؛ سفارش، محصول و پیام‌ها را از همین‌جا مدیریت کنید.';
 
   @override
-  String get openSellerSpace => 'ورود به فضای فروشنده';
+  String get openSellerSpace => 'ورود به پنل فروشنده';
 
   @override
-  String get openCustomerSpace => 'ورود به فضای مشتری';
+  String get openCustomerSpace => 'ورود به حساب مشتری';
 
   @override
-  String get openAdminSpace => 'ورود به فضای مدیریت';
+  String get openAdminSpace => 'ورود به پنل مدیریت';
 
   @override
   String get quickActions => 'دسترسی سریع';
@@ -137,32 +136,31 @@ class AppLocalizationsFa extends AppLocalizations {
   String get guestMode => 'حالت مهمان';
 
   @override
-  String get sellerSpace => 'فضای فروشنده';
+  String get sellerSpace => 'پنل فروشنده';
 
   @override
-  String get customerSpace => 'فضای مشتری';
+  String get customerSpace => 'حساب مشتری';
 
   @override
-  String get adminSpace => 'فضای مدیریت';
+  String get adminSpace => 'پنل مدیریت';
 
   @override
-  String get publicSpace => 'فضای عمومی';
+  String get publicSpace => 'فروشگاه‌ها';
 
   @override
   String get publicSpaceDescription =>
-      'مرور فروشگاه‌ها، محصولات، پرداخت و فاکتور.';
+      'فروشگاه‌ها و محصول‌ها را ببینید، خرید کنید و سفارش را پیگیری کنید.';
 
   @override
   String get sellerSpaceDescription =>
-      'مدیریت محصولات، سفارش‌ها، روش‌های پرداخت و گفتگوها.';
+      'محصول‌ها، سفارش‌ها، روش‌های پرداخت و پیام‌های مشتری‌ها.';
 
   @override
   String get customerSpaceDescription =>
-      'بررسی سفارش‌ها، پروفایل، شکایت‌ها و دانلودها.';
+      'سفارش‌ها، اطلاعات حساب، شکایت‌ها و فاکتورها.';
 
   @override
-  String get adminSpaceDescription =>
-      'مدیریت فروشگاه‌ها، سفارش‌ها، نظرات و اتاق‌های گفتگو.';
+  String get adminSpaceDescription => 'فروشگاه‌ها، سفارش‌ها، نظرها و گفتگوها.';
 
   @override
   String get dashboard => 'داشبورد';
@@ -186,7 +184,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get profile => 'پروفایل';
 
   @override
-  String get reviews => 'نظرات';
+  String get reviews => 'نظرها';
 
   @override
   String get complaints => 'شکایت‌ها';
@@ -195,7 +193,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get downloads => 'دانلودها';
 
   @override
-  String get chats => 'چت‌ها';
+  String get chats => 'گفتگوها';
 
   @override
   String get stores => 'فروشگاه‌ها';
@@ -204,8 +202,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get appearanceSectionTitle => 'ظاهر';
 
   @override
-  String get appearanceSectionDescription =>
-      'تم و زبان کل برنامه را کنترل کنید.';
+  String get appearanceSectionDescription => 'تم و زبان برنامه را انتخاب کنید.';
 
   @override
   String get system => 'سیستم';
@@ -214,40 +211,41 @@ class AppLocalizationsFa extends AppLocalizations {
   String get light => 'روشن';
 
   @override
-  String get dark => 'تاریک';
+  String get dark => 'تیره';
 
   @override
-  String get sellerLoginTitle => 'فضای فروشنده';
+  String get sellerLoginTitle => 'ورود فروشنده';
 
   @override
-  String get sellerLoginSubtitle => 'برای مدیریت فروشگاه و فرایندها وارد شوید.';
+  String get sellerLoginSubtitle => 'برای مدیریت فروشگاه وارد شوید.';
 
   @override
   String get sellerRegisterTitle => 'ساخت حساب فروشنده';
 
   @override
-  String get sellerRegisterSubtitle => 'یک فضای فروشنده جدید در نیشا بسازید.';
+  String get sellerRegisterSubtitle =>
+      'رایگان شروع کنید؛ فروشگاه را بسازید و با کارت‌به‌کارت بفروشید.';
 
   @override
-  String get customerLoginTitle => 'فضای مشتری';
+  String get customerLoginTitle => 'ورود مشتری';
 
   @override
   String get customerLoginSubtitle =>
-      'برای پیگیری سفارش‌ها و مدیریت پروفایل وارد شوید.';
+      'برای دیدن سفارش‌ها و پیام دادن به فروشنده‌ها وارد شوید.';
 
   @override
   String get customerRegisterTitle => 'ساخت حساب مشتری';
 
   @override
   String get customerRegisterSubtitle =>
-      'سفارش‌ها، آدرس‌ها و گفتگوهای خود را ذخیره کنید.';
+      'سفارش‌ها، آدرس‌ها و گفتگوهایتان در حساب ذخیره می‌شود.';
 
   @override
   String get customerRecoverTitle => 'بازیابی حساب';
 
   @override
   String get customerRecoverSubtitle =>
-      'کد بگیرید و رمز عبور را با امنیت بازنشانی کنید.';
+      'یک کد برایتان می‌فرستیم؛ با آن رمز تازه بگذارید.';
 
   @override
   String get emailHint => 'name@example.com';
@@ -265,7 +263,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get postalCodeHint => 'کد پستی';
 
   @override
-  String get recoveryChannel => 'کانال بازیابی';
+  String get recoveryChannel => 'ارسال کد از طریق';
 
   @override
   String get channelEmail => 'ایمیل';
@@ -283,7 +281,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get newPassword => 'رمز عبور جدید';
 
   @override
-  String get confirmPassword => 'تأیید رمز عبور';
+  String get confirmPassword => 'تکرار رمز عبور';
 
   @override
   String get submit => 'ارسال';
@@ -292,7 +290,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get requestRecovery => 'دریافت کد';
 
   @override
-  String get verifyRecovery => 'تأیید کد';
+  String get verifyRecovery => 'تایید کد';
 
   @override
   String get backToHome => 'بازگشت به خانه';
@@ -307,24 +305,24 @@ class AppLocalizationsFa extends AppLocalizations {
   String get signInButton => 'ورود';
 
   @override
-  String get createAccountButton => 'ایجاد حساب';
+  String get createAccountButton => 'ساخت حساب';
 
   @override
   String fieldRequired(Object field) {
-    return '$field الزامی است';
+    return '$field را وارد کنید';
   }
 
   @override
   String get recoveryRequested => 'کد بازیابی ارسال شد.';
 
   @override
-  String get recoveryVerified => 'بازیابی تأیید شد.';
+  String get recoveryVerified => 'رمز شما تغییر کرد.';
 
   @override
-  String get loadFailed => 'در حال حاضر نتوانستیم این صفحه را بارگذاری کنیم.';
+  String get loadFailed => 'این صفحه باز نشد. اتصال اینترنت را بررسی کنید.';
 
   @override
-  String get retry => 'تلاش مجدد';
+  String get retry => 'دوباره امتحان کنید';
 
   @override
   String get comingSoon => 'به‌زودی';
@@ -336,8 +334,8 @@ class AppLocalizationsFa extends AppLocalizations {
   String get browseCatalog => 'مرور محصولات';
 
   @override
-  String get customerDashboard => 'پیشخوان مشتری';
+  String get customerDashboard => 'حساب من';
 
   @override
-  String get platformControl => 'کنترل پلتفرم';
+  String get platformControl => 'مدیریت نیشا';
 }

@@ -2,9 +2,9 @@ import { cn } from "@/lib/cn";
 import type { PublicPaymentMethod } from "@/types/public/store";
 
 const PAYMENT_TYPE_LABELS: Record<string, string> = {
-  CARD_TO_CARD: "کارت به کارت",
+  CARD_TO_CARD: "کارت‌به‌کارت",
   CRYPTO: "ارز دیجیتال",
-  EXTERNAL_GATEWAY: "درگاه پرداخت خارجی",
+  EXTERNAL_GATEWAY: "درگاه پرداخت",
 };
 
 type PaymentMethodSelectorProps = {
@@ -19,7 +19,7 @@ export function PaymentMethodSelector({
   onSelect,
 }: PaymentMethodSelectorProps) {
   if (methods.length === 0) {
-    return <p className="text-sm text-red-600 dark:text-red-400">برای این فروشگاه روش پرداختی ثبت نشده است.</p>;
+    return <p className="text-sm text-red-600 dark:text-red-400">این فروشگاه هنوز روش پرداختی ثبت نکرده است. لطفاً بعداً دوباره سر بزنید یا به فروشنده پیام بدهید.</p>;
   }
 
   return (

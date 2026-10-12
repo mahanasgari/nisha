@@ -27,7 +27,7 @@ function OrderRow({ order }: { order: CustomerOrderListItem }) {
       await downloadOrderInvoice(() => downloadInvoice(order.id), order.invoice_code);
       toast.success("فاکتور دانلود شد");
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "دانلود فاکتور ناموفق بود");
+      toast.error(err instanceof ApiError ? err.message : "فاکتور دانلود نشد. دوباره امتحان کنید.");
     } finally {
       setDownloading(false);
     }
@@ -48,7 +48,7 @@ function OrderRow({ order }: { order: CustomerOrderListItem }) {
       <div className="flex flex-col items-start gap-2 text-sm text-foreground sm:items-end">
         <p>{formatMoney(order.total_amount)}</p>
         <p className="text-xs text-foreground-muted">
-          تحویل: {deliveryReceiptLabel(order.receipt_status)} | اعتراض‌ها: {order.complaint_count}
+          تحویل: {deliveryReceiptLabel(order.receipt_status)} | شکایت‌ها: {order.complaint_count}
         </p>
         <Button variant="ghost" size="sm" loading={downloading} onClick={() => void handleDownload()}>
           دانلود فاکتور
@@ -86,7 +86,7 @@ export default function CustomerOrdersPage() {
         if (!cancelled) {
           setOrders([]);
           setActiveOrders([]);
-          toast.error("خطا در بارگذاری سفارش‌ها");
+          toast.error("سفارش‌ها باز نشد. صفحه را دوباره بارگذاری کنید.");
         }
       }
     })();
@@ -108,7 +108,7 @@ export default function CustomerOrdersPage() {
       setInvoicePassword("");
       await refresh();
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : "بازیابی سفارش ناموفق بود";
+      const message = err instanceof ApiError ? err.message : "سفارشی با این کد و رمز پیدا نشد.";
       setClaimError(message);
       toast.error(message);
     } finally {
@@ -117,14 +117,14 @@ export default function CustomerOrdersPage() {
   }
 
   if (!orders || !activeOrders) {
-    return <LoadingState message="در حال بارگذاری سفارش‌ها..." />;
+    return <LoadingState message="در حال بارگذاری سفارش‌ها…" />;
   }
 
   return (
     <div className="page-stack">
       <Card>
         <CardHeader>
-          <CardTitle>بازیابی سفارش قدیمی</CardTitle>
+          <CardTitle>افزودن سفارش قبلی به حساب</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleClaim} className="grid gap-4 md:grid-cols-[1fr_1fr_auto]">
@@ -143,7 +143,7 @@ export default function CustomerOrdersPage() {
             />
             <div className="flex items-end">
               <Button type="submit" loading={claimLoading}>
-                بازیابی
+                افزودن
               </Button>
             </div>
             {claimError && (
@@ -157,11 +157,11 @@ export default function CustomerOrdersPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>سفارش‌های فعال</CardTitle>
+          <CardTitle>سفارش‌های در جریان</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {activeOrders.length === 0 ? (
-            <EmptyState title="سفارش فعالی ندارید" description="در حال حاضر هیچ سفارش در حال پردازشی ندارید." />
+            <EmptyState title="سفارش در جریانی ندارید" description="همه سفارش‌هایتان تحویل شده یا بسته شده‌اند." />
           ) : (
             activeOrders.map((order) => <OrderRow key={order.id} order={order} />)
           )}
@@ -174,7 +174,7 @@ export default function CustomerOrdersPage() {
         </CardHeader>
         <CardContent className="space-y-3">
           {orders.length === 0 ? (
-            <EmptyState title="هنوز سفارشی ندارید" description="یک سفارش ثبت کنید یا فاکتوری را بازیابی کنید تا شروع شود." />
+            <EmptyState title="هنوز سفارشی ندارید" description="بعد از اولین خرید، سفارش‌ها اینجا نمایش داده می‌شوند." />
           ) : (
             orders.map((order) => <OrderRow key={order.id} order={order} />)
           )}

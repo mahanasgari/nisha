@@ -113,7 +113,7 @@ export function PlanPricingGrid({
                     : isFree
                       ? "شروع رایگان"
                       : busyCode === plan.code
-                        ? "در حال ایجاد فاکتور..."
+                        ? "در حال ایجاد فاکتورâ¦"
                         : "ادامه پرداخت"}
                 </button>
               )}

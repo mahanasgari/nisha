@@ -216,7 +216,7 @@ export default function AdminOrdersPage() {
                       <Badge variant={order.receipt_status === "RECEIVED" ? "success" : "neutral"}>
                         {deliveryReceiptLabel(order.receipt_status)}
                       </Badge>
-                      {order.complaint_count > 0 && <Badge variant="warning">{order.complaint_count} اعتراض</Badge>}
+                      {order.complaint_count > 0 && <Badge variant="warning">{order.complaint_count} شکایت</Badge>}
                     </div>
                   </TableCell>
                   <TableCell>{formatDateTime(order.created_at)}</TableCell>

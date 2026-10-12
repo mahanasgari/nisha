@@ -126,14 +126,14 @@ export function StorePageClient({ slug, initialData, initialError }: StorePageCl
           block: "start",
         });
       },
-      { state: "connecting", label: "رفتن به نظرات..." },
+      { state: "connecting", label: "رفتن به نظرها…" },
     );
   }
 
   function openAbout() {
     travelTo(() => setAboutOpen(true), {
       state: "listening",
-      label: "باز کردن درباره فروشگاه...",
+      label: "باز کردن معرفی فروشگاه…",
     });
   }
 
@@ -145,7 +145,7 @@ export function StorePageClient({ slug, initialData, initialError }: StorePageCl
   if (loading) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-6 py-16">
-        <OrbLoader state="weaving" size={64} label="در حال بارگذاری فروشگاه..." />
+        <OrbLoader state="weaving" size={64} label="در حال باز کردن فروشگاه…" />
         <div className="grid w-full max-w-3xl grid-cols-2 gap-2 opacity-40 sm:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="aspect-square w-full rounded-lg" />
@@ -160,7 +160,7 @@ export function StorePageClient({ slug, initialData, initialError }: StorePageCl
   }
 
   if (!data) {
-    return <EmptyState title="فروشگاه پیدا نشد" description="این فروشگاه وجود ندارد یا فعال نیست." />;
+    return <EmptyState title="فروشگاه پیدا نشد" description="این فروشگاه وجود ندارد یا فعلاً بسته است." />;
   }
 
   const { store, products, categories, review_summary } = data;
@@ -211,7 +211,7 @@ export function StorePageClient({ slug, initialData, initialError }: StorePageCl
             <p className={store.about_text ? "text-foreground-muted" : undefined}>{store.description}</p>
           ) : null}
           {!store.about_text && !store.description ? (
-            <p className="text-foreground-muted">توضیحی ثبت نشده است.</p>
+            <p className="text-foreground-muted">فروشنده هنوز معرفی‌ای ننوشته است.</p>
           ) : null}
 
           {(store.phone || store.website) && (
@@ -296,9 +296,9 @@ export function StorePageClient({ slug, initialData, initialError }: StorePageCl
               </svg>
             </span>
             <div>
-              <h2 className="text-base font-semibold text-foreground">نظرات خریداران</h2>
+              <h2 className="text-base font-semibold text-foreground">نظر خریداران</h2>
               <p className="mt-0.5 text-sm text-foreground-muted">
-                میانگین {ratingText} بر اساس {review_summary.review_count} نظر عمومی
+                میانگین {ratingText} از {review_summary.review_count} نظر
               </p>
             </div>
           </div>
@@ -307,8 +307,8 @@ export function StorePageClient({ slug, initialData, initialError }: StorePageCl
 
         {review_summary.recent_reviews.length === 0 ? (
           <EmptyState
-            title="هنوز نظری ثبت نشده"
-            description="این فروشگاه هنوز نظر عمومی تاییدشده‌ای ندارد."
+            title="هنوز نظری نیامده"
+            description="اولین خریدارها که نظر بدهند، اینجا نمایش داده می‌شود."
           />
         ) : (
           <div className="space-y-3">

@@ -75,7 +75,7 @@ export function AppearancePanel({ className }: AppearancePanelProps) {
     >
       <span className="text-[11px] font-medium text-foreground-muted">ظاهر پنل</span>
       <Segmented
-        ariaLabel="استایل پنل"
+        ariaLabel="سبک پنل"
         options={designStyles}
         value={designStyle}
         onChange={setDesignStyle}

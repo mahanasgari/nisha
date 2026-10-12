@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (payload: LoginRequest): Promise<User> => {
       const response = await authApi.login(payload);
       if (!response.access_token || !response.user) {
-        throw new ApiError(403, "ایمیل تأیید نشده است");
+        throw new ApiError(403, "ایمیل تایید نشده است");
       }
       setSession(response.access_token, response.user, response.refresh_token);
       return response.user;

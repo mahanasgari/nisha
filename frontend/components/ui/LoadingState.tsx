@@ -11,7 +11,7 @@ type LoadingStateProps = {
 };
 
 export function LoadingState({
-  message = "در حال بارگذاری...",
+  message = "در حال بارگذاری…",
   className,
   orbState = "breathing",
 }: LoadingStateProps) {

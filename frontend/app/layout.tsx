@@ -24,19 +24,19 @@ export const metadata: Metadata = {
     default: "نیشا",
     template: "%s | نیشا",
   },
-  description: "فروشگاه‌ساز و پنل مدیریت برای فروشندگان، مشتری‌ها و تیم پشتیبانی.",
+  description: "فروشگاه‌ساز کارت‌به‌کارت؛ فروشگاه آنلاین بسازید و بدون کارمزد بفروشید.",
   applicationName: "نیشا",
   manifest: "/manifest.json",
   openGraph: {
     title: "نیشا",
-    description: "فروشگاه‌ساز و پنل مدیریت برای فروشندگان، مشتری‌ها و تیم پشتیبانی.",
+    description: "فروشگاه‌ساز کارت‌به‌کارت؛ فروشگاه آنلاین بسازید و بدون کارمزد بفروشید.",
     type: "website",
     siteName: "نیشا",
   },
   twitter: {
     card: "summary_large_image",
     title: "نیشا",
-    description: "فروشگاه‌ساز و پنل مدیریت برای فروشندگان، مشتری‌ها و تیم پشتیبانی.",
+    description: "فروشگاه‌ساز کارت‌به‌کارت؛ فروشگاه آنلاین بسازید و بدون کارمزد بفروشید.",
   },
   appleWebApp: {
     capable: true,

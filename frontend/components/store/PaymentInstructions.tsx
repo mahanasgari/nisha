@@ -8,7 +8,7 @@ type PaymentInstructionsProps = {
 export function PaymentInstructions({ method }: PaymentInstructionsProps) {
   return (
     <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-950 dark:text-amber-100">
-      <p className="font-semibold">راهنمای پرداخت - {method.display_name}</p>
+      <p className="font-semibold">راهنمای پرداخت: {method.display_name}</p>
       {method.type === "CARD_TO_CARD" && (
         <div className="mt-2 space-y-1">
           {method.card_number && <p>کارت مقصد: {method.card_number}</p>}
@@ -25,7 +25,7 @@ export function PaymentInstructions({ method }: PaymentInstructionsProps) {
           rel="noopener noreferrer"
           className="mt-2 inline-block font-medium text-brand-deep hover:underline"
         >
-          پرداخت از طریق لینک خارجی
+          پرداخت با لینک
         </a>
       )}
       {method.instructions && <p className="mt-2">{method.instructions}</p>}

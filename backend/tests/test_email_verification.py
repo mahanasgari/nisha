@@ -35,7 +35,7 @@ def test_customer_register_requires_verification(client, db):
 
     template = TEMPLATES["email_verification"]
     subject = template.email_subject.format(**payload)
-    assert subject == "تأیید ایمیل نیشا"
+    assert subject == "تایید ایمیل نیشا"
     assert "\\u062" not in subject
 
     login = client.post(

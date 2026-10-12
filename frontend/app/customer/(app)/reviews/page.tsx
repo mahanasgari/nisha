@@ -20,7 +20,7 @@ import { createReview, getOrder, listOrders, listReviews } from "@/lib/api/custo
 import type { CustomerOrderDetail, CustomerReview } from "@/types/customer/order";
 
 const REVIEW_STATUS_LABELS: Record<CustomerReview["status"], string> = {
-  PRIVATE: "خصوصی",
+  PRIVATE: "فقط برای فروشنده",
   PENDING: "در انتظار بررسی",
   APPROVED: "تایید شد",
   REJECTED: "رد شد",
@@ -61,7 +61,7 @@ export default function CustomerReviewsPage() {
       } catch {
         if (!cancelled) {
           setOrders([]);
-          toast.error("خطا در بارگذاری سفارش‌ها");
+          toast.error("سفارش‌ها باز نشد. صفحه را دوباره بارگذاری کنید.");
         }
       }
     })();
@@ -73,7 +73,7 @@ export default function CustomerReviewsPage() {
       } catch {
         if (!cancelled) {
           setReviews([]);
-          toast.error("خطا در بارگذاری نظرات");
+          toast.error("نظرها باز نشد. صفحه را دوباره بارگذاری کنید.");
         }
       }
     })();
@@ -116,27 +116,27 @@ export default function CustomerReviewsPage() {
       setIsPublic(false);
       setRating(5);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "ذخیره نظر ممکن نشد");
+      setError(err instanceof ApiError ? err.message : "نظر ذخیره نشد. دوباره امتحان کنید.");
     } finally {
       setSaving(false);
     }
   }
 
   if (orders === null || reviews === null) {
-    return <LoadingState message="در حال بارگذاری نظرات..." />;
+    return <LoadingState message="در حال بارگذاری نظرها…" />;
   }
 
   return (
     <div className="page-stack">
       <Card>
         <CardHeader>
-          <CardTitle>یک سفارش خریداری‌شده را انتخاب کنید</CardTitle>
+          <CardTitle>برای کدام خرید نظر می‌دهید؟</CardTitle>
         </CardHeader>
         <CardContent>
           {orders.length === 0 ? (
             <EmptyState
               title="هنوز سفارش تحویل‌داده‌شده‌ای ندارید"
-              description="سفارش‌های تحویل‌داده‌شده اینجا نمایش داده می‌شوند تا بتوانید نظر ثبت کنید."
+              description="بعد از تحویل هر سفارش، می‌توانید اینجا درباره‌اش نظر بدهید."
             />
           ) : (
             <div className="grid gap-3 md:grid-cols-2">
@@ -183,7 +183,7 @@ export default function CustomerReviewsPage() {
         </CardHeader>
         <CardContent>
           {!selectedOrder ? (
-            <EmptyState title="ابتدا یک سفارش را انتخاب کنید" description="یک سفارش تحویل‌داده‌شده را از بالا انتخاب کنید." />
+            <EmptyState title="اول یک سفارش انتخاب کنید" description="از فهرست بالا، سفارشی را که تحویل گرفته‌اید انتخاب کنید." />
           ) : (
             <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
               <Input label="سفارش انتخاب‌شده" value={selectedOrder.invoice_code} readOnly />
@@ -213,7 +213,7 @@ export default function CustomerReviewsPage() {
               />
               <label className="flex items-center gap-2 text-sm text-neutral-700 md:col-span-2">
                 <input type="checkbox" checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)} />
-                برای تایید عمومی ارسال شود
+                نظرم بعد از تایید، در صفحه فروشگاه نمایش داده شود
               </label>
               {error && (
                 <p className="rounded-3xl bg-red-50 px-4 py-3 text-sm text-red-700 md:col-span-2" role="alert">
@@ -228,7 +228,7 @@ export default function CustomerReviewsPage() {
           <ConfirmModal
             open={showConfirm}
             title="ثبت نظر"
-            message="آیا از ثبت این نظر اطمینان دارید؟"
+            message="نظر ثبت شود؟"
             confirmLabel="ثبت نظر"
             loading={saving}
             onConfirm={confirmSubmit}
@@ -239,11 +239,11 @@ export default function CustomerReviewsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>نظرات</CardTitle>
+          <CardTitle>نظرهای شما</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {reviews.length === 0 ? (
-            <EmptyState title="نظری ندارید" description="نظرات مربوط به سفارش‌های تحویل‌داده‌شده اینجا نمایش داده می‌شوند." />
+            <EmptyState title="هنوز نظری نداده‌اید" description="نظرهایی که درباره خریدهایتان می‌دهید، اینجا می‌مانند." />
           ) : (
             reviews.map((review) => (
               <div key={review.id} className="rounded-3xl border border-border p-4">
@@ -257,7 +257,7 @@ export default function CustomerReviewsPage() {
                 {review.title && <p className="mt-1 font-medium text-foreground">{review.title}</p>}
                 {review.comment && <p className="mt-1 text-sm text-foreground-muted">{review.comment}</p>}
                 {review.moderation_note && (
-                  <p className="mt-2 text-xs text-foreground-muted">یادداشت: {review.moderation_note}</p>
+                  <p className="mt-2 text-xs text-foreground-muted">یادداشت بررسی: {review.moderation_note}</p>
                 )}
                 {review.image_urls.length > 0 && (
                   <div className="mt-3 flex gap-2 overflow-x-auto">

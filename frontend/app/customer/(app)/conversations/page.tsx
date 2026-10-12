@@ -24,7 +24,7 @@ export default function CustomerConversationsPage() {
       </Suspense>
       <div>
         <h1 className="text-2xl font-bold text-neutral-900">گفتگوهای شما</h1>
-        <p className="mt-1 text-sm text-neutral-600">برای سفارش‌ها یا پرسش‌ها با فروشندگان گفتگو کنید.</p>
+        <p className="mt-1 text-sm text-neutral-600">پیام‌های شما با فروشنده‌ها، درباره سفارش یا هر سؤال دیگر.</p>
       </div>
 
       {isLoading && !data && <TableSkeleton rows={4} columns={1} />}
@@ -34,7 +34,7 @@ export default function CustomerConversationsPage() {
       {data && data.length === 0 && (
         <EmptyState
           title="هنوز گفتگویی ندارید"
-          description="از صفحه فروشگاه به فروشنده پیام دهید تا گفتگو شروع شود."
+          description="از صفحه هر فروشگاه می‌توانید به فروشنده پیام بدهید."
         />
       )}
 

@@ -44,7 +44,7 @@ export default function AdminReviewsPage() {
       }
       await refetch();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "به‌روزرسانی نظر ممکن نشد");
+      toast.error(err instanceof ApiError ? err.message : "به‌روزرسانی نظر انجام نشد. دوباره امتحان کنید.");
     } finally {
       setActionId(null);
     }

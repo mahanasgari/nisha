@@ -70,7 +70,7 @@ def _validate_parent(
         return None
     parent = get_category(db, store_id, parent_id)
     if parent.parent_id is not None:
-        raise ServiceError("زیردسته نمی‌تواند خودش والد داشته باشد — فقط یک سطح مجاز است", status_code=400)
+        raise ServiceError("زیردسته نمی‌تواند زیردسته دیگری داشته باشد؛ فقط یک سطح مجاز است.", status_code=400)
     if category_id is not None and parent_id == category_id:
         raise ServiceError("دسته نمی‌تواند والد خودش باشد", status_code=400)
     # Prevent attaching a parent under a node that already has children becoming nested deeper
@@ -79,7 +79,7 @@ def _validate_parent(
             select(func.count()).select_from(ProductCategory).where(ProductCategory.parent_id == category_id)
         ) or 0
         if child_count > 0:
-            raise ServiceError("دسته‌ای که زیردسته دارد نمی‌تواند خودش زیردسته شود", status_code=400)
+            raise ServiceError("دسته‌ای که زیردسته دارد، خودش نمی‌تواند زیردسته شود.", status_code=400)
     return parent.id
 
 
@@ -152,7 +152,7 @@ def delete_category(db: Session, store: Store, category_id: int) -> None:
     ) or 0
     if product_count > 0:
         raise ServiceError(
-            "این دسته‌بندی به محصولات متصل است. ابتدا محصولات را جابه‌جا یا حذف کنید.",
+            "چند محصول در این دسته هستند. اول آن‌ها را به دسته دیگری ببرید یا حذف کنید.",
             status_code=409,
         )
     db.delete(category)

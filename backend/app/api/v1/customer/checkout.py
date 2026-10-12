@@ -55,6 +55,6 @@ def create_customer_order(
             )
         except ServiceError:
             return order.model_copy(
-                update={"warning": "سفارش ثبت شد اما ذخیره آدرس ناموفق بود"},
+                update={"warning": "سفارش ثبت شد، ولی آدرس در حساب شما ذخیره نشد."},
             )
     return order

@@ -131,7 +131,7 @@ export default function SellerCustomerDetailPage({ params }: PageProps) {
         </CardHeader>
         <CardContent>
           {data.orders.length === 0 ? (
-            <EmptyState title="سفارشی نیست" description="برای این مشتری هنوز سفارشی ثبت نشده." />
+            <EmptyState title="سفارشی ندارد" description="این مشتری هنوز سفارشی ثبت نکرده است." />
           ) : (
             <Table embedded>
               <TableHead>

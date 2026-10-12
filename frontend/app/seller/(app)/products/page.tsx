@@ -54,7 +54,7 @@ export default function SellerProductsPage() {
       setDeleteId(null);
       await refetch();
     } catch {
-      toast.error("حذف محصول ناموفق بود");
+      toast.error("محصول حذف نشد. دوباره امتحان کنید.");
     } finally {
       setDeleting(false);
     }
@@ -64,9 +64,9 @@ export default function SellerProductsPage() {
     setExporting(true);
     try {
       await exportsApi.downloadCsv(() => exportsApi.exportProductsCsv(), "products.csv");
-      toast.success("خروجی محصولات دانلود شد");
+      toast.success("فایل اکسل محصول‌ها دانلود شد");
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "خروجی‌گیری ناموفق بود");
+      toast.error(err instanceof ApiError ? err.message : "فایل خروجی ساخته نشد. دوباره امتحان کنید.");
     } finally {
       setExporting(false);
     }
@@ -78,7 +78,7 @@ export default function SellerProductsPage() {
   return (
     <div className="space-y-4">
       <PageHeader
-        description="کاتالوگ و دسته‌بندی‌های فروشگاه"
+        description="محصول‌ها و دسته‌بندی‌های فروشگاه"
         action={
           <div className="flex flex-wrap gap-2">
             {canExport && (
@@ -112,7 +112,7 @@ export default function SellerProductsPage() {
           {isEmpty && (
             <EmptyState
               title="هنوز محصولی ندارید"
-              description="اولین محصول را اضافه کنید؛ می‌توانید بعداً دسته‌بندی هم بدهید."
+              description="اولین محصول را اضافه کنید؛ دسته‌بندی را می‌شود بعداً هم تعیین کرد."
               action={
                 <Link href={paths.seller.productNew} className={buttonClassName({ size: "sm" })}>
                   افزودن محصول
@@ -184,7 +184,7 @@ export default function SellerProductsPage() {
       <ConfirmModal
         open={deleteId !== null}
         title="حذف محصول"
-        message="این عملیات قابل بازگشت نیست. محصول از فروشگاه شما حذف می‌شود."
+        message="محصول از فروشگاه حذف می‌شود و این کار برگشت‌پذیر نیست."
         confirmLabel="حذف"
         loading={deleting}
         onConfirm={handleDelete}

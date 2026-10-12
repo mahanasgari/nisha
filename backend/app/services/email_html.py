@@ -43,7 +43,7 @@ def layout(*, title: str, body_html: str) -> str:
           </tr>
           <tr>
             <td style="padding:20px 32px 28px;border-top:1px solid #e5e7eb;background-color:{_BRAND_LIGHT};text-align:center;">
-              <p style="margin:0 0 8px;font-size:13px;color:{_MUTED_COLOR};">نیشا — بازار آنلاین</p>
+              <p style="margin:0 0 8px;font-size:13px;color:{_MUTED_COLOR};">نیشا، فروشگاه‌ساز کارت‌به‌کارت</p>
               <a href="{site_url}" style="font-size:13px;color:{_BRAND_COLOR};text-decoration:none;">{site_url}</a>
             </td>
           </tr>
@@ -62,14 +62,14 @@ def verification_email_html(*, full_name: str, verify_link: str) -> str:
     body = f"""
 <p style="margin:0 0 16px;font-size:16px;">سلام {safe_name}،</p>
 <p style="margin:0 0 24px;color:{_MUTED_COLOR};">
-  از ثبت‌نام شما در نیشا سپاسگزاریم. برای تکمیل حساب کاربری، لطفاً ایمیل خود را تأیید کنید.
+  ممنون که در نیشا ثبت‌نام کردید. برای فعال شدن حساب، ایمیل خود را تایید کنید.
 </p>
 <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 28px;">
   <tr>
     <td style="border-radius:8px;background-color:{_BRAND_COLOR};">
       <a href="{safe_link}" target="_blank" rel="noopener noreferrer"
          style="display:inline-block;padding:14px 32px;font-size:16px;font-weight:bold;color:#ffffff;text-decoration:none;">
-        تأیید ایمیل
+        تایید ایمیل
       </a>
     </td>
   </tr>
@@ -83,7 +83,7 @@ def verification_email_html(*, full_name: str, verify_link: str) -> str:
 <p style="margin:0;font-size:12px;color:{_MUTED_COLOR};">
   این لینک تا {expire_hours} ساعت معتبر است. اگر شما این درخواست را نداده‌اید، این ایمیل را نادیده بگیرید.
 </p>"""
-    return layout(title="تأیید ایمیل نیشا", body_html=body)
+    return layout(title="تایید ایمیل نیشا", body_html=body)
 
 
 def password_recovery_html(*, code: str) -> str:

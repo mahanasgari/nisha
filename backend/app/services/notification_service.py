@@ -80,12 +80,12 @@ class NotificationTemplate:
 TEMPLATES: dict[str, NotificationTemplate] = {
     "order_placed_buyer": NotificationTemplate(
         sms_text=(
-            "نیشا: سفارش {invoice_code} ثبت شد و در انتظار تأیید پرداخت است."
+            "نیشا: سفارش {invoice_code} ثبت شد و در انتظار تایید پرداخت است."
         ),
         email_subject="ثبت سفارش {invoice_code}",
         email_body=(
             "سفارش شما با کد {invoice_code} در فروشگاه {store_name} ثبت شد "
-            "و پس از تأیید پرداخت پردازش می‌شود."
+            "و پس از تایید پرداخت پردازش می‌شود."
         ),
         html_style="simple",
     ),
@@ -96,18 +96,18 @@ TEMPLATES: dict[str, NotificationTemplate] = {
         email_subject="سفارش جدید {invoice_code}",
         email_body=(
             "سفارش جدیدی با کد {invoice_code} در فروشگاه {store_name} ثبت شد. "
-            "برای بررسی به پنل فروشنده مراجعه کنید."
+            "برای بررسی، به پنل فروشنده سر بزنید."
         ),
         html_style="simple",
     ),
     "payment_uploaded_seller": NotificationTemplate(
         sms_text=(
-            "نیشا: رسید پرداخت سفارش {invoice_code} ثبت شد. لطفا بررسی و تأیید کنید."
+            "نیشا: رسید پرداخت سفارش {invoice_code} ثبت شد. لطفاً بررسی و تایید کنید."
         ),
         email_subject="رسید پرداخت سفارش {invoice_code}",
         email_body=(
             "برای سفارش {invoice_code} در فروشگاه {store_name} رسید پرداخت جدیدی ثبت شد. "
-            "برای بررسی و تأیید به پنل فروشنده مراجعه کنید."
+            "برای بررسی و تایید، به پنل فروشنده سر بزنید."
         ),
         html_style="simple",
     ),
@@ -130,10 +130,10 @@ TEMPLATES: dict[str, NotificationTemplate] = {
     ),
     "email_verification": NotificationTemplate(
         sms_text="",
-        email_subject="تأیید ایمیل نیشا",
+        email_subject="تایید ایمیل نیشا",
         email_body=(
             "سلام {full_name}\n\n"
-            "برای تأیید ایمیل خود روی لینک زیر کلیک کنید:\n"
+            "برای تایید ایمیل، روی لینک زیر بزنید:\n"
             "{verify_link}\n\n"
             "اگر شما این درخواست را نداده‌اید، این ایمیل را نادیده بگیرید."
         ),

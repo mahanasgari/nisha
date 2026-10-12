@@ -49,7 +49,7 @@ export default function SellerDiscountsPage() {
       setDiscounts(data);
       setError(null);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "بارگذاری کدهای تخفیف ممکن نشد");
+      setError(err instanceof ApiError ? err.message : "کدهای تخفیف باز نشد. صفحه را دوباره بارگذاری کنید.");
     } finally {
       setLoading(false);
     }
@@ -98,7 +98,7 @@ export default function SellerDiscountsPage() {
       resetForm();
       await loadDiscounts();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "ساخت کد تخفیف ناموفق بود");
+      toast.error(err instanceof ApiError ? err.message : "کد تخفیف ساخته نشد. دوباره امتحان کنید.");
     } finally {
       setSubmitting(false);
     }
@@ -110,7 +110,7 @@ export default function SellerDiscountsPage() {
       await discountsApi.updateDiscount(discount.id, { is_active: !discount.is_active });
       await loadDiscounts();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "به‌روزرسانی ناموفق بود");
+      toast.error(err instanceof ApiError ? err.message : "تغییر ذخیره نشد. دوباره امتحان کنید.");
     } finally {
       setBusyId(null);
     }
@@ -124,27 +124,27 @@ export default function SellerDiscountsPage() {
       toast.success("کد تخفیف حذف شد");
       await loadDiscounts();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "حذف ناموفق بود");
+      toast.error(err instanceof ApiError ? err.message : "حذف نشد. دوباره امتحان کنید.");
     } finally {
       setBusyId(null);
     }
   }
 
-  if (loading) return <LoadingState message="در حال بارگذاری کدهای تخفیف..." />;
+  if (loading) return <LoadingState message="در حال بارگذاری کدهای تخفیف…" />;
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground max-md:text-xl">کدهای تخفیف</h1>
         <p className="mt-1 text-foreground-muted">
-          کد تخفیف درصدی یا مبلغی بسازید و برای مشتریان خود بفرستید. مشتری هنگام پرداخت کد را وارد می‌کند.
+          کد تخفیف درصدی یا مبلغی بسازید و برای مشتری‌ها بفرستید. مشتری موقع تکمیل خرید، کد را وارد می‌کند.
         </p>
       </div>
 
       {error && <ErrorAlert message={error} />}
 
       {!entitlementsLoading && !canManageDiscounts && (
-        <UpgradeGate description="کد تخفیف از پلن پایه به بعد فعال است. با یک ارتقای ساده می‌توانی تخفیف بسازی و فروش را بیشتر کنی." />
+        <UpgradeGate description="کد تخفیف از پلن پایه به بالا فعال است." />
       )}
 
       {canManageDiscounts && (
@@ -158,7 +158,7 @@ export default function SellerDiscountsPage() {
               label="کد"
               value={code}
               onChange={(e) => setCode(e.target.value.toUpperCase())}
-              placeholder="مثلا SAVE10"
+              placeholder="مثلاً SAVE10"
               required
             />
             <label className="block text-sm text-foreground">
@@ -180,7 +180,7 @@ export default function SellerDiscountsPage() {
                 max="100"
                 value={percentOff}
                 onChange={(e) => setPercentOff(e.target.value)}
-                placeholder="مثلا 10"
+                placeholder="مثلاً ۱۰"
               />
             ) : (
               <Input
@@ -189,7 +189,7 @@ export default function SellerDiscountsPage() {
                 min="1"
                 value={amountOff}
                 onChange={(e) => setAmountOff(e.target.value)}
-                placeholder="مثلا 50000"
+                placeholder="مثلاً ۵۰۰۰۰"
               />
             )}
             <Input
@@ -230,7 +230,7 @@ export default function SellerDiscountsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>کدهای موجود</CardTitle>
+          <CardTitle>کدهای شما</CardTitle>
         </CardHeader>
         <CardContent>
           {discounts.length === 0 ? (
@@ -286,7 +286,7 @@ export default function SellerDiscountsPage() {
                           loading={busyId === discount.id}
                           onClick={() => void handleToggle(discount)}
                         >
-                          {discount.is_active ? "غیرفعال کن" : "فعال کن"}
+                          {discount.is_active ? "غیرفعال کردن" : "فعال کردن"}
                         </Button>
                         <Button
                           type="button"

@@ -6,7 +6,7 @@ export default function NotFound() {
       <p className="text-sm font-medium tracking-wide text-brand">۴۰۴</p>
       <h1 className="text-2xl font-bold text-foreground">صفحه پیدا نشد</h1>
       <p className="text-sm text-muted-foreground">
-        آدرسی که باز کردی وجود ندارد یا جابه‌جا شده است.
+        صفحه‌ای که دنبالش هستید وجود ندارد یا جابه‌جا شده است.
       </p>
       <Link
         href="/"

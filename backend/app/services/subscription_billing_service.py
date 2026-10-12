@@ -160,7 +160,7 @@ def checkout(
     )
     if open_invoice is not None:
         raise ServiceError(
-            "یک فاکتور باز دارید. ابتدا آن را تکمیل یا لغو کنید.",
+            "یک فاکتور پرداخت‌نشده دارید. اول آن را پرداخت یا لغو کنید.",
             status_code=409,
         )
 
@@ -236,7 +236,7 @@ async def upload_invoice_proof(
         SubscriptionInvoiceStatus.PENDING_PAYMENT,
         SubscriptionInvoiceStatus.PROOF_UPLOADED,
     }:
-        raise ServiceError("امکان بارگذاری رسید برای این فاکتور وجود ندارد", status_code=400)
+        raise ServiceError("برای این فاکتور دیگر نمی‌توانید رسید بفرستید.", status_code=400)
 
     media = await save_uploaded_media(
         file,

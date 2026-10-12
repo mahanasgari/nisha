@@ -92,7 +92,7 @@ export function CartDrawer({ open, slug, onClose }: CartDrawerProps) {
                 <div className="min-w-0">
                   <h2 className="text-base font-semibold tracking-tight text-foreground">سبد خرید</h2>
                   <p className="mt-0.5 text-xs text-foreground-muted">
-                    {itemCount === 0 ? "هنوز کالایی اضافه نشده" : `${faDigits(itemCount)} قلم آماده پرداخت`}
+                    {itemCount === 0 ? "هنوز کالایی اضافه نشده" : `${faDigits(itemCount)} کالا در سبد`}
                   </p>
                 </div>
               </div>
@@ -117,7 +117,7 @@ export function CartDrawer({ open, slug, onClose }: CartDrawerProps) {
                 </div>
                 <p className="text-sm font-medium text-foreground">سبد خالی است</p>
                 <p className="mt-1 max-w-[14rem] text-xs leading-5 text-foreground-muted">
-                  از ویترین، محصولات را با دکمه + اضافه کنید.
+                  محصول‌ها را با دکمه + به سبد اضافه کنید.
                 </p>
               </div>
             ) : (
@@ -224,7 +224,7 @@ export function CartDrawer({ open, slug, onClose }: CartDrawerProps) {
           <div className="border-t border-border/80 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3.5">
             <div className="mb-3 space-y-1.5">
               <div className="flex items-center justify-between text-xs text-foreground-muted">
-                <span>جمع جزء</span>
+                <span>جمع کالاها</span>
                 <span className="tabular-nums">{formatMoney(subtotal)}</span>
               </div>
               <div className="flex items-end justify-between gap-3">
@@ -245,7 +245,7 @@ export function CartDrawer({ open, slug, onClose }: CartDrawerProps) {
                 items.length === 0 && "pointer-events-none opacity-50",
               )}
             >
-              ادامه خرید
+              تکمیل خرید
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4 rotate-180" aria-hidden>
                 <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>

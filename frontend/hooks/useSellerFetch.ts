@@ -22,7 +22,7 @@ export function useSellerFetch<T>(fetchFn: () => Promise<T>, deps: unknown[] = [
       return result;
     } catch (err) {
       if (requestId !== requestIdRef.current) return null;
-      const message = err instanceof ApiError ? err.message : "مشکلی پیش آمد؛ دوباره امتحان کن";
+      const message = err instanceof ApiError ? err.message : "اطلاعات باز نشد. دوباره امتحان کنید.";
       setError(message);
       setData(null);
       return null;

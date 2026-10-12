@@ -44,7 +44,7 @@ class CardToCardPaymentProvider:
 
     def handle_callback(self, db: Session, payload: dict[str, Any]) -> SubscriptionInvoice:
         raise ServiceError(
-            "درگاه کارت‌به‌کارت از callback پشتیبانی نمی‌کند",
+            "پرداخت کارت‌به‌کارت تایید خودکار ندارد",
             status_code=400,
         )
 

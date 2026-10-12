@@ -138,7 +138,7 @@ export function ProductBrowser({ slug, initialProducts, categories = [] }: Produ
       })
       .catch(() => {
         if (!cancelled) {
-          setError("جستجوی محصولات ناموفق بود. دوباره تلاش کن.");
+          setError("جستجو انجام نشد. دوباره امتحان کنید.");
         }
       })
       .finally(() => {
@@ -336,7 +336,7 @@ export function ProductBrowser({ slug, initialProducts, categories = [] }: Produ
 
       {loading ? (
         <div className="flex flex-col items-center justify-center gap-4 py-12">
-          <OrbLoader state="searching" size={64} label="در حال جستجوی محصولات..." />
+          <OrbLoader state="searching" size={64} label="در حال جستجو…" />
           <div className="grid w-full grid-cols-2 gap-2 opacity-35 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {Array.from({ length: 4 }).map((_, index) => (
               <Skeleton key={index} className="aspect-square w-full rounded-lg" />
@@ -344,7 +344,7 @@ export function ProductBrowser({ slug, initialProducts, categories = [] }: Produ
           </div>
         </div>
       ) : products.length === 0 ? (
-        <EmptyState title="محصولی پیدا نشد" description="عبارت جستجو یا فیلترها را تغییر بده." />
+        <EmptyState title="محصولی پیدا نشد" description="عبارت دیگری جستجو کنید یا فیلترها را کم کنید." />
       ) : (
         <>
           {!isDefaultView ? (

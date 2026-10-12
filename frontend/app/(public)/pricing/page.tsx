@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { LandingPricing } from "@/components/landing/LandingPricing";
 
 export const metadata: Metadata = {
-  title: "قیمت‌ها | نیشا",
+  title: "قیمت‌ها",
   description:
-    "تعرفه پلن‌های نیشا: شروع رایگان، بدون کارمزد روی سفارش. هزینه فقط برای ابزارهای بیشتر پلتفرم.",
+    "پلن‌های نیشا: شروع رایگان و بدون کارمزد روی سفارش‌ها. فقط برای ابزارهای بیشتر هزینه می‌دهید.",
 };
 
 export default function PricingPage() {

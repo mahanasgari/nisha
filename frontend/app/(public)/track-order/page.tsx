@@ -14,7 +14,7 @@ export default function TrackOrderPage() {
       <div>
         <h1 className="text-2xl font-bold text-foreground max-md:text-xl">پیگیری سفارش</h1>
         <p className="mt-1 text-foreground-muted">
-          کد فاکتور و رمزی را که هنگام ثبت سفارش دریافت کرده‌اید وارد کنید.
+          کد و رمز فاکتوری را که بعد از ثبت سفارش گرفتید، وارد کنید.
         </p>
       </div>
 
@@ -35,7 +35,7 @@ export default function TrackOrderPage() {
               setPassword("");
             }}
           >
-            جستجوی سفارش دیگر
+            پیگیری سفارشی دیگر
           </button>
           <OrderTrackDetails order={order} password={password} onUpdated={setOrder} />
         </>

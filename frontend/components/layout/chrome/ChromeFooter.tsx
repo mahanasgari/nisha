@@ -37,7 +37,7 @@ export function ChromeFooter({ variant = "default", className }: ChromeFooterPro
           <div className="space-y-1">
             <p className="font-medium text-foreground">نیشا</p>
             <p className="max-w-xs text-sm text-foreground-muted">
-              فروشگاه‌ساز برای شروع سریع فروش، بدون کارمزد روی سفارش مشتری.
+              فروشگاه‌ساز کارت‌به‌کارت، بدون کارمزد روی سفارش‌ها.
             </p>
           </div>
 

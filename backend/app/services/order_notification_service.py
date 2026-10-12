@@ -32,7 +32,7 @@ STATUS_LABELS: dict[OrderStatus, str] = {
     OrderStatus.PAYMENT_REJECTED: "پرداخت رد شد",
     OrderStatus.PREPARING: "در حال آماده‌سازی",
     OrderStatus.SHIPPED: "ارسال شد",
-    OrderStatus.DELIVERED: "تحویل داده شد",
+    OrderStatus.DELIVERED: "تحویل شد",
     OrderStatus.CANCELLED: "لغو شد",
     OrderStatus.EXPIRED: "منقضی شد",
 }

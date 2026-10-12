@@ -17,16 +17,16 @@ except ImportError:  # pragma: no cover
 logger = logging.getLogger(__name__)
 
 _VALIDATION_MESSAGE_MAP = {
-    "Field required": "این فیلد الزامی است",
+    "Field required": "این مورد را پر کنید",
     "Input should be a valid string": "ورودی باید یک متن معتبر باشد",
     "Input should be a valid integer": "ورودی باید یک عدد صحیح معتبر باشد",
     "Input should be a valid number": "ورودی باید یک عدد معتبر باشد",
     "Input should be a valid boolean": "ورودی باید درست یا نادرست باشد",
     "Input should be a valid list": "ورودی باید یک فهرست معتبر باشد",
     "Input should be a valid dictionary": "ورودی باید یک شیء معتبر باشد",
-    "Input should be a valid email address": "ایمیل معتبر نیست",
-    "String should have at least": "طول متن کمتر از حد مجاز است",
-    "String should have at most": "طول متن بیشتر از حد مجاز است",
+    "Input should be a valid email address": "ایمیل درست نیست",
+    "String should have at least": "متن کوتاه‌تر از حد لازم است",
+    "String should have at most": "متن طولانی‌تر از حد مجاز است",
     "Value error,": "خطا در مقدار ورودی:",
 }
 
@@ -83,5 +83,5 @@ async def unhandled_exception_handler(_request: Request, exc: Exception) -> JSON
         logger.error("Unhandled error: %s", exc)
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={"detail": "خطای داخلی سرور"},
+        content={"detail": "مشکلی در سرور پیش آمد. چند لحظه بعد دوباره امتحان کنید."},
     )

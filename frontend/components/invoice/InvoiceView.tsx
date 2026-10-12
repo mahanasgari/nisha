@@ -18,13 +18,13 @@ export function InvoiceView({ order }: { order: OrderTrackResponse }) {
 
       <div className="grid gap-6 sm:grid-cols-2">
         <section>
-          <h2 className="text-xs font-semibold text-foreground-muted">فرستنده</h2>
+          <h2 className="text-xs font-semibold text-foreground-muted">فروشنده</h2>
           <p className="mt-1 font-medium">{order.store.name}</p>
           {order.store.phone && <p className="text-sm">{order.store.phone}</p>}
           {order.store.support_contact && <p className="text-sm">{order.store.support_contact}</p>}
         </section>
         <section>
-          <h2 className="text-xs font-semibold text-foreground-muted">صورتحساب به</h2>
+          <h2 className="text-xs font-semibold text-foreground-muted">خریدار</h2>
           <p className="mt-1 font-medium">{order.buyer_name}</p>
           <p className="text-sm">{order.buyer_phone}</p>
           <p className="text-sm whitespace-pre-wrap">{order.buyer_address}</p>

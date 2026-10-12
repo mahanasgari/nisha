@@ -66,7 +66,7 @@ export default function AdminStoresPage() {
       }
       await refetch();
     } catch {
-      toast.error("به‌روزرسانی فروشگاه ناموفق بود");
+      toast.error("به‌روزرسانی فروشگاه انجام نشد. دوباره امتحان کنید.");
     } finally {
       setActionId(null);
     }
@@ -80,7 +80,7 @@ export default function AdminStoresPage() {
       toast.success("با حساب فروشنده وارد شدید");
       router.push(paths.seller.dashboard);
     } catch {
-      toast.error("ورود به‌جای فروشنده ناموفق بود");
+      toast.error("ورود به‌جای فروشنده انجام نشد. دوباره امتحان کنید.");
       setActionId(null);
     }
   }
@@ -114,7 +114,7 @@ export default function AdminStoresPage() {
                 label="جستجوی فروشگاه"
                 value={draft.search}
                 onChange={(e) => setDraft({ search: e.target.value })}
-                placeholder="نام فروشگاه، اسلاگ، ایمیل مالک"
+                placeholder="نام یا آدرس فروشگاه، ایمیل فروشنده"
               />
             </div>
             <Button type="submit">جستجو</Button>

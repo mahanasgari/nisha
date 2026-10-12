@@ -42,7 +42,7 @@ export default function CustomerConversationPage({ params }: PageProps) {
             await conversationsApi.sendMessage(conversationId, payload);
             await refetch();
           } catch {
-            toast.error("ارسال پیام ناموفق بود");
+            toast.error("پیام ارسال نشد. دوباره امتحان کنید.");
           }
         }}
         header={
@@ -52,7 +52,7 @@ export default function CustomerConversationPage({ params }: PageProps) {
               {data.invoice_code && <p className="text-xs text-neutral-500">سفارش {data.invoice_code}</p>}
             </div>
           ) : (
-            <span className="text-neutral-500">در حال بارگذاری...</span>
+            <span className="text-neutral-500">در حال بارگذاری…</span>
           )
         }
       />

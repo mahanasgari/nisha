@@ -38,7 +38,7 @@ def register_customer(
     normalized_phone = normalize_phone(phone) if phone else None
 
     if not normalized_email and not normalized_phone:
-        raise AuthError("حداقل یکی از ایمیل یا تلفن الزامی است", status_code=422)
+        raise AuthError("ایمیل یا شماره تلفن را وارد کنید؛ یکی کافی است.", status_code=422)
 
     if normalized_email:
         existing = get_customer_by_email(db, normalized_email)
@@ -60,11 +60,11 @@ def register_customer(
                     db.commit()
                 except IntegrityError as exc:
                     db.rollback()
-                    raise AuthError("این حساب قبلا ایجاد شده است", status_code=409) from exc
-            raise AuthError("ایمیل قبلا ثبت شده است", status_code=409)
+                    raise AuthError("این حساب از قبل وجود دارد. وارد شوید.", status_code=409) from exc
+            raise AuthError("با این ایمیل قبلاً حساب ساخته شده است. وارد شوید یا رمز را بازیابی کنید.", status_code=409)
 
     if normalized_phone and get_customer_by_phone(db, normalized_phone) is not None:
-        raise AuthError("تلفن قبلا ثبت شده است", status_code=409)
+        raise AuthError("با این شماره قبلاً حساب ساخته شده است. وارد شوید یا رمز را بازیابی کنید.", status_code=409)
 
     customer = CustomerAccount(
         email=normalized_email,
@@ -92,7 +92,7 @@ def register_customer(
         db.commit()
     except IntegrityError as exc:
         db.rollback()
-        raise AuthError("این حساب قبلا ایجاد شده است", status_code=409) from exc
+        raise AuthError("این حساب از قبل وجود دارد. وارد شوید.", status_code=409) from exc
 
     db.refresh(customer)
     return customer
@@ -110,7 +110,7 @@ def authenticate_customer(db: Session, *, login: str, password: str) -> Customer
         customer = get_customer_by_phone(db, login)
 
     if customer is None or not verify_password(password, customer.password_hash):
-        raise AuthError("ورود یا رمز عبور نامعتبر است", status_code=401)
+        raise AuthError("ایمیل/تلفن یا رمز عبور درست نیست.", status_code=401)
 
     if customer.email and customer.email_verified_at is None:
         raise AuthError("Email not verified", status_code=403)

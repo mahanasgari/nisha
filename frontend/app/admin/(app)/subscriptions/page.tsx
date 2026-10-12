@@ -48,7 +48,7 @@ export default function AdminSubscriptionsPage() {
     try {
       setInvoices(await subscriptionsApi.listInvoices(status || undefined));
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "بارگذاری فاکتورها ناموفق بود");
+      setError(err instanceof ApiError ? err.message : "بارگذاری فاکتورها انجام نشد. دوباره امتحان کنید.");
     } finally {
       setLoading(false);
     }
@@ -65,7 +65,7 @@ export default function AdminSubscriptionsPage() {
       toast.success("پرداخت تایید و اشتراک فعال شد");
       await load();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "تایید ناموفق بود");
+      toast.error(err instanceof ApiError ? err.message : "تایید انجام نشد. دوباره امتحان کنید.");
     } finally {
       setBusyId(null);
     }
@@ -78,7 +78,7 @@ export default function AdminSubscriptionsPage() {
       toast.success("فاکتور رد شد");
       await load();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "رد فاکتور ناموفق بود");
+      toast.error(err instanceof ApiError ? err.message : "رد فاکتور انجام نشد. دوباره امتحان کنید.");
     } finally {
       setBusyId(null);
     }
@@ -113,7 +113,7 @@ export default function AdminSubscriptionsPage() {
       </div>
       {error && <ErrorAlert message={error} />}
       {loading ? (
-        <LoadingState message="در حال بارگذاری..." />
+        <LoadingState message="در حال بارگذاریâ¦" />
       ) : (
         <div className="space-y-3">
           {invoices.length === 0 && (

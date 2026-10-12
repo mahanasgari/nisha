@@ -59,7 +59,7 @@ export default function SellerOrderDetailPage({ params }: PageProps) {
       }
       await refetch();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "اقدام ناموفق بود");
+      toast.error(err instanceof ApiError ? err.message : "وضعیت سفارش تغییر نکرد. دوباره امتحان کنید.");
     } finally {
       setActionLoading(false);
       setPendingAction(null);
@@ -81,13 +81,13 @@ export default function SellerOrderDetailPage({ params }: PageProps) {
       await downloadOrderInvoice(() => ordersApi.downloadInvoice(orderId), data.invoice_code);
       toast.success("فاکتور دانلود شد");
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "دانلود فاکتور ناموفق بود");
+      toast.error(err instanceof ApiError ? err.message : "فاکتور دانلود نشد. دوباره امتحان کنید.");
     } finally {
       setDownloadLoading(false);
     }
   }
 
-  if (isLoading) return <LoadingState message="در حال بارگذاری سفارش..." />;
+  if (isLoading) return <LoadingState message="در حال بارگذاری سفارش…" />;
   if (error || !data) {
     return (
       <div className="space-y-4">
@@ -105,8 +105,8 @@ export default function SellerOrderDetailPage({ params }: PageProps) {
     pendingAction === "reject_payment" ? "رد پرداخت" : "لغو سفارش";
   const confirmMessage =
     pendingAction === "reject_payment"
-      ? "موجودی بازگردانده می‌شود و مشتری باید دوباره پرداخت کند."
-      : "این کار سفارش را لغو می‌کند و در صورت نیاز موجودی را بازمی‌گرداند.";
+      ? "به مشتری اطلاع داده می‌شود که دوباره پرداخت کند و موجودی کالا برمی‌گردد."
+      : "سفارش لغو می‌شود و موجودی کالاها به انبار برمی‌گردد.";
 
   return (
     <div className="page-stack">
@@ -126,7 +126,7 @@ export default function SellerOrderDetailPage({ params }: PageProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>اقدامات</CardTitle>
+          <CardTitle>کار بعدی</CardTitle>
         </CardHeader>
         <CardContent>
           <OrderActions
@@ -162,19 +162,19 @@ export default function SellerOrderDetailPage({ params }: PageProps) {
 
         <Card>
           <CardHeader>
-            <CardTitle>مالکیت</CardTitle>
+            <CardTitle>وضعیت مشتری</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <p>
-              <span className="text-neutral-500">شناسه مشتری:</span>{" "}
-              {data.customer_id ?? "سفارش مهمان"}
+              <span className="text-neutral-500">نوع خرید:</span>{" "}
+              {data.customer_id ? "با حساب کاربری" : "مهمان (بدون حساب)"}
             </p>
             <p>
               <span className="text-neutral-500">تحویل به مشتری:</span>{" "}
               {deliveryReceiptLabel(data.receipt_status)}
             </p>
             <p>
-              <span className="text-neutral-500">اعتراض‌ها:</span> {data.complaint_count}
+              <span className="text-neutral-500">شکایت‌ها:</span> {data.complaint_count}
             </p>
           </CardContent>
         </Card>
@@ -195,7 +195,7 @@ export default function SellerOrderDetailPage({ params }: PageProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>اقلام</CardTitle>
+          <CardTitle>کالاها</CardTitle>
         </CardHeader>
         <CardContent>
           <OrderItemsPanel
@@ -247,7 +247,7 @@ export default function SellerOrderDetailPage({ params }: PageProps) {
         </CardHeader>
         <CardContent>
           {data.status_history.length === 0 ? (
-            <p className="text-sm text-neutral-500">هنوز سابقه‌ای وجود ندارد.</p>
+            <p className="text-sm text-neutral-500">هنوز تغییری در وضعیت این سفارش ثبت نشده است.</p>
           ) : (
             <ul className="space-y-3">
               {data.status_history.map((entry) => (

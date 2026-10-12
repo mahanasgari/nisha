@@ -34,7 +34,7 @@ export function LoginForm({
     try {
       await onSubmit(email, password);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "ورود ناموفق بود");
+      setError(err instanceof ApiError ? err.message : "ورود انجام نشد. ایمیل یا رمز را بررسی کنید.");
     } finally {
       setLoading(false);
     }
@@ -73,7 +73,7 @@ export function LoginForm({
           {forgotPasswordHref && (
             <p className="text-center text-sm">
               <a href={forgotPasswordHref} className="font-medium text-brand-deep hover:underline">
-                رمز عبور را فراموش کردی؟
+                رمز را فراموش کرده‌اید؟
               </a>
             </p>
           )}

@@ -197,7 +197,7 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
       if (logoPreview?.startsWith("blob:")) URL.revokeObjectURL(logoPreview);
       setLogoPreview(uploaded.thumbnail_url ?? uploaded.url);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "بارگذاری لوگو ناموفق بود");
+      setError(err instanceof ApiError ? err.message : "لوگو بارگذاری نشد. دوباره امتحان کنید.");
     } finally {
       setLogoUploading(false);
       event.target.value = "";
@@ -215,7 +215,7 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
       if (coverPreview?.startsWith("blob:")) URL.revokeObjectURL(coverPreview);
       setCoverPreview(uploaded.thumbnail_url ?? uploaded.url);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "بارگذاری تصویر روی جلد ناموفق بود");
+      setError(err instanceof ApiError ? err.message : "تصویر جلد بارگذاری نشد. دوباره امتحان کنید.");
     } finally {
       setCoverUploading(false);
       event.target.value = "";
@@ -226,11 +226,11 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
     e.preventDefault();
     setError(null);
     if (!name.trim() || !slug.trim()) {
-      setError("نام فروشگاه و اسلاگ الزامی هستند.");
+      setError("نام فروشگاه و آدرس فروشگاه را وارد کنید.");
       return;
     }
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
-      setError("اسلاگ باید با حروف کوچک، اعداد و خط تیره باشد.");
+      setError("آدرس فروشگاه فقط می‌تواند حروف کوچک انگلیسی، عدد و خط تیره (-) داشته باشد.");
       return;
     }
 
@@ -287,7 +287,7 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
           : null,
       });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "ذخیره تنظیمات فروشگاه ممکن نشد");
+      setError(err instanceof ApiError ? err.message : "تنظیمات ذخیره نشد. دوباره امتحان کنید.");
     } finally {
       setLoading(false);
     }
@@ -304,8 +304,8 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-6">
           <FormSection
-            title="هویت بصری"
-            description="ابتدا لوگو و تصویر روی جلد را بارگذاری کنید. این‌ها نمایان‌ترین بخش‌های فروشگاه هستند."
+            title="لوگو و تصویر جلد"
+            description="این دو، اولین چیزهایی هستند که مشتری در فروشگاه می‌بیند."
           >
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-3">
@@ -320,35 +320,35 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
                     />
                   ) : (
                     <p className="px-4 text-center text-sm text-foreground-muted">
-                      هنوز لوگویی بارگذاری نشده است
+                      هنوز لوگو نگذاشته‌اید
                     </p>
                   )}
                 </div>
                 <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={uploadLogo} />
                 <Button type="button" variant="secondary" onClick={() => logoInputRef.current?.click()} loading={logoUploading}>
-                  {logoPreview ? "جایگزینی لوگو" : "بارگذاری لوگو"}
+                  {logoPreview ? "تعویض لوگو" : "بارگذاری لوگو"}
                 </Button>
               </div>
 
               <div className="space-y-3">
-                <p className="text-sm font-medium text-foreground">تصویر روی جلد</p>
+                <p className="text-sm font-medium text-foreground">تصویر جلد</p>
                 <div className="overflow-hidden rounded-3xl border border-dashed border-border bg-surface-muted">
                   {coverPreview ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={coverPreview}
-                      alt="پیش‌نمایش تصویر روی جلد"
+                      alt="پیش‌نمایش تصویر جلد"
                       className="h-40 w-full object-cover"
                     />
                   ) : (
                     <div className="flex h-40 items-center justify-center text-sm text-foreground-muted">
-                      هنوز تصویری برای جلد بارگذاری نشده است
+                      هنوز تصویر جلد نگذاشته‌اید
                     </div>
                   )}
                 </div>
                 <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={uploadCover} />
                 <Button type="button" variant="secondary" onClick={() => coverInputRef.current?.click()} loading={coverUploading}>
-                  {coverPreview ? "جایگزینی تصویر روی جلد" : "بارگذاری تصویر روی جلد"}
+                  {coverPreview ? "تعویض تصویر جلد" : "بارگذاری تصویر جلد"}
                 </Button>
               </div>
             </div>
@@ -356,10 +356,10 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
             <div className="mt-4 grid gap-4 md:grid-cols-2">
               <Input label="نام فروشگاه" value={name} onChange={(e) => setName(e.target.value)} required />
               <Input
-                label="اسلاگ"
+                label="آدرس فروشگاه"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value.toLowerCase())}
-                hint="در نشانی فروشگاه شما استفاده می‌شود"
+                hint="بخش آخر لینک فروشگاه؛ مثلاً nishaapp.ir/store/my-shop"
                 required
               />
               <Textarea
@@ -400,7 +400,7 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
             </div>
           </FormSection>
 
-          <FormSection title="اطلاعات تماس" description="فقط فیلدهای تکمیل‌شده در صفحه عمومی نمایش داده می‌شوند.">
+          <FormSection title="اطلاعات تماس" description="فقط مواردی که پر کنید، در صفحه فروشگاه نمایش داده می‌شود.">
             <div className="grid gap-4 md:grid-cols-2">
               <Input label="موقعیت" value={location} onChange={(e) => setLocation(e.target.value)} />
               <Input label="تلفن" value={phone} onChange={(e) => setPhone(e.target.value)} />
@@ -417,7 +417,7 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
         <div className="space-y-6">
           <FormSection
             title="لینک‌های اجتماعی"
-            description="می‌توانید تعداد نامحدودی لینک اضافه کنید. پلتفرم انتخابی آیکن عمومی را تعیین می‌کند."
+            description="هر تعداد لینک که بخواهید اضافه کنید. آیکن هر لینک از روی شبکه‌ای که انتخاب می‌کنید مشخص می‌شود."
             action={
               <Button type="button" variant="secondary" size="sm" onClick={() => setSocialLinks((prev) => [...prev, blankLink()])}>
                 افزودن لینک
@@ -428,7 +428,7 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
               {socialLinks.length === 0 ? (
                 <EmptyState
                   title="لینک اجتماعی ندارید"
-                  description="تلگرام، واتساپ، اینستاگرام، دیسکورد، ایکس/توییتر، وب‌سایت یا سایر لینک‌ها را اضافه کنید."
+                  description="تلگرام، واتساپ، اینستاگرام، وب‌سایت یا هر لینک دیگری را اضافه کنید."
                   action={
                     <Button type="button" variant="secondary" onClick={() => setSocialLinks([blankLink()])}>
                       افزودن اولین لینک
@@ -457,7 +457,7 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
                             label="برچسب"
                             value={link.customLabel}
                             onChange={(e) => updateLink(index, { customLabel: e.target.value })}
-                            hint="وقتی پلتفرم «دیگر» است در صفحه عمومی نمایش داده می‌شود"
+                            hint="اگر «دیگر» را انتخاب کنید، این عنوان کنار لینک نمایش داده می‌شود"
                           />
                         )}
                         <Input
@@ -509,40 +509,40 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
 
           <FormSection
             title="هزینه ارسال"
-            description="هزینه پایه و آستانه ارسال رایگان در checkout محاسبه می‌شود."
+            description="موقع تکمیل خرید، هزینه ارسال از روی این دو عدد حساب می‌شود."
           >
             <div className="grid gap-4 md:grid-cols-2">
               <MoneyInput
                 label="هزینه ارسال پایه"
                 value={defaultShippingCost}
                 onValueChange={setDefaultShippingCost}
-                hint="۰ = ارسال رایگان به‌صورت پیش‌فرض"
+                hint="اگر صفر بگذارید، ارسال همیشه رایگان است"
               />
               <MoneyInput
                 label="ارسال رایگان از مبلغ سفارش"
                 value={freeShippingMinSubtotal}
                 onValueChange={setFreeShippingMinSubtotal}
-                hint="خالی = بدون آستانه ارسال رایگان"
+                hint="سفارش‌های بالای این مبلغ، ارسال رایگان دارند. خالی بماند یعنی ارسال رایگان نداریم."
               />
             </div>
           </FormSection>
 
           <FormSection
             title="ظاهر فروشگاه (ویترین عمومی)"
-            description="تم و رنگ برند برای صفحه عمومی فروشگاه — جدا از ظاهر پنل فروشنده. در پلن‌های پایین‌تر ممکن است ذخیره نشود."
+            description="تم و رنگ صفحه فروشگاه، جدا از ظاهر پنل خودتان."
           >
             {!(canTheme || canPages) && (
               <p className="text-sm text-foreground-muted">
-                تنظیم تم و صفحات در پلن حرفه‌ای و بالاتر فعال است.{" "}
+                تنظیم تم از پلن حرفه‌ای به بالا فعال است.{" "}
                 <Link href={paths.seller.subscription} className="text-brand underline-offset-2 hover:underline">
-                  ارتقا پلن
+                  ارتقای پلن
                 </Link>
               </p>
             )}
             <div className="space-y-3">
-              <p className="text-sm font-medium text-foreground">استایل ویترین</p>
+              <p className="text-sm font-medium text-foreground">سبک ویترین</p>
               <p className="text-xs text-foreground-muted">
-                این استایل فقط روی فروشگاه عمومی اعمال می‌شود؛ ظاهر پنل فروشنده جداست (نوار بالای صفحه).
+                این سبک فقط روی صفحه فروشگاه اعمال می‌شود و ظاهر پنل شما را تغییر نمی‌دهد.
               </p>
               <div className="grid grid-cols-3 gap-2">
                 {(
@@ -585,7 +585,7 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
                   <option value="default">پیش‌فرض</option>
                   <option value="warm">گرم</option>
                   <option value="cool">سرد</option>
-                  <option value="contrast">کنتراست</option>
+                  <option value="contrast">پرکنتراست</option>
                 </select>
               </label>
               <Input
@@ -611,7 +611,7 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
             />
           </FormSection>
 
-          <FormSection title="نمایش" description="می‌توانید تا زمان آماده‌سازی، فروشگاه را منتشر یا مخفی کنید.">
+          <FormSection title="نمایش" description="تا وقتی فروشگاه آماده نشده، می‌توانید آن را از دید مشتری‌ها پنهان کنید.">
             <div className="space-y-4">
               <label className="flex items-center gap-2 text-sm text-foreground">
                 <input
@@ -621,18 +621,18 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
                   onChange={(e) => setGuestCheckoutEnabled(e.target.checked)}
                   className="rounded border-border"
                 />
-                اجازه خرید مهمان (بدون ورود)
+                خرید بدون ورود (مهمان)
               </label>
               {!canGuestCheckout ? (
                 <p className="text-xs text-foreground-muted">
                   خرید مهمان از پلن پایه به بالا فعال است.{" "}
                   <Link href={paths.seller.subscription} className="text-brand underline-offset-2 hover:underline">
-                    ارتقا پلن
+                    ارتقای پلن
                   </Link>
                 </p>
               ) : (
                 <p className="text-xs text-foreground-muted">
-                  اگر غیرفعال باشد، مشتریان برای ثبت سفارش باید وارد حساب کاربری شوند.
+                  اگر خاموش باشد، مشتری برای خرید باید حساب کاربری بسازد.
                 </p>
               )}
               <label className="flex items-center gap-2 text-sm text-foreground">
@@ -648,7 +648,7 @@ export function StoreSettingsForm({ store, onSubmit }: StoreSettingsFormProps) {
                 ذخیره تغییرات
               </Button>
               <p className="text-xs text-foreground-muted">
-                گالری محصولات، فرم‌های محصول و پردازش سفارش در بخش محصولات و سفارش‌ها قرار دارد.
+                محصول‌ها و سفارش‌ها را از منوی کناری، در بخش خودشان مدیریت کنید.
               </p>
             </div>
           </FormSection>

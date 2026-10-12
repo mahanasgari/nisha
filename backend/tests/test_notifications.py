@@ -178,18 +178,18 @@ def test_resend_email_provider_sends_html(monkeypatch) -> None:
     monkeypatch.setattr(resend.Emails, "send", mock_send)
     ResendEmailProvider().send(
         "buyer@example.com",
-        "تأیید ایمیل نیشا",
+        "تایید ایمیل نیشا",
         "سلام کاربر",
-        html="<html><body>تأیید ایمیل</body></html>",
+        html="<html><body>تایید ایمیل</body></html>",
         idempotency_key="email_verification/42",
     )
     mock_send.assert_called_once_with(
         {
             "from": "Nisha <noreply@nishanorep.cloudproducts.ir>",
             "to": "buyer@example.com",
-            "subject": "تأیید ایمیل نیشا",
+            "subject": "تایید ایمیل نیشا",
             "text": "سلام کاربر",
-            "html": "<html><body>تأیید ایمیل</body></html>",
+            "html": "<html><body>تایید ایمیل</body></html>",
         },
         options={"idempotency_key": "email_verification/42"},
     )
@@ -212,12 +212,12 @@ def test_verification_email_template_renders_persian_and_html(db: Session) -> No
 
     assert len(email.sent) == 1
     _, subject, body, html, _ = email.sent[0]
-    assert subject == "تأیید ایمیل نیشا"
+    assert subject == "تایید ایمیل نیشا"
     assert "ماهان" in body
     assert "\\u062" not in body
     assert "\\n" not in body
     assert html is not None
-    assert "تأیید ایمیل" in html
+    assert "تایید ایمیل" in html
     assert "ماهان &lt;test&gt;" in html
     assert 'href="http://localhost:3000/verify-email?token=abc"' in html
     db.refresh(notification)

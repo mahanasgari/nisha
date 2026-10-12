@@ -85,7 +85,7 @@ export default function SellerAnalyticsPage() {
   return (
     <div className="space-y-4 md:space-y-6">
       <PageHeader
-        description="فروش روزانه، بازدید ویترین، نرخ تبدیل و محصولات پرفروش"
+        description="فروش و بازدید هر روز، و اینکه چه محصولی بیشتر فروش می‌رود"
         action={
           <div className="flex flex-wrap items-center gap-2">
             {RANGE_OPTIONS.map((option) => {
@@ -111,9 +111,9 @@ export default function SellerAnalyticsPage() {
 
       {lockedRanges.length > 0 && (
         <p className="text-sm text-foreground-muted">
-          بازه‌های طولانی‌تر از {maxDays} روز در پلن فعلی قفل است.{" "}
+          در پلن فعلی، آمار تا {maxDays} روز گذشته را می‌بینید.{" "}
           <Link href={paths.seller.subscription} className="text-brand underline-offset-2 hover:underline">
-            ارتقا پلن
+            ارتقای پلن
           </Link>
         </p>
       )}
@@ -180,8 +180,8 @@ export default function SellerAnalyticsPage() {
               <h3 className="mb-4 font-semibold">محصولات پرفروش</h3>
               {data.top_products.length === 0 ? (
                 <EmptyState
-                  title="هنوز فروشی ثبت نشده"
-                  description="با ثبت اولین سفارش، محصولات پرفروش اینجا نمایش داده می‌شوند."
+                  title="هنوز فروشی نداشته‌اید"
+                  description="بعد از اولین سفارش، پرفروش‌ترین محصول‌ها اینجا می‌آیند."
                 />
               ) : (
                 <Table>

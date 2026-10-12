@@ -47,7 +47,7 @@ export function PaymentMethodForm({ initial, onSubmit, onCancel }: PaymentMethod
     e.preventDefault();
     setError(null);
     if (!displayName.trim()) {
-      setError("نام نمایشی الزامی است.");
+      setError("برای روش پرداخت یک نام بنویسید؛ مثلاً «کارت ملت».");
       return;
     }
     setLoading(true);
@@ -81,7 +81,7 @@ export function PaymentMethodForm({ initial, onSubmit, onCancel }: PaymentMethod
         await onSubmit(create);
       }
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "ذخیره ممکن نشد");
+      setError(err instanceof ApiError ? err.message : "ذخیره نشد. دوباره امتحان کنید.");
     } finally {
       setLoading(false);
     }
@@ -104,7 +104,7 @@ export function PaymentMethodForm({ initial, onSubmit, onCancel }: PaymentMethod
         >
           <option value="CARD_TO_CARD">کارت‌به‌کارت</option>
           <option value="CRYPTO">رمزارز</option>
-          <option value="EXTERNAL_GATEWAY">درگاه خارجی</option>
+          <option value="EXTERNAL_GATEWAY">درگاه پرداخت</option>
         </select>
       </div>
       <Input
@@ -147,7 +147,7 @@ export function PaymentMethodForm({ initial, onSubmit, onCancel }: PaymentMethod
         />
       )}
       <Textarea
-        label="توضیحات"
+        label="توضیح برای مشتری"
         value={instructions}
         onChange={(e) => setInstructions(e.target.value)}
         rows={3}
@@ -166,7 +166,7 @@ export function PaymentMethodForm({ initial, onSubmit, onCancel }: PaymentMethod
           انصراف
         </Button>
         <Button type="submit" loading={loading}>
-          {initial ? "به‌روزرسانی" : "ایجاد"}
+          {initial ? "ذخیره تغییرات" : "افزودن"}
         </Button>
       </div>
     </form>

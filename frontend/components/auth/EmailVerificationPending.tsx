@@ -27,9 +27,9 @@ export function EmailVerificationPending({
     setMessage(null);
     try {
       await resendVerificationEmail(email, kind);
-      setMessage("ایمیل تأیید دوباره ارسال شد.");
+      setMessage("ایمیل تایید دوباره ارسال شد.");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "ارسال مجدد ناموفق بود");
+      setError(err instanceof ApiError ? err.message : "ایمیل دوباره ارسال نشد. کمی بعد امتحان کنید.");
     } finally {
       setLoading(false);
     }
@@ -37,14 +37,14 @@ export function EmailVerificationPending({
 
   return (
     <div className="mx-auto w-full max-w-md rounded-2xl border border-border bg-surface p-6 text-center shadow-sm">
-      <h1 className="text-2xl font-bold text-foreground">ایمیل خود را تأیید کنید</h1>
+      <h1 className="text-2xl font-bold text-foreground">ایمیل خود را تایید کنید</h1>
       <p className="mt-3 text-sm text-foreground-muted">
-        لینک تأیید به <span className="font-medium text-foreground">{email}</span> ارسال شد. پس از
-        تأیید می‌توانید وارد شوید.
+        لینک تایید به <span className="font-medium text-foreground">{email}</span> فرستادیم. روی لینک داخل ایمیل بزنید،
+        بعد وارد شوید.
       </p>
       <div className="mt-6 space-y-3">
         <Button type="button" className="w-full" loading={loading} onClick={handleResend}>
-          ارسال مجدد ایمیل تأیید
+          ارسال دوباره ایمیل تایید
         </Button>
         <Link
           href={loginHref}

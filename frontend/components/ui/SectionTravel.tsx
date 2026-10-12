@@ -28,7 +28,7 @@ export function SectionTravelProvider({ children }: { children: ReactNode }) {
   const travelTo = useCallback((action: () => void, options?: TravelOptions) => {
     if (timerRef.current) clearTimeout(timerRef.current);
     const state = options?.state ?? "connecting";
-    const label = options?.label ?? "در حال انتقال...";
+    const label = options?.label ?? "در حال انتقال…";
     const durationMs = options?.durationMs ?? 720;
 
     setActive({ state, label });

@@ -72,7 +72,7 @@ export default function InvoicePage({ params }: PageProps) {
       });
       setOrder(data);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "اعتبارنامه نامعتبر است");
+      setError(err instanceof ApiError ? err.message : "کد یا رمز فاکتور درست نیست.");
     } finally {
       setLoading(false);
     }
@@ -89,7 +89,7 @@ export default function InvoicePage({ params }: PageProps) {
       });
       setConversation(created);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "باز کردن گفتگو ممکن نشد");
+      setError(err instanceof ApiError ? err.message : "گفتگو باز نشد. دوباره امتحان کنید.");
     } finally {
       setOpeningChat(false);
     }
@@ -119,7 +119,7 @@ export default function InvoicePage({ params }: PageProps) {
       setReviewRating(5);
       setError(null);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "ارسال نظر ممکن نشد");
+      setError(err instanceof ApiError ? err.message : "نظر شما ارسال نشد. دوباره امتحان کنید.");
     } finally {
       setReviewLoading(false);
     }
@@ -190,7 +190,7 @@ export default function InvoicePage({ params }: PageProps) {
                       );
                     } catch (err) {
                       toast.error(
-                        err instanceof ApiError ? err.message : "ارسال پیام ناموفق بود",
+                        err instanceof ApiError ? err.message : "پیام ارسال نشد. دوباره امتحان کنید.",
                       );
                     }
                   }}
@@ -202,10 +202,10 @@ export default function InvoicePage({ params }: PageProps) {
                   }
                 />
               ) : openingChat ? (
-                <LoadingState message="در حال باز کردن گفتگو..." className="py-10" />
+                <LoadingState message="در حال باز کردن گفتگو…" className="py-10" />
               ) : (
                 <p className="text-sm text-foreground-muted">
-                  با استفاده از اطلاعات فاکتور بالا می‌توانید گفتگوی این سفارش را باز کنید.
+                  برای سؤال درباره این سفارش، گفتگو با فروشنده را باز کنید.
                 </p>
               )}
             </CardContent>
@@ -216,7 +216,7 @@ export default function InvoicePage({ params }: PageProps) {
               <CardContent className="space-y-4 py-6">
                 <div>
                   <p className="text-xs tracking-[0.2em] text-foreground-muted">نظر</p>
-                  <h2 className="text-lg font-semibold text-foreground">بازخورد خود را ثبت کنید</h2>
+                  <h2 className="text-lg font-semibold text-foreground">نظرتان درباره این خرید چیست؟</h2>
                 </div>
                 <form onSubmit={handleReview} className="space-y-4">
                   <label className="block">
@@ -243,7 +243,7 @@ export default function InvoicePage({ params }: PageProps) {
                       checked={reviewIsPublic}
                       onChange={(e) => setReviewIsPublic(e.target.checked)}
                     />
-                    برای تایید عمومی ارسال شود
+                    نظرم بعد از تایید، در صفحه فروشگاه نمایش داده شود
                   </label>
                   <Button type="submit" loading={reviewLoading}>
                     ارسال نظر
@@ -257,7 +257,7 @@ export default function InvoicePage({ params }: PageProps) {
             <CardContent className="space-y-3 py-6">
               <div className="flex flex-wrap gap-2">
                 {order.store.trust_badges.length === 0 ? (
-                  <Badge variant="neutral">هنوز نشان فروشگاهی ثبت نشده</Badge>
+                  <Badge variant="neutral">این فروشگاه هنوز نشانی نگرفته است</Badge>
                 ) : (
                   order.store.trust_badges.map((badge) => (
                     <Badge key={badge} variant="info">

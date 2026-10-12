@@ -33,7 +33,7 @@ export default function CustomerProfilePage() {
         setPhone(data.phone ?? "");
         setPostalCode(data.postal_code ?? "");
       } catch {
-        if (!cancelled) setError("بارگذاری پروفایل ممکن نشد");
+        if (!cancelled) setError("اطلاعات حساب باز نشد. صفحه را دوباره بارگذاری کنید.");
       }
     })();
     return () => {
@@ -55,7 +55,7 @@ export default function CustomerProfilePage() {
       setProfile(updated);
       await refreshCustomer();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "به‌روزرسانی ناموفق بود");
+      setError(err instanceof ApiError ? err.message : "تغییرات ذخیره نشد. دوباره امتحان کنید.");
     } finally {
       setSaving(false);
     }
@@ -66,7 +66,7 @@ export default function CustomerProfilePage() {
   }
 
   if (!profile) {
-    return <LoadingState message="در حال بارگذاری پروفایل..." />;
+    return <LoadingState message="در حال بارگذاری…" />;
   }
 
   return (
@@ -74,7 +74,7 @@ export default function CustomerProfilePage() {
       <div>
         <h1 className="text-2xl font-bold text-neutral-900 max-md:text-xl">پروفایل</h1>
         <p className="mt-1 text-sm text-neutral-600">
-          اطلاعات تماس خود را برای پرداخت، بازیابی و به‌روزرسانی سفارش‌ها به‌روز نگه دارید.
+          این اطلاعات برای ارسال سفارش و بازیابی رمز استفاده می‌شود؛ به‌روز نگهش دارید.
         </p>
       </div>
 

@@ -22,7 +22,7 @@ import type {
 const TYPE_LABELS: Record<string, string> = {
   CARD_TO_CARD: "کارت‌به‌کارت",
   CRYPTO: "رمزارز",
-  EXTERNAL_GATEWAY: "درگاه خارجی",
+  EXTERNAL_GATEWAY: "درگاه پرداخت",
 };
 
 export default function SellerPaymentMethodsPage() {
@@ -54,10 +54,10 @@ export default function SellerPaymentMethodsPage() {
   async function handleSubmit(body: PaymentMethodCreate | PaymentMethodUpdate) {
     if (editing) {
       await paymentMethodsApi.updatePaymentMethod(editing.id, body as PaymentMethodUpdate);
-      toast.success("روش پرداخت به‌روزرسانی شد");
+      toast.success("تغییرات ذخیره شد");
     } else {
       await paymentMethodsApi.createPaymentMethod(body as PaymentMethodCreate);
-      toast.success("روش پرداخت ایجاد شد");
+      toast.success("روش پرداخت اضافه شد");
     }
     closeModal();
     await refetch();
@@ -72,19 +72,19 @@ export default function SellerPaymentMethodsPage() {
       setDeleteId(null);
       await refetch();
     } catch {
-      toast.error("حذف روش پرداخت ناموفق بود");
+      toast.error("روش پرداخت حذف نشد. دوباره امتحان کنید.");
     } finally {
       setDeleting(false);
     }
   }
 
-  if (isLoading) return <LoadingState message="در حال بارگذاری روش‌های پرداخت..." />;
+  if (isLoading) return <LoadingState message="در حال بارگذاری روش‌های پرداخت…" />;
 
   return (
     <div className="page-stack">
       <PageHeader
-        description="مشتریان چگونه می‌توانند به شما پرداخت کنند"
-        action={<Button onClick={openCreate}>افزودن روش</Button>}
+        description="مشتری‌ها از این راه‌ها به شما پول می‌دهند"
+        action={<Button onClick={openCreate}>افزودن روش پرداخت</Button>}
       />
 
       {error && (
@@ -95,9 +95,9 @@ export default function SellerPaymentMethodsPage() {
 
       {!error && data?.length === 0 && (
         <EmptyState
-          title="هنوز روش پرداختی ثبت نشده"
-          description="حداقل یک روش برای پرداخت مشتریان اضافه کنید."
-          action={<Button onClick={openCreate}>افزودن روش</Button>}
+          title="هنوز روش پرداختی ندارید"
+          description="دست‌کم یک روش لازم است تا مشتری بتواند خرید را تمام کند."
+          action={<Button onClick={openCreate}>افزودن روش پرداخت</Button>}
         />
       )}
 
@@ -160,7 +160,7 @@ export default function SellerPaymentMethodsPage() {
       <ConfirmModal
         open={deleteId !== null}
         title="حذف روش پرداخت"
-        message="مشتریان دیگر نمی‌توانند از این روش پرداخت استفاده کنند."
+        message="بعد از حذف، مشتری‌ها دیگر این روش را نمی‌بینند."
         confirmLabel="حذف"
         loading={deleting}
         onConfirm={handleDelete}

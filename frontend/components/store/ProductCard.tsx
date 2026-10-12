@@ -62,7 +62,7 @@ export function ProductCard({ product, storeSlug }: ProductCardProps) {
     requestAnimationFrame(() => setBadgeBump(true));
     setTimeout(() => setBadgeBump(false), 280);
 
-    toast.success(`${faDigits(nextTotal)} عدد «${product.title}» در سبد`);
+    toast.success(`${faDigits(nextTotal)} عدد «${product.title}» در سبد است`);
   }
 
   function handleAdd(event: React.MouseEvent) {
@@ -76,7 +76,7 @@ export function ProductCard({ product, storeSlug }: ProductCardProps) {
       return;
     }
     if (cartQty >= product.stock_quantity) {
-      toast.error("موجودی این محصول تمام شد");
+      toast.error("بیشتر از این موجودی نداریم");
       return;
     }
     const nextTotal = Math.min(cartQty + 1, product.stock_quantity);
@@ -168,14 +168,14 @@ export function ProductCard({ product, storeSlug }: ProductCardProps) {
                   outOfStock
                     ? "ناموجود"
                     : cartQty > 0
-                      ? `افزودن ${product.title} — ${faDigits(cartQty)} در سبد`
+                      ? `افزودن ${product.title}، ${faDigits(cartQty)} عدد در سبد`
                       : `افزودن ${product.title} به سبد`
                 }
                 title={
                   outOfStock
                     ? "ناموجود"
                     : cartQty > 0
-                      ? `${faDigits(cartQty)} در سبد — افزودن`
+                      ? `${faDigits(cartQty)} در سبد، افزودن`
                       : "افزودن به سبد"
                 }
                 className={cn(

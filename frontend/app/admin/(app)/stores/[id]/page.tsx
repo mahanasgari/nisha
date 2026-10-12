@@ -65,7 +65,7 @@ export default function AdminStoreDetailPage({ params }: PageProps) {
       }
       await refetch();
     } catch {
-      toast.error("به‌روزرسانی فروشگاه ناموفق بود");
+      toast.error("به‌روزرسانی فروشگاه انجام نشد. دوباره امتحان کنید.");
     } finally {
       setActionBusy(false);
     }
@@ -78,13 +78,13 @@ export default function AdminStoreDetailPage({ params }: PageProps) {
       toast.success(enabled ? "خرید مهمان برای فروشگاه فعال شد" : "خرید مهمان برای فروشگاه غیرفعال شد");
       await refetch();
     } catch {
-      toast.error("به‌روزرسانی خرید مهمان ناموفق بود");
+      toast.error("به‌روزرسانی خرید مهمان انجام نشد. دوباره امتحان کنید.");
     } finally {
       setActionBusy(false);
     }
   }
 
-  if (isLoading) return <LoadingState message="در حال بارگذاری فروشگاه..." />;
+  if (isLoading) return <LoadingState message="در حال بارگذاری فروشگاهâ¦" />;
 
   if (error || !data) {
     return (
@@ -212,7 +212,7 @@ export default function AdminStoreDetailPage({ params }: PageProps) {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2 text-sm text-foreground">
                 <p>
-                  <span className="text-foreground-muted">نامک:</span> {store.slug}
+                  <span className="text-foreground-muted">آدرس فروشگاه:</span> {store.slug}
                 </p>
                 <p>
                   <span className="text-foreground-muted">موقعیت:</span> {store.location ?? "ثبت نشده"}
