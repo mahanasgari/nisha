@@ -9,7 +9,6 @@ import {
   ChromeMobileDrawer,
   MobileNavLink,
 } from "@/components/layout/chrome/ChromeMobileDrawer";
-import { LandingAtmosphere } from "@/components/landing/LandingAtmosphere";
 import { SellerPrimaryCta } from "@/components/landing/SellerPrimaryCta";
 import { landingButtonClasses } from "@/components/landing/buttonStyles";
 import { paths } from "@/lib/auth/paths";
@@ -33,9 +32,7 @@ export function LandingShell({ children }: LandingShellProps) {
   }, []);
 
   return (
-    <div data-landing className="relative flex min-h-screen flex-col bg-[#09090b] text-foreground">
-      <LandingAtmosphere />
-
+    <div data-landing className="relative flex min-h-screen flex-col bg-[#0e0d0c] text-foreground">
       <div className="relative flex min-h-screen flex-1 flex-col">
         <header className={cn("landing-header sticky top-0 z-40", scrolled && "is-scrolled")}>
           <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:h-16 sm:px-6 lg:px-8">
@@ -44,25 +41,25 @@ export function LandingShell({ children }: LandingShellProps) {
             <nav className="hidden items-center gap-1 md:flex">
               <Link
                 href="#features"
-                className="rounded-lg px-3 py-2 text-sm text-zinc-400 transition-colors hover:text-white"
+                className="rounded-lg px-3 py-2 text-sm text-stone-400 transition-colors hover:text-white"
               >
                 امکانات
               </Link>
               <Link
                 href="#how"
-                className="rounded-lg px-3 py-2 text-sm text-zinc-400 transition-colors hover:text-white"
+                className="rounded-lg px-3 py-2 text-sm text-stone-400 transition-colors hover:text-white"
               >
                 نحوه کار
               </Link>
               <Link
                 href="#pricing"
-                className="rounded-lg px-3 py-2 text-sm text-zinc-400 transition-colors hover:text-white"
+                className="rounded-lg px-3 py-2 text-sm text-stone-400 transition-colors hover:text-white"
               >
                 قیمت‌ها
               </Link>
               <Link
                 href={paths.about}
-                className="rounded-lg px-3 py-2 text-sm text-zinc-400 transition-colors hover:text-white"
+                className="rounded-lg px-3 py-2 text-sm text-stone-400 transition-colors hover:text-white"
               >
                 درباره ما
               </Link>

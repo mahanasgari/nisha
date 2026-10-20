@@ -10,14 +10,13 @@ type LandingButtonClassesProps = {
 };
 
 const baseClasses =
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b]";
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0e0d0c]";
 
 const variantClasses: Record<LandingButtonVariant, string> = {
-  primary:
-    "bg-gradient-to-l from-violet-500 to-fuchsia-500 text-white shadow-[0_8px_30px_rgba(139,92,246,0.35)] hover:from-violet-400 hover:to-fuchsia-400 focus-visible:ring-violet-300/50",
+  primary: "bg-[#ff4f9a] text-[#1a0610] hover:bg-[#ff6aab] focus-visible:ring-[#ff4f9a]/60",
   secondary:
-    "border border-white/15 bg-white/[0.04] text-white shadow-sm hover:bg-white/[0.08] focus-visible:ring-brand/40",
-  ghost: "text-zinc-300 hover:bg-white/[0.06] hover:text-white focus-visible:ring-brand/40",
+    "border border-white/15 bg-transparent text-white hover:border-white/30 hover:bg-white/[0.04] focus-visible:ring-white/30",
+  ghost: "text-stone-300 hover:bg-white/[0.06] hover:text-white focus-visible:ring-white/30",
 };
 
 const sizeClasses: Record<LandingButtonSize, string> = {
