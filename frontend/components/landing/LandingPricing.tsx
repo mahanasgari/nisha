@@ -16,18 +16,19 @@ export function LandingPricing({ className }: { className?: string }) {
   return (
     <section className={cn("space-y-10", className)}>
       <Reveal>
-        <div className="max-w-2xl space-y-3">
-          <h2 className="landing-display text-3xl text-white sm:text-4xl">
-            ساختن فروشگاه رایگان است. از فروش‌تان کارمزد نمی‌گیریم.
+        <div className="mx-auto max-w-2xl space-y-3 text-center">
+          <p className="landing-eyebrow">تعرفه</p>
+          <h2 className="landing-display text-3xl text-white sm:text-4xl lg:text-5xl">
+            شروع رایگان، فروش بدون کارمزد
           </h2>
-          <p className="leading-7 text-stone-400">
+          <p className="mx-auto max-w-xl text-sm leading-7 text-zinc-400 sm:text-base">
             از سفارش‌ها کارمزد نمی‌گیریم و فقط برای ابزارهای بیشتر پلن پولی وجود دارد. هر وقت
             آماده بودید، پلن را ارتقا بدهید.
           </p>
         </div>
       </Reveal>
 
-      <div className="flex justify-start">
+      <div className="flex justify-center">
         <PricingPeriodToggle value={period} onChange={setPeriod} />
       </div>
 

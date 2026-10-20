@@ -47,11 +47,11 @@ export function Reveal({
 
   const hiddenTransform =
     direction === "up"
-      ? "translate-y-3"
+      ? "translate-y-8"
       : direction === "left"
-        ? "-translate-x-3"
+        ? "-translate-x-8"
         : direction === "right"
-          ? "translate-x-3"
+          ? "translate-x-8"
           : "";
 
   const style: CSSProperties | undefined =
@@ -62,7 +62,7 @@ export function Reveal({
       ref={ref}
       style={style}
       className={cn(
-        "landing-reveal-mobile transition-all duration-500 ease-out will-change-transform motion-reduce:transition-none motion-reduce:transform-none",
+        "landing-reveal-mobile transition-all duration-700 ease-out will-change-transform motion-reduce:transition-none motion-reduce:transform-none",
         visible ? "translate-x-0 translate-y-0 opacity-100" : cn("opacity-0", hiddenTransform),
         className,
       )}

@@ -38,7 +38,7 @@ function SellerLivePreview({
   const statusClass = !store.is_active
     ? "border-amber-400/30 bg-amber-400/10 text-amber-200"
     : onboardingComplete
-      ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-200"
+      ? "border-violet-400/30 bg-violet-500/15 text-violet-200"
       : "border-sky-400/30 bg-sky-400/10 text-sky-200";
 
   const checklist =
@@ -53,7 +53,7 @@ function SellerLivePreview({
   const initial = store.name.trim().charAt(0) || "ن";
 
   return (
-    <div className={cn("mx-auto w-full max-w-5xl overflow-hidden rounded-xl border border-white/10 bg-[#0c0c0f]", className)}>
+    <div className={cn("landing-glow-ring mx-auto w-full max-w-5xl overflow-hidden rounded-xl border border-white/10 bg-[#0c0c0f]", className)}>
       <div className="flex items-center gap-2 border-b border-white/10 bg-white/[0.03] px-4 py-3">
         <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
         <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
