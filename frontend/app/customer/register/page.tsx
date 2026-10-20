@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AuthPageFrame } from "@/components/auth/AuthPageFrame";
 import { EmailVerificationPending } from "@/components/auth/EmailVerificationPending";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { useCustomerAuth } from "@/contexts/CustomerAuthContext";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -13,7 +14,7 @@ import { paths } from "@/lib/auth/paths";
 import { ApiError } from "@/lib/api/errors";
 
 export default function CustomerRegisterPage() {
-  const { register } = useCustomerAuth();
+  const { register, loginWithGoogle } = useCustomerAuth();
   const router = useRouter();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -120,6 +121,29 @@ export default function CustomerRegisterPage() {
           <Button type="submit" className="w-full" loading={submitting}>
             ثبت‌نام
           </Button>
+          <GoogleSignInButton
+            disabled={submitting}
+            onCredential={async (idToken) => {
+              setError(null);
+              setShowLoginHint(false);
+              setSubmitting(true);
+              try {
+                await loginWithGoogle(idToken);
+                router.replace(paths.customer.dashboard);
+              } catch (err) {
+                if (err instanceof ApiError && err.status === 409) {
+                  setShowLoginHint(true);
+                }
+                setError(
+                  err instanceof ApiError
+                    ? err.message
+                    : "ورود با گوگل انجام نشد. دوباره امتحان کنید.",
+                );
+              } finally {
+                setSubmitting(false);
+              }
+            }}
+          />
         </form>
         <p className="mt-4 text-center text-sm text-foreground-muted">
           حساب دارید؟{" "}

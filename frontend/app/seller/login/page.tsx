@@ -9,13 +9,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ApiError } from "@/lib/api/errors";
 import * as onboardingApi from "@/lib/api/seller/onboarding";
 import { paths } from "@/lib/auth/paths";
+import type { User } from "@/types/auth";
 
 export default function SellerLoginPage() {
-  const { login, logout } = useAuth();
+  const { login, loginWithGoogle, logout } = useAuth();
   const router = useRouter();
 
-  async function handleLogin(email: string, password: string) {
-    const user = await login({ email, password });
+  async function finishSellerLogin(user: User) {
     if (user.role !== "SELLER") {
       logout();
       throw new ApiError(
@@ -38,6 +38,16 @@ export default function SellerLoginPage() {
     router.replace(paths.seller.dashboard);
   }
 
+  async function handleLogin(email: string, password: string) {
+    const user = await login({ email, password });
+    await finishSellerLogin(user);
+  }
+
+  async function handleGoogle(idToken: string) {
+    const user = await loginWithGoogle(idToken);
+    await finishSellerLogin(user);
+  }
+
   return (
     <GuestOnly role="SELLER">
       <AuthPageFrame>
@@ -45,6 +55,7 @@ export default function SellerLoginPage() {
           title="ورود فروشنده"
           subtitle="برای مدیریت فروشگاه وارد شوید"
           onSubmit={handleLogin}
+          onGoogleCredential={handleGoogle}
           forgotPasswordHref={paths.seller.recover}
           footer={
             <>

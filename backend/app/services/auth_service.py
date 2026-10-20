@@ -25,6 +25,14 @@ def get_user_by_email(db: Session, email: str) -> User | None:
     return db.scalar(select(User).where(User.email == email))
 
 
+def get_user_by_google_sub(db: Session, google_sub: str) -> User | None:
+    return db.scalar(
+        select(User)
+        .options(selectinload(User.store))
+        .where(User.google_sub == google_sub)
+    )
+
+
 def register_seller(db: Session, *, email: str, password: str, full_name: str) -> User:
     normalized_email = normalize_email(email)
     existing = get_user_by_email(db, normalized_email)
@@ -99,7 +107,11 @@ def authenticate_user(db: Session, *, email: str, password: str) -> User:
         .where(User.email == normalized_email)
     )
 
-    if user is None or not verify_password(password, user.password_hash):
+    if (
+        user is None
+        or not user.password_hash
+        or not verify_password(password, user.password_hash)
+    ):
         raise AuthError("ایمیل یا رمز عبور درست نیست.", status_code=401)
 
     if not user.is_active:

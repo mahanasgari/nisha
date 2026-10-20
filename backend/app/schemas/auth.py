@@ -16,6 +16,10 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class GoogleLoginRequest(BaseModel):
+    id_token: str = Field(min_length=20)
+
+
 class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

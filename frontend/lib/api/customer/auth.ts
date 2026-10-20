@@ -18,6 +18,14 @@ export function login(body: CustomerLoginRequest): Promise<CustomerTokenResponse
   });
 }
 
+export function loginWithGoogle(idToken: string): Promise<CustomerTokenResponse> {
+  return customerApiPost<CustomerTokenResponse>(
+    "/api/v1/customer/auth/google",
+    { id_token: idToken },
+    { auth: false },
+  );
+}
+
 export function getMe(): Promise<Customer> {
   return customerApiGet<Customer>("/api/v1/customer/me");
 }

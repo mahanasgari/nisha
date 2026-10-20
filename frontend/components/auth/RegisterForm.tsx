@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { ApiError } from "@/lib/api/errors";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -14,11 +15,12 @@ type RegisterFormProps = {
     password: string;
     full_name: string;
   }) => Promise<void>;
+  onGoogleCredential?: (idToken: string) => Promise<void>;
   footer?: React.ReactNode;
   loginHref?: string;
 };
 
-export function RegisterForm({ onSubmit, footer, loginHref }: RegisterFormProps) {
+export function RegisterForm({ onSubmit, onGoogleCredential, footer, loginHref }: RegisterFormProps) {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -92,6 +94,30 @@ export function RegisterForm({ onSubmit, footer, loginHref }: RegisterFormProps)
           <Button type="submit" className="w-full" loading={loading}>
             ساخت حساب
           </Button>
+          {onGoogleCredential ? (
+            <GoogleSignInButton
+              disabled={loading}
+              onCredential={async (idToken) => {
+                setError(null);
+                setShowLoginHint(false);
+                setLoading(true);
+                try {
+                  await onGoogleCredential(idToken);
+                } catch (err) {
+                  if (err instanceof ApiError && err.status === 409) {
+                    setShowLoginHint(true);
+                  }
+                  setError(
+                    err instanceof ApiError
+                      ? err.message
+                      : "ورود با گوگل انجام نشد. دوباره امتحان کنید.",
+                  );
+                } finally {
+                  setLoading(false);
+                }
+              }}
+            />
+          ) : null}
         </form>
         {footer && <div className="mt-6 text-center text-sm text-foreground-muted">{footer}</div>}
       </CardContent>

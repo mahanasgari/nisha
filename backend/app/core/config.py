@@ -64,6 +64,10 @@ class Settings(BaseSettings):
     ALLOW_DEMO_SEED: bool = False
     RESERVATION_CLEANUP_ENABLED: bool = True
     RESERVATION_CLEANUP_INTERVAL_SECONDS: int = 60
+    # Google Sign-In (customer). Client ID is required to verify ID tokens.
+    # Client secret is unused for the GIS ID-token flow but kept for future server OAuth.
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod

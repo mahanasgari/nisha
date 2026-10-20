@@ -109,10 +109,18 @@ def authenticate_customer(db: Session, *, login: str, password: str) -> Customer
     else:
         customer = get_customer_by_phone(db, login)
 
-    if customer is None or not verify_password(password, customer.password_hash):
+    if (
+        customer is None
+        or not customer.password_hash
+        or not verify_password(password, customer.password_hash)
+    ):
         raise AuthError("ایمیل/تلفن یا رمز عبور درست نیست.", status_code=401)
 
     if customer.email and customer.email_verified_at is None:
         raise AuthError("Email not verified", status_code=403)
 
     return customer
+
+
+def get_customer_by_google_sub(db: Session, google_sub: str) -> CustomerAccount | None:
+    return db.scalar(select(CustomerAccount).where(CustomerAccount.google_sub == google_sub))

@@ -20,6 +20,10 @@ class CustomerLoginRequest(BaseModel):
     password: str
 
 
+class CustomerGoogleLoginRequest(BaseModel):
+    id_token: str = Field(min_length=20)
+
+
 class CustomerResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

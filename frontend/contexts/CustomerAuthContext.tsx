@@ -30,6 +30,7 @@ type CustomerAuthContextValue = {
   customer: Customer | null;
   isLoading: boolean;
   login: (payload: CustomerLoginRequest) => Promise<Customer>;
+  loginWithGoogle: (idToken: string) => Promise<Customer>;
   register: (payload: CustomerRegisterRequest) => Promise<CustomerRegisterResult>;
   logout: () => void;
   refreshCustomer: () => Promise<Customer | null>;
@@ -91,6 +92,18 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
     [setSession],
   );
 
+  const loginWithGoogle = useCallback(
+    async (idToken: string) => {
+      const data = await customerAuthApi.loginWithGoogle(idToken);
+      if (!data.access_token || !data.customer) {
+        throw new ApiError(403, "ورود با گوگل کامل نشد");
+      }
+      setSession(data.access_token, data.customer);
+      return data.customer;
+    },
+    [setSession],
+  );
+
   const register = useCallback(
     async (payload: CustomerRegisterRequest): Promise<CustomerRegisterResult> => {
       const data = await customerAuthApi.register(payload);
@@ -116,12 +129,13 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
       customer,
       isLoading,
       login,
+      loginWithGoogle,
       register,
       logout,
       refreshCustomer,
       setSession,
     }),
-    [customer, isLoading, login, register, logout, refreshCustomer, setSession],
+    [customer, isLoading, login, loginWithGoogle, register, logout, refreshCustomer, setSession],
   );
 
   return (

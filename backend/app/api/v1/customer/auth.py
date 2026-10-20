@@ -7,6 +7,7 @@ from app.core.security import create_access_token
 from app.db.session import get_db
 from app.models.customer_account import CustomerAccount
 from app.schemas.customer_auth import (
+    CustomerGoogleLoginRequest,
     CustomerLoginRequest,
     CustomerRegisterRequest,
     CustomerResponse,
@@ -18,6 +19,7 @@ from app.services.customer_auth_service import (
     customer_needs_email_verification,
     register_customer,
 )
+from app.services.google_auth_service import authenticate_or_create_customer_with_google
 
 router = APIRouter(tags=["customer-auth"])
 
@@ -69,6 +71,20 @@ def login(
             login=payload.login,
             password=payload.password,
         )
+    except AuthError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.message) from exc
+    return _build_token_response(customer)
+
+
+@router.post("/auth/google", response_model=CustomerTokenResponse)
+@limiter.limit("10/minute")
+def google_login(
+    request: Request,
+    payload: CustomerGoogleLoginRequest,
+    db: Session = Depends(get_db),
+) -> CustomerTokenResponse:
+    try:
+        customer = authenticate_or_create_customer_with_google(db, id_token_str=payload.id_token)
     except AuthError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.message) from exc
     return _build_token_response(customer)

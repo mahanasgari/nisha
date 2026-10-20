@@ -26,6 +26,7 @@ type AuthContextValue = {
   user: User | null;
   isLoading: boolean;
   login: (payload: LoginRequest) => Promise<User>;
+  loginWithGoogle: (idToken: string) => Promise<User>;
   register: (payload: RegisterRequest) => Promise<RegisterResult>;
   logout: () => void;
   refreshUser: () => Promise<User | null>;
@@ -95,6 +96,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [setSession],
   );
 
+  const loginWithGoogle = useCallback(
+    async (idToken: string): Promise<User> => {
+      const response = await authApi.loginWithGoogle(idToken);
+      if (!response.access_token || !response.user) {
+        throw new ApiError(403, "ورود با گوگل کامل نشد");
+      }
+      setSession(response.access_token, response.user, response.refresh_token);
+      return response.user;
+    },
+    [setSession],
+  );
+
   const register = useCallback(
     async (payload: RegisterRequest): Promise<RegisterResult> => {
       const response = await authApi.register(payload);
@@ -120,12 +133,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       isLoading,
       login,
+      loginWithGoogle,
       register,
       logout,
       refreshUser,
       setSession,
     }),
-    [user, isLoading, login, register, logout, refreshUser, setSession],
+    [user, isLoading, login, loginWithGoogle, register, logout, refreshUser, setSession],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

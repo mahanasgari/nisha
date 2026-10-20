@@ -19,6 +19,10 @@ export type CustomerLoginRequest = {
   password: string;
 };
 
+export type CustomerGoogleLoginRequest = {
+  id_token: string;
+};
+
 export type CustomerTokenResponse = {
   access_token?: string | null;
   token_type: string;

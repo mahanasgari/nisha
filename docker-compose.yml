@@ -64,6 +64,7 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:9000
       API_URL: http://backend:8000
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}
     volumes:
       - ./frontend:/app
       - /app/node_modules

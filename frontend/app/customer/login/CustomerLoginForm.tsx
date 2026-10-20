@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AuthPageFrame } from "@/components/auth/AuthPageFrame";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { useCustomerAuth } from "@/contexts/CustomerAuthContext";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -13,7 +14,7 @@ import { ApiError } from "@/lib/api/errors";
 import { resendVerificationEmail } from "@/lib/api/verify-email";
 
 export default function CustomerLoginForm() {
-  const { login, customer, isLoading } = useCustomerAuth();
+  const { login, loginWithGoogle, customer, isLoading } = useCustomerAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const rawRedirect = searchParams.get("redirect");
@@ -99,6 +100,24 @@ export default function CustomerLoginForm() {
             <Button type="submit" className="w-full" loading={submitting}>
               ورود
             </Button>
+            <GoogleSignInButton
+              disabled={submitting}
+              onCredential={async (idToken) => {
+                setError(null);
+                setSubmitting(true);
+                try {
+                  await loginWithGoogle(idToken);
+                } catch (err) {
+                  setError(
+                    err instanceof ApiError
+                      ? err.message
+                      : "ورود با گوگل انجام نشد. دوباره امتحان کنید.",
+                  );
+                } finally {
+                  setSubmitting(false);
+                }
+              }}
+            />
             <p className="text-center text-sm text-foreground-muted">
               حساب ندارید؟{" "}
               <Link href={paths.customer.register} className="font-medium text-brand-deep hover:underline">

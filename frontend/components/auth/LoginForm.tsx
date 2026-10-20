@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { ApiError } from "@/lib/api/errors";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -11,6 +12,7 @@ type LoginFormProps = {
   title: string;
   subtitle?: string;
   onSubmit: (email: string, password: string) => Promise<void>;
+  onGoogleCredential?: (idToken: string) => Promise<void>;
   footer?: React.ReactNode;
   forgotPasswordHref?: string;
 };
@@ -19,6 +21,7 @@ export function LoginForm({
   title,
   subtitle,
   onSubmit,
+  onGoogleCredential,
   footer,
   forgotPasswordHref,
 }: LoginFormProps) {
@@ -47,8 +50,29 @@ export function LoginForm({
         {subtitle && <p className="mt-1 text-sm text-foreground-muted">{subtitle}</p>}
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <ErrorAlert message={error ?? ""} />
+          {onGoogleCredential ? (
+            <GoogleSignInButton
+              disabled={loading}
+              onCredential={async (idToken) => {
+                setError(null);
+                setLoading(true);
+                try {
+                  await onGoogleCredential(idToken);
+                } catch (err) {
+                  setError(
+                    err instanceof ApiError
+                      ? err.message
+                      : "ورود با گوگل انجام نشد. دوباره امتحان کنید.",
+                  );
+                  throw err;
+                } finally {
+                  setLoading(false);
+                }
+              }}
+            />
+          ) : null}
           <Input
             label="ایمیل"
             name="email"

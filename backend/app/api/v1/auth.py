@@ -12,6 +12,7 @@ from app.core.security import (
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.auth import (
+    GoogleLoginRequest,
     LoginRequest,
     RefreshRequest,
     RegisterRequest,
@@ -23,6 +24,7 @@ from app.schemas.auth import (
 )
 from app.schemas.user_mapper import user_to_response
 from app.services.auth_service import AuthError, authenticate_user, register_seller, user_needs_email_verification
+from app.services.google_auth_service import authenticate_or_create_seller_with_google
 from app.services.user_recovery_service import (
     build_recovery_hint,
     request_password_recovery,
@@ -79,6 +81,20 @@ def login(
             email=str(payload.email),
             password=payload.password,
         )
+    except AuthError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.message) from exc
+    return _build_token_response(user)
+
+
+@router.post("/google", response_model=TokenResponse)
+@limiter.limit("10/minute")
+def google_login(
+    request: Request,
+    payload: GoogleLoginRequest,
+    db: Session = Depends(get_db),
+) -> TokenResponse:
+    try:
+        user = authenticate_or_create_seller_with_google(db, id_token_str=payload.id_token)
     except AuthError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.message) from exc
     return _build_token_response(user)

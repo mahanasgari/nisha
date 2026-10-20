@@ -7,10 +7,11 @@ import { GuestOnly } from "@/components/auth/GuestOnly";
 import { RegisterForm } from "@/components/auth/RegisterForm";
 import { EmailVerificationPending } from "@/components/auth/EmailVerificationPending";
 import { useAuth } from "@/contexts/AuthContext";
+import { ApiError } from "@/lib/api/errors";
 import { paths } from "@/lib/auth/paths";
 
 export default function SellerRegisterPage() {
-  const { register } = useAuth();
+  const { register, loginWithGoogle, logout } = useAuth();
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
 
   async function handleRegister(data: {
@@ -22,6 +23,18 @@ export default function SellerRegisterPage() {
     if (result.status === "verification_required") {
       setPendingEmail(result.email);
       return;
+    }
+    window.location.href = paths.seller.onboarding;
+  }
+
+  async function handleGoogle(idToken: string) {
+    const user = await loginWithGoogle(idToken);
+    if (user.role !== "SELLER") {
+      logout();
+      throw new ApiError(
+        403,
+        "این صفحه ثبت‌نام فروشنده‌هاست. از صفحه مربوط به نقش خودتان استفاده کنید.",
+      );
     }
     window.location.href = paths.seller.onboarding;
   }
@@ -45,6 +58,7 @@ export default function SellerRegisterPage() {
       <AuthPageFrame>
         <RegisterForm
           onSubmit={handleRegister}
+          onGoogleCredential={handleGoogle}
           loginHref={paths.seller.login}
           footer={
             <>
