@@ -66,7 +66,6 @@ export function LoginForm({
                       ? err.message
                       : "ورود با گوگل انجام نشد. دوباره امتحان کنید.",
                   );
-                  throw err;
                 } finally {
                   setLoading(false);
                 }

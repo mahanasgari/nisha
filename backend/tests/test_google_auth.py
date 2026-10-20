@@ -110,3 +110,38 @@ def test_google_rejects_admin_email_for_seller(db):
             raised = True
             assert exc.status_code == 403
     assert raised
+
+
+def test_google_only_seller_cannot_use_password_form(client, db):
+    with patch(
+        "app.services.google_auth_service.verify_google_id_token",
+        return_value=_google_info(email="gonly@gmail.com", sub="gonly-sub"),
+    ):
+        authenticate_or_create_seller_with_google(db, id_token_str="fake.token")
+
+    response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "gonly@gmail.com", "password": "anything123"},
+    )
+    assert response.status_code == 401
+
+
+def test_google_endpoints_report_unconfigured(client):
+    with patch("app.services.google_auth_service.settings") as mock_settings:
+        mock_settings.GOOGLE_CLIENT_ID = ""
+        seller = client.post("/api/v1/auth/google", json={"id_token": "x" * 40})
+        customer = client.post("/api/v1/customer/auth/google", json={"id_token": "x" * 40})
+    assert seller.status_code == 503
+    assert customer.status_code == 503
+
+
+def test_google_seller_login_returns_tokens(client):
+    with patch(
+        "app.services.google_auth_service.verify_google_id_token",
+        return_value=_google_info(email="api-seller@gmail.com", sub="api-seller-sub"),
+    ):
+        response = client.post("/api/v1/auth/google", json={"id_token": "x" * 40})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["access_token"]
+    assert body["user"]["role"] == "SELLER"

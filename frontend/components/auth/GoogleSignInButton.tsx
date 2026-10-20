@@ -77,24 +77,25 @@ export function GoogleSignInButton({
   const hostRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
   const [gisReady, setGisReady] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const onCredentialRef = useRef(onCredential);
   onCredentialRef.current = onCredential;
 
   useEffect(() => {
-    if (!clientId || disabled) return;
+    if (!clientId) return;
     let cancelled = false;
 
     void (async () => {
       try {
-        await loadGisScript();
+        // Google is unreachable from many Iranian connections without a VPN, and a filtered
+        // request can hang instead of failing. Give up quietly so the email form stays the
+        // only option instead of showing an error to everyone.
+        await Promise.race([
+          loadGisScript(),
+          new Promise<never>((_, reject) => window.setTimeout(() => reject(new Error("gis timeout")), 8000)),
+        ]);
         // Wait one frame so the host div is mounted (Strict Mode safe).
         await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-        if (cancelled) return;
-        if (!hostRef.current || !window.google?.accounts?.id) {
-          setError("دکمه گوگل بارگذاری نشد. صفحه را تازه کنید.");
-          return;
-        }
+        if (cancelled || !hostRef.current || !window.google?.accounts?.id) return;
         hostRef.current.innerHTML = "";
         window.google.accounts.id.initialize({
           client_id: clientId,
@@ -103,11 +104,11 @@ export function GoogleSignInButton({
             const token = response.credential;
             if (!token) return;
             setBusy(true);
-            setError(null);
             try {
+              // The parent form shows any error from here.
               await onCredentialRef.current(token);
-            } catch (err) {
-              setError(err instanceof Error ? err.message : "ورود با گوگل انجام نشد.");
+            } catch {
+              // Already reported by the parent.
             } finally {
               setBusy(false);
             }
@@ -125,45 +126,37 @@ export function GoogleSignInButton({
         });
         if (!cancelled) setGisReady(true);
       } catch {
-        if (!cancelled) {
-          setError("اتصال به گوگل برقرار نشد. VPN یا فیلترشکن را چک کنید.");
-        }
+        // Script blocked or slow: leave the button hidden.
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [clientId, disabled]);
+  }, [clientId]);
 
   if (!clientId) {
     return null;
   }
 
   return (
-    <div className={cn("space-y-3", className)}>
+    <div className={cn(gisReady && "space-y-3", className)}>
       <div
         ref={hostRef}
         className={cn(
-          "flex min-h-11 w-full justify-center overflow-hidden",
+          "flex w-full justify-center overflow-hidden",
+          gisReady && "min-h-11",
           (disabled || busy) && "pointer-events-none opacity-60",
-          !gisReady && !error && "opacity-70",
         )}
-        aria-busy={busy || !gisReady}
+        aria-busy={busy}
       />
-      {!gisReady && !error ? (
-        <p className="text-center text-xs text-foreground-muted">در حال آماده‌سازی ورود با گوگل…</p>
+      {gisReady ? (
+        <div className="relative flex items-center gap-3">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-xs text-foreground-muted">یا با رمز عبور</span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
       ) : null}
-      {error ? (
-        <p className="rounded-lg bg-red-500/10 px-3 py-2 text-center text-sm text-red-200" role="alert">
-          {error}
-        </p>
-      ) : null}
-      <div className="relative flex items-center gap-3">
-        <div className="h-px flex-1 bg-border" />
-        <span className="text-xs text-foreground-muted">یا با ایمیل</span>
-        <div className="h-px flex-1 bg-border" />
-      </div>
     </div>
   );
 }

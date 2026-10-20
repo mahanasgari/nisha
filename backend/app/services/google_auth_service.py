@@ -37,6 +37,7 @@ def verify_google_id_token(token: str) -> dict:
             token,
             google_requests.Request(),
             audience=client_id,
+            clock_skew_in_seconds=10,
         )
     except ValueError as exc:
         raise AuthError("ورود با گوگل تایید نشد. دوباره امتحان کنید.", status_code=401) from exc
