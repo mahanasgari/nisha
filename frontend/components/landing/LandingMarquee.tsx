@@ -57,9 +57,7 @@ export function LandingMarquee() {
       <p className="text-center text-xs font-medium tracking-[0.2em] text-zinc-500 sm:text-sm">
         نمونه ویترین‌هایی که با نیشا می‌شود ساخت
       </p>
-      <div className="relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-y-0 start-0 z-10 w-16 bg-gradient-to-l from-transparent to-[#09090b] sm:w-24" />
-        <div className="pointer-events-none absolute inset-y-0 end-0 z-10 w-16 bg-gradient-to-r from-transparent to-[#09090b] sm:w-24" />
+      <div className="landing-marquee-mask relative overflow-hidden">
         <div ref={trackRef} className="landing-marquee-track flex w-max">
           <div ref={groupRef}>
             <LogoRow />

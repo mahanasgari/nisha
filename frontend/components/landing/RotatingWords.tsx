@@ -35,7 +35,7 @@ export function RotatingWords({
   }, [words.length, intervalMs]);
 
   return (
-    <span className="relative inline-grid max-w-full align-baseline">
+    <span className="relative inline-grid max-w-full align-baseline text-start">
       {words.map((word) => (
         <span key={word} className="invisible col-start-1 row-start-1 whitespace-nowrap" aria-hidden>
           {word}

@@ -5,9 +5,13 @@ import { HowItWorks } from "@/components/landing/HowItWorks";
 import { LandingFaq } from "@/components/landing/LandingFaq";
 import { LandingMarquee } from "@/components/landing/LandingMarquee";
 import { LandingPricing } from "@/components/landing/LandingPricing";
+import { LandingScrollProgress } from "@/components/landing/LandingScrollProgress";
 import { LandingStorePreview } from "@/components/landing/LandingStorePreview";
+import { PaymentFlow } from "@/components/landing/PaymentFlow";
 import { Reveal } from "@/components/landing/Reveal";
+import { RotatingWords } from "@/components/landing/RotatingWords";
 import { SellerPrimaryCta } from "@/components/landing/SellerPrimaryCta";
+import { SpotlightGroup } from "@/components/landing/SpotlightGroup";
 import { landingButtonClasses } from "@/components/landing/buttonStyles";
 import { paths } from "@/lib/auth/paths";
 import { cn } from "@/lib/cn";
@@ -37,25 +41,37 @@ const stats = [
   { value: "شبانه‌روزی", label: "ویترینی که همیشه سفارش می‌گیرد" },
 ];
 
+const svg = (path: ReactNode) => (
+  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    {path}
+  </svg>
+);
+
 const capabilities = [
   {
+    icon: svg(<><path d="M3 9.5 5 4h14l2 5.5" /><path d="M3 9.5a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0" /><path d="M5 12v8h14v-8" /><path d="M10 20v-5h4v5" /></>),
     title: "ویترین خودتان",
     description: "اسم، لوگو و کاور فروشگاه را بگذارید تا مشتری با خیال راحت خرید کند.",
   },
   {
+    icon: svg(<><rect x="2.5" y="5" width="19" height="14" rx="2.5" /><path d="M2.5 10h19" /><path d="M6.5 15h4" /></>),
     title: "فروش با کارت‌به‌کارت",
     description:
       "مشتری خرید می‌کند، مبلغ را به کارت شما واریز می‌کند و رسید را همان‌جا می‌فرستد. شما فقط تایید می‌کنید.",
   },
   {
+    icon: svg(<><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.2A8 8 0 1 1 20 12Z" /><path d="M8.5 11h.01M12 11h.01M15.5 11h.01" /></>),
     title: "چت با مشتری",
     description: "مشتری درباره سایز یا رنگ سؤال دارد؟ همان‌جا در فروشگاه جواب بدهید تا خرید زودتر انجام شود.",
   },
   {
+    icon: svg(<><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></>),
     title: "آمار فروش",
     description: "بازدید و فروش هر روز را از همان روز اول ببینید و بفهمید کدام محصول بهتر فروش می‌رود.",
   },
 ];
+
+const goods = ["پوشاک", "کیف و کفش", "عطر و آرایشی", "کارهای دست‌ساز", "لوازم خانه"];
 
 const buyerPoints = [
   {
@@ -90,14 +106,22 @@ function LandingSection({
 
 export default function HomePage() {
   return (
+    <>
+    <LandingScrollProgress />
     <div className="space-y-24 lg:space-y-32">
       {/* Hero — shadcn centered SaaS composition */}
       <LandingSection className="pt-6 sm:pt-10 lg:pt-14">
         <div className="mx-auto max-w-3xl text-center">
           <div className="landing-enter" style={{ animationDelay: "0ms" }}>
             <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-1.5 text-xs font-medium text-zinc-300 sm:text-sm">
-              <span className="h-1.5 w-1.5 rounded-full bg-violet-400" />
-              فروشگاه‌ساز کارت‌به‌کارت برای ایران
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-violet-400 opacity-60 motion-reduce:animate-none" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-violet-400" />
+              </span>
+              <span>
+                فروشگاه‌ساز کارت‌به‌کارت برای فروش{" "}
+                <RotatingWords words={goods} className="font-semibold text-violet-200" />
+              </span>
             </div>
           </div>
 
@@ -108,7 +132,7 @@ export default function HomePage() {
           <div className="landing-enter mt-4" style={{ animationDelay: "120ms" }}>
             <h1 className="landing-display text-balance text-3xl text-white sm:text-4xl lg:text-5xl">
               فروشگاه آنلاین خود را بسازید،{" "}
-              <span className="text-zinc-500">با کارت‌به‌کارت بفروشید</span>
+              <span className="landing-gradient-text inline-block">با کارت‌به‌کارت بفروشید</span>
             </h1>
           </div>
 
@@ -125,7 +149,7 @@ export default function HomePage() {
           >
             <SellerPrimaryCta
               size="lg"
-              className="min-w-[11rem] px-6"
+              className="landing-shine min-w-[11rem] px-6"
               guestLabel="شروع رایگان"
               sellerLabel="رفتن به داشبورد"
             />
@@ -145,6 +169,19 @@ export default function HomePage() {
         <div className="landing-preview-enter relative mt-12 sm:mt-16">
           <div className="pointer-events-none absolute inset-x-8 -top-10 h-24 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(139,92,246,0.35),transparent_70%)] blur-2xl" />
           <LandingStorePreview />
+          <div aria-hidden className="pointer-events-none absolute inset-0 hidden xl:block">
+            <div className="landing-float landing-glass absolute -start-8 bottom-[10%] flex items-center gap-2 px-3 py-2 text-xs text-white">
+              <span className="text-base font-bold text-emerald-300">۰٪</span>
+              کارمزد روی فروش
+            </div>
+            <div
+              className="landing-float landing-glass absolute -end-8 top-[42%] flex items-center gap-2 px-3 py-2 text-xs text-white"
+              style={{ animationDelay: "1.6s" }}
+            >
+              <span className="h-2 w-2 rounded-full bg-sky-400" />
+              بدون نیاز به درگاه پرداخت
+            </div>
+          </div>
         </div>
       </LandingSection>
 
@@ -156,19 +193,20 @@ export default function HomePage() {
         <Reveal>
           <div className="landing-surface grid gap-6 px-4 py-6 sm:grid-cols-2 sm:px-6 sm:py-8 lg:grid-cols-4 lg:divide-x lg:divide-x-reverse lg:divide-white/10">
             {stats.map((item, index) => (
-              <div
+              <Reveal
                 key={item.label}
+                delay={150 + index * 110}
                 className={cn(
                   "space-y-2 px-1 text-center lg:px-5 lg:text-start",
                   index === 0 && "lg:ps-0",
                   index === stats.length - 1 && "lg:pe-0",
                 )}
               >
-                <p className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+                <p className="bg-gradient-to-l from-white to-violet-200 bg-clip-text text-2xl font-semibold tracking-tight text-transparent sm:text-3xl">
                   {item.value}
                 </p>
                 <p className="text-sm leading-6 text-zinc-400">{item.label}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </Reveal>
@@ -188,19 +226,19 @@ export default function HomePage() {
             </div>
           </Reveal>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <SpotlightGroup className="grid gap-4 sm:grid-cols-2">
             {capabilities.map((item, index) => (
               <Reveal key={item.title} delay={index * 70} className="h-full">
-                <article className="landing-surface group h-full p-6 transition-colors duration-300 hover:border-violet-400/30 hover:bg-violet-500/[0.06] sm:p-7">
-                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-sm font-semibold text-violet-300 transition-colors group-hover:border-violet-400/40 group-hover:bg-violet-500/15">
-                    {String(index + 1).padStart(2, "0")}
+                <article className="landing-surface landing-spotlight group h-full p-6 hover:border-violet-400/30 sm:p-7">
+                  <div className="landing-icon mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-violet-300 transition-colors group-hover:border-violet-400/40 group-hover:bg-violet-500/15 group-hover:text-violet-100">
+                    {item.icon}
                   </div>
                   <h3 className="text-lg font-semibold text-white">{item.title}</h3>
                   <p className="mt-2 text-sm leading-7 text-zinc-400">{item.description}</p>
                 </article>
               </Reveal>
             ))}
-          </div>
+          </SpotlightGroup>
           <p className="text-center text-xs text-zinc-500 sm:text-sm">
             خرید مهمان و بعضی ابزارهای پیشرفته از پلن پایه به بعد فعال می‌شوند.
           </p>
@@ -242,17 +280,21 @@ export default function HomePage() {
             </div>
           </Reveal>
 
-          <div className="grid gap-4 md:grid-cols-3">
+          <Reveal>
+            <PaymentFlow />
+          </Reveal>
+
+          <SpotlightGroup className="grid gap-4 md:grid-cols-3">
             {buyerPoints.map((item, index) => (
               <Reveal key={item.title} delay={index * 70} className="h-full">
-                <div className="landing-surface h-full p-6">
+                <div className="landing-surface landing-spotlight h-full p-6 hover:border-violet-400/30">
                   <div className="mb-4 h-px w-10 bg-gradient-to-l from-violet-400 to-transparent" />
                   <h3 className="text-lg font-semibold text-white">{item.title}</h3>
                   <p className="mt-2 text-sm leading-7 text-zinc-400">{item.description}</p>
                 </div>
               </Reveal>
             ))}
-          </div>
+          </SpotlightGroup>
         </div>
       </LandingSection>
 
@@ -262,7 +304,7 @@ export default function HomePage() {
 
       <LandingSection>
         <Reveal>
-          <section className="landing-glow-ring relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-violet-600/20 via-[#111113] to-[#09090b] p-8 sm:p-10 lg:p-12">
+          <section className="landing-glow-ring landing-border-spin relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-violet-600/20 via-[#111113] to-[#09090b] p-8 sm:p-10 lg:p-12">
             <div className="pointer-events-none absolute -end-10 -top-16 h-48 w-48 rounded-full bg-fuchsia-500/20 blur-3xl" />
             <div className="relative mx-auto max-w-2xl space-y-6 text-center">
               <p className="landing-eyebrow">همین حالا شروع کنید</p>
@@ -275,7 +317,7 @@ export default function HomePage() {
               <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <SellerPrimaryCta
                   size="lg"
-                  className="min-w-[11rem] px-6"
+                  className="landing-shine min-w-[11rem] px-6"
                   guestLabel="ساخت فروشگاه رایگان"
                   sellerLabel="رفتن به داشبورد"
                 />
@@ -295,5 +337,6 @@ export default function HomePage() {
         </Reveal>
       </LandingSection>
     </div>
+    </>
   );
 }

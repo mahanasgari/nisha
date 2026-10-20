@@ -106,7 +106,13 @@ export function HowItWorks() {
         </div>
       </div>
 
-      <ol className="space-y-6 lg:space-y-24 lg:py-10">
+      <ol className="relative space-y-6 ps-5 lg:space-y-24 lg:py-10 lg:ps-8">
+        <span aria-hidden className="absolute bottom-0 start-0 top-0 w-px bg-white/10 lg:start-2" />
+        <span
+          aria-hidden
+          className="absolute start-0 top-0 w-px bg-gradient-to-b from-violet-400 via-fuchsia-400 to-violet-400 shadow-[0_0_12px_rgba(167,139,250,0.8)] transition-[height] duration-700 ease-out motion-reduce:transition-none lg:start-2"
+          style={{ height: `${((active + 1) / STEPS.length) * 100}%` }}
+        />
         {STEPS.map((step, index) => (
           <li key={step.title} data-step-index={index}>
             <div

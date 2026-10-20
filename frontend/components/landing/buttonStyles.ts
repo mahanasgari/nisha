@@ -14,7 +14,7 @@ const baseClasses =
 
 const variantClasses: Record<LandingButtonVariant, string> = {
   primary:
-    "bg-white text-zinc-950 shadow-sm hover:bg-zinc-100 focus-visible:ring-white/40",
+    "bg-gradient-to-l from-violet-500 to-fuchsia-500 text-white shadow-[0_8px_30px_rgba(139,92,246,0.35)] hover:from-violet-400 hover:to-fuchsia-400 focus-visible:ring-violet-300/50",
   secondary:
     "border border-white/15 bg-white/[0.04] text-white shadow-sm hover:bg-white/[0.08] focus-visible:ring-brand/40",
   ghost: "text-zinc-300 hover:bg-white/[0.06] hover:text-white focus-visible:ring-brand/40",
