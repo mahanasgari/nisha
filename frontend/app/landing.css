@@ -244,50 +244,105 @@
   transition-duration: 500ms;
 }
 
-/* How-it-works: sticky phone that turns with scroll steps. */
-[data-landing] .landing-how-phone-stage {
-  perspective: 1200px;
+/* ---------- How it works: scroll-driven 3D phone ----------
+   --how-p runs 0…3 with scroll (set in HowItWorks.tsx); everything below derives from it. */
+
+[data-landing] .how-stage {
+  --how-p: 0;
+  perspective: 1500px;
+  perspective-origin: 50% 40%;
 }
 
-[data-landing] .landing-how-phone {
+[data-landing] .how-phone {
   transform-style: preserve-3d;
-  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform: rotateX(calc(9deg - var(--how-p) * 1.5deg)) rotateY(calc(-22deg + var(--how-p) * 14.6deg))
+    rotateZ(calc(-2deg + var(--how-p) * 1.2deg));
+  /* Smooths out coarse wheel steps without lagging behind the page. */
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
 }
 
-[data-landing] .landing-how-phone[data-pose="0"] {
-  transform: rotateX(6deg) rotateY(-14deg);
-}
-[data-landing] .landing-how-phone[data-pose="1"] {
-  transform: rotateX(3deg) rotateY(-4deg);
-}
-[data-landing] .landing-how-phone[data-pose="2"] {
-  transform: rotateX(4deg) rotateY(6deg);
-}
-[data-landing] .landing-how-phone[data-pose="3"] {
-  transform: rotateX(2deg) rotateY(14deg);
+[data-landing] .how-phone-edge {
+  transform: translateZ(var(--d));
+  background: linear-gradient(90deg, #3b3846, #1d1c23 40%, #2c2a35);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-@keyframes landing-how-float {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
-  50% {
-    transform: translate3d(0, -8px, 0);
-  }
+[data-landing] .how-phone-face {
+  transform: translateZ(0.5px);
+  background: linear-gradient(150deg, #4a4658 0%, #24222c 35%, #17161c 70%, #3a3747 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.14),
+    inset 0 2px 0 rgba(255, 255, 255, 0.12);
 }
 
-[data-landing] .landing-how-phone-float {
-  animation: landing-how-float 5.5s ease-in-out infinite;
+[data-landing] .how-phone-button {
+  transform: translateZ(-6px);
+  background: linear-gradient(180deg, #4a4658, #2a2833);
+}
+
+/* Light sweeping across the glass as the phone turns. */
+[data-landing] .how-phone-glare {
+  background: linear-gradient(
+    115deg,
+    transparent calc(8% + var(--how-p) * 18%),
+    rgba(255, 255, 255, 0.09) calc(16% + var(--how-p) * 18%),
+    transparent calc(30% + var(--how-p) * 18%)
+  );
+  mix-blend-mode: screen;
+}
+
+[data-landing] .how-glow {
+  background: radial-gradient(
+    ellipse at calc(40% + var(--how-p) * 7%) 50%,
+    rgba(139, 92, 246, 0.32),
+    rgba(217, 70, 239, 0.12) 40%,
+    transparent 70%
+  );
+  filter: blur(10px);
+}
+
+[data-landing] .how-floor {
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.75), transparent 70%);
+  transform: translateX(calc(-14px + var(--how-p) * 9px)) scaleX(calc(1.1 - var(--how-p) * 0.05));
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Cards pop out of the screen toward the viewer for the current step. */
+[data-landing] .how-pop {
+  opacity: 0;
+  transform: translateZ(0) scale(0.9);
+  transition:
+    opacity 420ms ease,
+    transform 650ms cubic-bezier(0.34, 1.4, 0.64, 1);
+  pointer-events: none;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+[data-landing] .how-pop[data-on="true"] {
+  opacity: 1;
+  transform: translateZ(var(--z, 80px)) scale(1);
+  transition-delay: 120ms;
+}
+
+[data-landing] .how-root {
+  --how-p: 0;
+}
+[data-landing] .how-rail {
+  height: calc(var(--how-p) / 3 * 76%);
+  background: linear-gradient(to bottom, #a78bfa, #e879f9);
+  box-shadow: 0 0 10px rgba(192, 132, 252, 0.7);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-landing] .landing-how-phone {
+  [data-landing] .how-phone {
+    transform: rotateX(6deg) rotateY(-10deg);
     transition: none;
-    transform: none !important;
   }
-  [data-landing] .landing-how-phone-float {
-    animation: none !important;
+  [data-landing] .how-pop,
+  [data-landing] .how-floor {
+    transition: none;
   }
 }
 
