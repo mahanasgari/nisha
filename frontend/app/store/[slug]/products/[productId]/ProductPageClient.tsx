@@ -37,6 +37,7 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
   const [selectedVariantId, setSelectedVariantId] = useState<number | null>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [descOpen, setDescOpen] = useState(false);
+  const [shareHint, setShareHint] = useState<string | null>(null);
   const touchStartX = useRef<number | null>(null);
 
   useEffect(() => {
@@ -147,6 +148,26 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
     );
   }
 
+  async function handleShare() {
+    const url =
+      typeof window !== "undefined"
+        ? window.location.href
+        : `${paths.store(slug)}/products/${productId}`;
+    const shareText = `${product.title} — ${formatMoney(effectivePrice)}`;
+    try {
+      if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+        await navigator.share({ title: product.title, text: shareText, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      setShareHint("لینک کپی شد");
+      toast.success("لینک محصول کپی شد");
+      window.setTimeout(() => setShareHint(null), 2500);
+    } catch {
+      /* user cancelled share sheet */
+    }
+  }
+
   return (
     <div className="mx-auto max-w-5xl pb-24 lg:pb-6">
       <Link
@@ -246,9 +267,23 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
         {/* Buy panel */}
         <div className="min-w-0 space-y-5">
           <div className="space-y-2">
-            <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
-              {product.title}
-            </h1>
+            <div className="flex items-start justify-between gap-3">
+              <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+                {product.title}
+              </h1>
+              <button
+                type="button"
+                onClick={() => void handleShare()}
+                className="shrink-0 rounded-xl border border-border px-3 py-1.5 text-sm text-foreground-muted transition hover:border-brand/40 hover:text-foreground"
+              >
+                اشتراک‌گذاری
+              </button>
+            </div>
+            {shareHint ? (
+              <p className="text-xs text-brand" role="status">
+                {shareHint}
+              </p>
+            ) : null}
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <p className="text-2xl font-semibold text-foreground">{formatMoney(effectivePrice)}</p>
               <p

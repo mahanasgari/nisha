@@ -80,12 +80,24 @@ class NotificationTemplate:
 TEMPLATES: dict[str, NotificationTemplate] = {
     "order_placed_buyer": NotificationTemplate(
         sms_text=(
-            "نیشا: سفارش {invoice_code} ثبت شد و در انتظار تایید پرداخت است."
+            "نیشا: سفارش {invoice_code} ثبت شد. برای پرداخت و آپلود رسید: {invoice_url}"
         ),
         email_subject="ثبت سفارش {invoice_code}",
         email_body=(
-            "سفارش شما با کد {invoice_code} در فروشگاه {store_name} ثبت شد "
-            "و پس از تایید پرداخت پردازش می‌شود."
+            "سفارش شما با کد {invoice_code} در فروشگاه {store_name} ثبت شد.\n"
+            "برای پرداخت و آپلود رسید به این لینک بروید:\n{invoice_url}"
+        ),
+        html_style="simple",
+    ),
+    "payment_reminder_buyer": NotificationTemplate(
+        sms_text=(
+            "نیشا: سفارش {invoice_code} هنوز پرداخت نشده. تا {minutes_left} دقیقه فرصت دارید: {invoice_url}"
+        ),
+        email_subject="یادآوری پرداخت سفارش {invoice_code}",
+        email_body=(
+            "سفارش {invoice_code} در فروشگاه {store_name} هنوز در انتظار پرداخت است.\n"
+            "حدود {minutes_left} دقیقه تا پایان مهلت مانده.\n"
+            "لینک فاکتور: {invoice_url}"
         ),
         html_style="simple",
     ),

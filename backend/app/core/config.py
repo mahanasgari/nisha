@@ -60,6 +60,8 @@ class Settings(BaseSettings):
     SUBSCRIPTION_PROOF_SUBDIR: str = "subscription-proofs"
     ORDER_RESERVATION_MINUTES: int = 20
     PAYMENT_REVIEW_HOLD_MINUTES: int = 1440
+    # Send unpaid-order SMS once when this many minutes remain before reservation expiry.
+    PAYMENT_REMINDER_MINUTES_BEFORE_EXPIRY: int = 10
     PRIVATE_UPLOAD_DIR: str = "./private_uploads"
     ALLOW_DEMO_SEED: bool = False
     RESERVATION_CLEANUP_ENABLED: bool = True

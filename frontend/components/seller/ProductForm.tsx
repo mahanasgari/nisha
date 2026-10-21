@@ -8,6 +8,7 @@ import { uploadPublicImage, uploadPublicVideo } from "@/lib/api/public/uploads";
 import { useSellerEntitlements } from "@/hooks/useSellerEntitlements";
 import { useSellerFetch } from "@/hooks/useSellerFetch";
 import * as categoriesApi from "@/lib/api/seller/categories";
+import { UpgradeGate } from "@/components/seller/UpgradeGate";
 import { Button } from "@/components/ui/Button";
 import { FormSection } from "@/components/ui/FormSection";
 import { Input } from "@/components/ui/Input";
@@ -714,12 +715,12 @@ export function ProductForm({
         }
       >
         {!canVideo ? (
-          <p className="text-sm text-foreground-muted">
-            <Link href={paths.seller.subscription} className="text-brand underline-offset-2 hover:underline">
-              ارتقای پلن
-            </Link>{" "}
-            برای افزودن ویدیو.
-          </p>
+          <UpgradeGate
+            compact
+            title="ویدیو محصول در پلن حرفه‌ای فعال است"
+            description="با ویدیو، خریدار محصول را بهتر می‌بیند و احتمال خرید بالاتر می‌رود."
+            ctaLabel="ارتقا به حرفه‌ای"
+          />
         ) : (
           <>
             <input
@@ -832,12 +833,12 @@ export function ProductForm({
         }
       >
         {!canCustomFields ? (
-          <p className="text-sm text-foreground-muted">
-            <Link href={paths.seller.subscription} className="text-brand underline-offset-2 hover:underline">
-              ارتقای پلن
-            </Link>{" "}
-            برای سؤال‌های سفارشی.
-          </p>
+          <UpgradeGate
+            compact
+            title="سؤال‌های سفارشی از پلن پایه به بالا"
+            description="مثلاً سایز، رنگ یا متن حکاکی را موقع خرید از مشتری بپرسید."
+            ctaLabel="ارتقا به پایه"
+          />
         ) : fields.length === 0 ? (
           <p className="text-sm text-foreground-muted">سؤال سفارشی ندارد.</p>
         ) : (

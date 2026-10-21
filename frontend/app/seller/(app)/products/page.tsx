@@ -11,6 +11,7 @@ import { useSellerEntitlements } from "@/hooks/useSellerEntitlements";
 import { useSellerFetch } from "@/hooks/useSellerFetch";
 import { ConfirmModal } from "@/components/seller/ConfirmModal";
 import { ProductCategoryManager } from "@/components/seller/ProductCategoryManager";
+import { UpgradeGate } from "@/components/seller/UpgradeGate";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Badge } from "@/components/ui/Badge";
 import { Button, buttonClassName } from "@/components/ui/Button";
@@ -33,6 +34,7 @@ export default function SellerProductsPage() {
   const toast = useToast();
   const { entitlements } = useSellerEntitlements();
   const canExport = entitlements.excel_export;
+  const maxProducts = entitlements.max_products;
   const [page, setPage] = useState(1);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -74,6 +76,8 @@ export default function SellerProductsPage() {
 
   const items = data?.items ?? [];
   const isEmpty = !isLoading && !error && data && data.total === 0;
+  const atProductLimit =
+    typeof maxProducts === "number" && data != null && data.total >= maxProducts;
 
   return (
     <div className="space-y-4">
@@ -86,12 +90,27 @@ export default function SellerProductsPage() {
                 خروجی Excel
               </Button>
             )}
-            <Link href={paths.seller.productNew} className={buttonClassName({ size: "sm" })}>
-              افزودن محصول
-            </Link>
+            {atProductLimit ? (
+              <Link href={paths.seller.subscription} className={buttonClassName({ size: "sm", variant: "secondary" })}>
+                ارتقا برای محصول بیشتر
+              </Link>
+            ) : (
+              <Link href={paths.seller.productNew} className={buttonClassName({ size: "sm" })}>
+                افزودن محصول
+              </Link>
+            )}
           </div>
         }
       />
+
+      {atProductLimit ? (
+        <UpgradeGate
+          compact
+          title={`سقف ${maxProducts} محصول پلن فعلی پر شده`}
+          description="با ارتقا به پلن بالاتر می‌توانید محصولات بیشتری اضافه کنید و فروشگاه را کامل‌تر کنید."
+          ctaLabel="دیدن پلن‌ها و ارتقا"
+        />
+      ) : null}
 
       <ErrorAlert message={error ?? ""} />
 
