@@ -309,14 +309,98 @@ function Phone3D({ active }: { active: number }) {
   );
 }
 
-function MiniPhone({ index }: { index: number }) {
-  const Screen = SCREENS[index];
+// Mobile: one phone, step cards in a swipeable row under it. Swiping turns the phone.
+function MobileHow() {
+  const [active, setActive] = useState(0);
+  const trackRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) setActive(Number((entry.target as HTMLElement).dataset.card));
+        }
+      },
+      { root: track, threshold: 0.6 },
+    );
+    Array.from(track.children).forEach((card) => observer.observe(card));
+    return () => observer.disconnect();
+  }, []);
+
+  const go = (index: number) => {
+    const card = trackRef.current?.children[index] as HTMLElement | undefined;
+    card?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "nearest", inline: "center" });
+  };
+
   return (
-    <div className="mx-auto mt-6 w-[220px] rounded-[2.2rem] border border-white/15 bg-gradient-to-b from-[#2a2833] to-[#16151b] p-[9px] shadow-[0_24px_48px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.15)]">
-      <div className="relative h-[380px] overflow-hidden rounded-[1.75rem] bg-black">
-        <div className="absolute inset-x-[30%] top-[9px] z-20 h-[18px] rounded-full bg-black" />
-        <Screen />
+    <div className="min-w-0 overflow-x-clip lg:hidden">
+      <button
+        type="button"
+        aria-label="قدم بعد"
+        onClick={() => go((active + 1) % STEPS.length)}
+        className="how-stage how-stage-m relative mx-auto -my-[46px] flex w-full scale-[0.8] justify-center"
+        style={{ "--how-p": active } as CSSProperties}
+      >
+        <div aria-hidden className="how-glow pointer-events-none absolute inset-x-0 top-10 h-[420px]" />
+        <Phone3D active={active} />
+      </button>
+
+      <div className="mt-2 flex items-center justify-center gap-2">
+        {STEPS.map((step, index) => (
+          <button
+            key={step.title}
+            type="button"
+            aria-label={step.title}
+            onClick={() => go(index)}
+            className={cn(
+              "h-1.5 rounded-full transition-all duration-500 motion-reduce:transition-none",
+              active === index ? "w-8 bg-brand" : "w-3 bg-white/15",
+            )}
+          />
+        ))}
       </div>
+
+      <div
+        ref={trackRef}
+        className="-mx-4 mt-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-[8%] pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {STEPS.map((step, index) => {
+          const on = active === index;
+          return (
+            <div
+              key={step.title}
+              data-card={index}
+              className={cn(
+                "w-[84%] shrink-0 snap-center rounded-2xl border p-5 transition-[border-color,background-color,opacity] duration-500 motion-reduce:transition-none",
+                on ? "border-violet-400/35 bg-violet-500/[0.09]" : "border-white/10 bg-white/[0.025] opacity-60",
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <span
+                  className={cn(
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold transition-colors duration-500",
+                    on ? "bg-brand text-brand-foreground" : "bg-white/10 text-foreground-muted",
+                  )}
+                >
+                  {(index + 1).toLocaleString("fa-IR")}
+                </span>
+                <span className="text-lg font-semibold text-foreground">{step.title}</span>
+              </div>
+              <p className="mt-3 text-sm leading-7 text-foreground-muted">{step.description}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {step.highlights.map((item) => (
+                  <span key={item} className="rounded-md border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-foreground-muted">
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <p className="mt-3 text-center text-xs text-zinc-500">برای قدم بعد بکش یا روی گوشی بزن</p>
     </div>
   );
 }
@@ -404,7 +488,8 @@ export function HowItWorks() {
 
   return (
     <div ref={rootRef} className="how-root grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
-      <ol className="relative space-y-6 lg:space-y-0">
+      <MobileHow />
+      <ol className="relative hidden lg:block">
         {/* Progress rail, filled continuously by --how-p. */}
         <span aria-hidden className="absolute bottom-[12%] start-[22px] top-[12%] hidden w-px bg-white/10 lg:block" />
         <span aria-hidden className="how-rail absolute start-[22px] top-[12%] hidden w-px lg:block" />
@@ -451,9 +536,6 @@ export function HowItWorks() {
                   ))}
                 </span>
               </button>
-              <div className="lg:hidden">
-                <MiniPhone index={index} />
-              </div>
             </li>
           );
         })}

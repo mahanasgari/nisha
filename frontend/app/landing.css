@@ -334,6 +334,11 @@
   background: linear-gradient(to bottom, #a78bfa, #e879f9);
   box-shadow: 0 0 10px rgba(192, 132, 252, 0.7);
 }
+/* On mobile --how-p jumps a whole step per swipe, so the turn eases over longer. */
+[data-landing] .how-stage-m .how-phone {
+  transition-duration: 800ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
 
 @media (prefers-reduced-motion: reduce) {
   [data-landing] .how-phone {
