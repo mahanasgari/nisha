@@ -49,7 +49,7 @@ export default function SellerDiscountsPage() {
       setDiscounts(data);
       setError(null);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "کدهای تخفیف باز نشد. صفحه را دوباره بارگذاری کنید.");
+      setError(err instanceof ApiError ? err.message : "کدهای تخفیف باز نشد. صفحه رو دوباره باز کن.");
     } finally {
       setLoading(false);
     }
@@ -74,11 +74,11 @@ export default function SellerDiscountsPage() {
     e.preventDefault();
     if (!code.trim()) return;
     if (discountType === "PERCENT" && !percentOff.trim()) {
-      toast.error("درصد تخفیف را وارد کنید");
+      toast.error("درصد تخفیف رو وارد کن");
       return;
     }
     if (discountType === "FIXED" && !amountOff.trim()) {
-      toast.error("مبلغ تخفیف را وارد کنید");
+      toast.error("مبلغ تخفیف رو وارد کن");
       return;
     }
     setSubmitting(true);
@@ -98,7 +98,7 @@ export default function SellerDiscountsPage() {
       resetForm();
       await loadDiscounts();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "کد تخفیف ساخته نشد. دوباره امتحان کنید.");
+      toast.error(err instanceof ApiError ? err.message : "کد تخفیف ساخته نشد. دوباره امتحان کن.");
     } finally {
       setSubmitting(false);
     }
@@ -110,41 +110,41 @@ export default function SellerDiscountsPage() {
       await discountsApi.updateDiscount(discount.id, { is_active: !discount.is_active });
       await loadDiscounts();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "تغییر ذخیره نشد. دوباره امتحان کنید.");
+      toast.error(err instanceof ApiError ? err.message : "تغییر ذخیره نشد. دوباره امتحان کن.");
     } finally {
       setBusyId(null);
     }
   }
 
   async function handleDelete(discount: DiscountCode) {
-    if (!window.confirm("کد تخفیف " + discount.code + " حذف شود؟")) return;
+    if (!window.confirm("کد تخفیف " + discount.code + " حذف بشه؟")) return;
     setBusyId(discount.id);
     try {
       await discountsApi.deleteDiscount(discount.id);
       toast.success("کد تخفیف حذف شد");
       await loadDiscounts();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "حذف نشد. دوباره امتحان کنید.");
+      toast.error(err instanceof ApiError ? err.message : "حذف نشد. دوباره امتحان کن.");
     } finally {
       setBusyId(null);
     }
   }
 
-  if (loading) return <LoadingState message="در حال بارگذاری کدهای تخفیف…" />;
+  if (loading) return <LoadingState message="داره کدهای تخفیف رو بارگذاری می‌کنه…" />;
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground max-md:text-xl">کدهای تخفیف</h1>
         <p className="mt-1 text-foreground-muted">
-          کد تخفیف درصدی یا مبلغی بسازید و برای مشتری‌ها بفرستید. مشتری موقع تکمیل خرید، کد را وارد می‌کند.
+          کد تخفیف درصدی یا مبلغی بساز و برای مشتری‌ها بفرست. مشتری موقع ثبت سفارش، کد رو وارد می‌کنه.
         </p>
       </div>
 
       {error && <ErrorAlert message={error} />}
 
       {!entitlementsLoading && !canManageDiscounts && (
-        <UpgradeGate description="کد تخفیف از پلن پایه به بالا فعال است." />
+        <UpgradeGate description="کد تخفیف از پلن پایه به بالا فعاله." />
       )}
 
       {canManageDiscounts && (
@@ -230,11 +230,11 @@ export default function SellerDiscountsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>کدهای شما</CardTitle>
+          <CardTitle>کدهات</CardTitle>
         </CardHeader>
         <CardContent>
           {discounts.length === 0 ? (
-            <p className="text-sm text-foreground-muted">هنوز کد تخفیفی نساخته‌اید.</p>
+            <p className="text-sm text-foreground-muted">هنوز کد تخفیفی نساختی.</p>
           ) : (
             <Table>
               <TableHead>

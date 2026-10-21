@@ -56,7 +56,7 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
           setDescOpen(false);
         }
       } catch {
-        if (!cancelled) setError("محصول پیدا نشد یا در دسترس نیست.");
+        if (!cancelled) setError("محصول پیدا نشد یا الان در دسترس نیست.");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -69,7 +69,7 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
   if (loading) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center py-16">
-        <OrbLoader state="searching" size={64} label="در حال باز کردن محصول…" />
+        <OrbLoader state="searching" size={64} label="داره محصول رو باز می‌کنه…" />
       </div>
     );
   }
@@ -80,7 +80,7 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
 
   if (!data) {
     return (
-      <EmptyState title="محصول در دسترس نیست" description="این محصول حذف شده یا فعلاً فروخته نمی‌شود." />
+      <EmptyState title="محصول در دسترس نیست" description="این محصول حذف شده یا فعلاً فروخته نمی‌شه." />
     );
   }
 
@@ -133,18 +133,18 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
 
   function handleAddToCart() {
     if (outOfStock) {
-      toast.error("این محصول ناموجود است");
+      toast.error("این محصول ناموجوده");
       return;
     }
     if (variants.length > 0 && !selectedVariant) {
-      toast.error("اول یکی از گزینه‌ها را انتخاب کنید");
+      toast.error("اول یکی از گزینه‌ها رو انتخاب کن");
       return;
     }
     addItem(product, quantity, selectedVariant);
     toast.success(
       selectedVariant
-        ? `«${product.title}، ${selectedVariant.name}» به سبد اضافه شد`
-        : "به سبد خرید اضافه شد",
+        ? `«${product.title}، ${selectedVariant.name}» رفت تو سبد`
+        : "رفت تو سبد",
     );
   }
 
@@ -175,7 +175,7 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
         className="mb-3 inline-flex items-center gap-1 text-sm text-foreground-muted transition hover:text-foreground"
       >
         <span aria-hidden>→</span>
-        بازگشت به {store.name}
+        برگرد به {store.name}
       </Link>
 
       <div className="grid gap-6 lg:grid-cols-2 lg:gap-10 lg:items-start">
@@ -388,7 +388,7 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
               </div>
             </div>
             <Button className="w-full" onClick={handleAddToCart} disabled={outOfStock}>
-              {outOfStock ? "ناموجود" : "افزودن به سبد"}
+              {outOfStock ? "ناموجود" : "بزن به سبد"}
             </Button>
             <div className="flex justify-center">
               <MessageSellerButton storeId={store.id} />
@@ -397,7 +397,7 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
 
           {product.form_fields.length > 0 ? (
             <p className="text-xs text-foreground-muted">
-              موقع تکمیل خرید، {product.form_fields.length} سؤال کوتاه درباره سفارش از شما پرسیده می‌شود.
+              موقع ثبت سفارش، {product.form_fields.length} سؤال کوتاه درباره سفارش ازت می‌پرسیم.
             </p>
           ) : null}
 
@@ -419,7 +419,7 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
         </div>
 
         {public_reviews.length === 0 ? (
-          <p className="text-sm text-foreground-muted">هنوز کسی درباره این محصول نظر نداده است.</p>
+          <p className="text-sm text-foreground-muted">هنوز کسی درباره این محصول نظر نداده.</p>
         ) : (
           <ul className="space-y-4">
             {public_reviews.map((review) => (
@@ -466,7 +466,7 @@ export function ProductPageClient({ slug, productId }: ProductPageClientProps) {
             </button>
           </div>
           <Button className="min-w-0 flex-1" onClick={handleAddToCart} disabled={outOfStock}>
-            {outOfStock ? "ناموجود" : `افزودن · ${formatMoney(parseFloat(effectivePrice) * quantity)}`}
+            {outOfStock ? "ناموجود" : `بزن به سبد · ${formatMoney(parseFloat(effectivePrice) * quantity)}`}
           </Button>
         </div>
       </div>

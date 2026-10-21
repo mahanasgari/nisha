@@ -84,19 +84,19 @@ TEMPLATES: dict[str, NotificationTemplate] = {
         ),
         email_subject="ثبت سفارش {invoice_code}",
         email_body=(
-            "سفارش شما با کد {invoice_code} در فروشگاه {store_name} ثبت شد.\n"
-            "برای پرداخت و آپلود رسید به این لینک بروید:\n{invoice_url}"
+            "سفارشت با کد {invoice_code} تو فروشگاه {store_name} ثبت شد.\n"
+            "برای پرداخت و آپلود رسید برو اینجا:\n{invoice_url}"
         ),
         html_style="simple",
     ),
     "payment_reminder_buyer": NotificationTemplate(
         sms_text=(
-            "نیشا: سفارش {invoice_code} هنوز پرداخت نشده. تا {minutes_left} دقیقه فرصت دارید: {invoice_url}"
+            "نیشا: سفارش {invoice_code} هنوز پرداخت نشده. تا {minutes_left} دقیقه فرصت داری: {invoice_url}"
         ),
         email_subject="یادآوری پرداخت سفارش {invoice_code}",
         email_body=(
-            "سفارش {invoice_code} در فروشگاه {store_name} هنوز در انتظار پرداخت است.\n"
-            "حدود {minutes_left} دقیقه تا پایان مهلت مانده.\n"
+            "سفارش {invoice_code} تو فروشگاه {store_name} هنوز پرداخت نشده.\n"
+            "حدود {minutes_left} دقیقه تا پایان مهلت مونده.\n"
             "لینک فاکتور: {invoice_url}"
         ),
         html_style="simple",
@@ -107,19 +107,19 @@ TEMPLATES: dict[str, NotificationTemplate] = {
         ),
         email_subject="سفارش جدید {invoice_code}",
         email_body=(
-            "سفارش جدیدی با کد {invoice_code} در فروشگاه {store_name} ثبت شد. "
-            "برای بررسی، به پنل فروشنده سر بزنید."
+            "سفارش جدیدی با کد {invoice_code} تو فروشگاه {store_name} ثبت شد. "
+            "برای بررسی، به پنل فروشنده سر بزن."
         ),
         html_style="simple",
     ),
     "payment_uploaded_seller": NotificationTemplate(
         sms_text=(
-            "نیشا: رسید پرداخت سفارش {invoice_code} ثبت شد. لطفاً بررسی و تایید کنید."
+            "نیشا: رسید پرداخت سفارش {invoice_code} ثبت شد. بررسی و تاییدش کن."
         ),
         email_subject="رسید پرداخت سفارش {invoice_code}",
         email_body=(
-            "برای سفارش {invoice_code} در فروشگاه {store_name} رسید پرداخت جدیدی ثبت شد. "
-            "برای بررسی و تایید، به پنل فروشنده سر بزنید."
+            "برای سفارش {invoice_code} تو فروشگاه {store_name} رسید پرداخت جدیدی ثبت شد. "
+            "برای بررسی و تایید، به پنل فروشنده سر بزن."
         ),
         html_style="simple",
     ),
@@ -137,7 +137,7 @@ TEMPLATES: dict[str, NotificationTemplate] = {
     "test_message": NotificationTemplate(
         sms_text="نیشا: پیام آزمایشی {code}",
         email_subject="پیام آزمایشی {code}",
-        email_body="این یک پیام آزمایشی است: {code}",
+        email_body="این یک پیام آزمایشیه: {code}",
         html_style="simple",
     ),
     "email_verification": NotificationTemplate(
@@ -145,16 +145,16 @@ TEMPLATES: dict[str, NotificationTemplate] = {
         email_subject="تایید ایمیل نیشا",
         email_body=(
             "سلام {full_name}\n\n"
-            "برای تایید ایمیل، روی لینک زیر بزنید:\n"
+            "برای تایید ایمیل، روی لینک زیر بزن:\n"
             "{verify_link}\n\n"
-            "اگر شما این درخواست را نداده‌اید، این ایمیل را نادیده بگیرید."
+            "اگر تو این درخواست رو ندادی، این ایمیل رو نادیده بگیر."
         ),
         html_style="verification",
     ),
     "password_recovery_code": NotificationTemplate(
         sms_text="نیشا: کد بازیابی رمز: {code}",
         email_subject="کد بازیابی رمز عبور",
-        email_body="کد بازیابی رمز عبور شما: {code}",
+        email_body="کد بازیابی رمز عبورت: {code}",
         html_style="recovery",
     ),
 }

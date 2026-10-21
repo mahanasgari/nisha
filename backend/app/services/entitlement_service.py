@@ -229,7 +229,7 @@ def require_entitlement(db: Session, seller_user_id: int, key: str, *, message: 
     entitlements = get_seller_entitlements(db, seller_user_id)
     if not entitlements.get(key):
         raise ServiceError(
-            message or "این قابلیت در پلن فعلی شما فعال نیست. لطفاً پلن خود را ارتقا دهید.",
+            message or "این قابلیت تو پلن فعلی‌ت فعال نیست. پلن رو ارتقا بده.",
             status_code=403,
         )
     return entitlements

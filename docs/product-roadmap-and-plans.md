@@ -131,6 +131,10 @@ Don’t add fluff to Enterprise until Pro is clearly better than Basic in the UI
 
 ---
 
+## Landing / voice
+
+Animated landing + hand-made story sections are merged. Product Persian voice is **casual spoken «تو»** (see `.claude/skills/persian-voice/SKILL.md`). Legal pages stay clearer.
+
 ## Next step (optional)
 
 Turn this into a concrete plan matrix (Free / Basic / Pro / Enterprise × feature flags) ready to drop into `backend/app/services/entitlement_service.py`.

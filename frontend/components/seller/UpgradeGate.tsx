@@ -15,7 +15,7 @@ type UpgradeGateProps = {
 };
 
 export function UpgradeGate({
-  title = "این امکان در پلن بالاتر فعال است",
+  title = "این امکان تو پلن بالاتر فعاله",
   description,
   ctaLabel = "دیدن پلن‌ها",
   className,

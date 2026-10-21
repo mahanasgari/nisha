@@ -56,7 +56,7 @@ export default function SellerProductsPage() {
       setDeleteId(null);
       await refetch();
     } catch {
-      toast.error("محصول حذف نشد. دوباره امتحان کنید.");
+      toast.error("محصول حذف نشد. دوباره امتحان کن.");
     } finally {
       setDeleting(false);
     }
@@ -68,7 +68,7 @@ export default function SellerProductsPage() {
       await exportsApi.downloadCsv(() => exportsApi.exportProductsCsv(), "products.csv");
       toast.success("فایل اکسل محصول‌ها دانلود شد");
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "فایل خروجی ساخته نشد. دوباره امتحان کنید.");
+      toast.error(err instanceof ApiError ? err.message : "فایل خروجی ساخته نشد. دوباره امتحان کن.");
     } finally {
       setExporting(false);
     }
@@ -82,7 +82,7 @@ export default function SellerProductsPage() {
   return (
     <div className="space-y-4">
       <PageHeader
-        description="محصول‌ها و دسته‌بندی‌های فروشگاه"
+        description="محصول‌ها و دسته‌بندی‌های فروشگاهت"
         action={
           <div className="flex flex-wrap gap-2">
             {canExport && (
@@ -107,7 +107,7 @@ export default function SellerProductsPage() {
         <UpgradeGate
           compact
           title={`سقف ${maxProducts} محصول پلن فعلی پر شده`}
-          description="با ارتقا به پلن بالاتر می‌توانید محصولات بیشتری اضافه کنید و فروشگاه را کامل‌تر کنید."
+          description="با ارتقا به پلن بالاتر می‌تونی محصولات بیشتری اضافه کنی و فروشگاهت رو کامل‌تر کنی."
           ctaLabel="دیدن پلن‌ها و ارتقا"
         />
       ) : null}
@@ -130,8 +130,8 @@ export default function SellerProductsPage() {
 
           {isEmpty && (
             <EmptyState
-              title="هنوز محصولی ندارید"
-              description="اولین محصول را اضافه کنید؛ دسته‌بندی را می‌شود بعداً هم تعیین کرد."
+              title="هنوز محصولی نداری"
+              description="اولین محصول رو اضافه کن؛ دسته‌بندی رو بعداً هم می‌شه تعیین کرد."
               action={
                 <Link href={paths.seller.productNew} className={buttonClassName({ size: "sm" })}>
                   افزودن محصول
@@ -203,7 +203,7 @@ export default function SellerProductsPage() {
       <ConfirmModal
         open={deleteId !== null}
         title="حذف محصول"
-        message="محصول از فروشگاه حذف می‌شود و این کار برگشت‌پذیر نیست."
+        message="محصول از فروشگاه حذف می‌شه و برنمی‌گرده."
         confirmLabel="حذف"
         loading={deleting}
         onConfirm={handleDelete}

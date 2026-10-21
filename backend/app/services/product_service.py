@@ -21,10 +21,10 @@ from app.schemas.product import (
 from app.services import entitlement_service, product_category_service, product_category_service
 from app.services.exceptions import ServiceError
 
-MAX_IMAGES_MESSAGE = "تعداد تصاویر از سقف پلن شما بیشتر است. برای عکس بیشتر پلن را ارتقا دهید."
-PRODUCT_LIMIT_MESSAGE = "سقف تعداد محصولات پلن شما پر شده است. برای افزودن محصول بیشتر پلن را ارتقا دهید."
-VIDEO_LOCKED_MESSAGE = "آپلود ویدیو در پلن فعلی فعال نیست. با ارتقا به حرفه‌ای می‌توانید ویدیو بگذارید."
-FIELDS_LOCKED_MESSAGE = "فیلدهای سفارشی در پلن فعلی فعال نیست. با ارتقا به پایه یا بالاتر فعال می‌شود."
+MAX_IMAGES_MESSAGE = "تعداد عکس‌ها از سقف پلنت بیشتره. برای عکس بیشتر پلن رو ارتقا بده."
+PRODUCT_LIMIT_MESSAGE = "سقف تعداد محصولات پلنت پر شده. برای محصول بیشتر پلن رو ارتقا بده."
+VIDEO_LOCKED_MESSAGE = "آپلود ویدیو تو پلن فعلی فعال نیست. با ارتقا به حرفه‌ای می‌تونی ویدیو بذاری."
+FIELDS_LOCKED_MESSAGE = "فیلدهای سفارشی تو پلن فعلی فعال نیست. با ارتقا به پایه یا بالاتر فعال می‌شه."
 
 
 def _serialize_json(value) -> str | None:
